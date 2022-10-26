@@ -1,6 +1,5 @@
 import { sequelize } from "../connectDB.js";
 import { DataTypes } from "sequelize";
-import Posts from "./posts.js";
 
 const Users = sequelize.define("Users", {
   id: {

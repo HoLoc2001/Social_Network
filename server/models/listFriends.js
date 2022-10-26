@@ -12,7 +12,7 @@ const listFriends = sequelize.define("list_friends", {
   },
   userId: {
     type: DataTypes.INTEGER,
-    allowNull: false,
+    primaryKey: true,
     references: {
       model: "users",
       key: "id",

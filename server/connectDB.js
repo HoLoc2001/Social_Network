@@ -4,7 +4,7 @@ import { Sequelize } from "sequelize";
 env.config();
 
 export const sequelize = new Sequelize(
-  "social_network",
+  process.env.DB_NAME,
   process.env.DB_USERNAME,
   process.env.DB_PASSWORD,
   {
