@@ -1,31 +1,17 @@
 import express from "express";
-import argon2 from "argon2";
 import jwt from "jsonwebtoken";
 import verifyToken from "../middleware/verifyToken.js";
-import usersModel from "../models/users.js";
 import refreshTokenModel from "../models/refreshToken.js";
+import { getInfo, sighIn, sighUp } from "../controllers/auth.controller.js";
+import { sequelize } from "../connectDB.js";
+import { QueryTypes } from "sequelize";
 
 const router = express.Router();
 
 // @route GET api/auth
 // @decs Check if user is logged in
 // @access Public
-router.get("/", verifyToken, async (req, res) => {
-  try {
-    const user = await usersModel.findOne({
-      attributes: { exclude: ["password"] },
-      where: { id: req.userId },
-    });
-    if (!user)
-      return res
-        .status(400)
-        .json({ success: false, message: "User not found" });
-    res.json({ success: true, user });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ success: false, message: "Internal server error" });
-  }
-});
+router.get("/", verifyToken, getInfo);
 
 router.post("/refreshToken", (req, res) => {
   const authHeader = req.header("Authorization");
@@ -38,169 +24,66 @@ router.post("/refreshToken", (req, res) => {
     res.sendStatus(403);
   }
 
-  jwt.verify(refreshToken, process.env.REFRESH_TOKEN_SECRET, (err, data) => {
-    if (err) {
-      res.sendStatus(403);
-    }
-    console.log(data);
-    const accessToken = jwt.sign(
-      { userId: data.id },
-      process.env.ACCESS_TOKEN_SECRET,
-      {
-        expiresIn: "1h",
+  jwt.verify(
+    refreshToken,
+    process.env.REFRESH_TOKEN_SECRET,
+    async (err, data) => {
+      if (err) {
+        res.sendStatus(403);
       }
-    );
-    res.json({ accessToken });
-  });
+
+      await sequelize.query(
+        "delete from refresh_tokens where refreshToken = $refreshToken",
+        {
+          bind: { refreshToken: refreshToken },
+          type: QueryTypes.DELETE,
+        }
+      );
+
+      const accessToken = jwt.sign(
+        { userId: data.userId },
+        process.env.ACCESS_TOKEN_SECRET,
+        {
+          expiresIn: "1h",
+        }
+      );
+      const newRefreshToken = jwt.sign(
+        { userId: data.userId },
+        process.env.REFRESH_TOKEN_SECRET,
+        {
+          expiresIn: "30d",
+        }
+      );
+
+      let date = new Date();
+
+      await sequelize.query(
+        "INSERT INTO refresh_tokens values ($refreshToken, $expiredTime, $createAt, $updateAt)",
+        {
+          bind: {
+            refreshToken: newRefreshToken,
+            expiredTime: date,
+            createAt: date,
+            updateAt: date,
+          },
+          type: QueryTypes.INSERT,
+        }
+      );
+
+      res.json({ accessToken, newRefreshToken });
+    }
+  );
 });
 
 // @route POST api/auth/signup
 // @desc SignUp user
 // @access Public
-router.post("/signup", async (req, res) => {
-  const { username, password, code, fullname, birthday, address } = req.body;
-
-  // Simple validation
-  if (!username || !password)
-    return res
-      .status(400)
-      .json({ success: false, message: "Missing username and/or password" });
-
-  try {
-    const user = await usersModel.findOne({
-      where: { username },
-    });
-
-    if (user)
-      return res
-        .status(400)
-        .json({ success: false, message: "Username already taken" });
-    //All good
-    const hashedPassword = await argon2.hash(password);
-    const newUser = usersModel.build({
-      username,
-      password: hashedPassword,
-      code,
-      fullname,
-      birthday,
-      address,
-    });
-    await newUser.save();
-
-    //Return Token
-    const accessToken = jwt.sign(
-      { userId: newUser.id },
-      process.env.ACCESS_TOKEN_SECRET,
-      {
-        expiresIn: "1h",
-      }
-    );
-
-    const refreshToken = jwt.sign(
-      { userId: newUser.id },
-      process.env.REFRESH_TOKEN_SECRET,
-      {
-        expiresIn: "60d",
-      }
-    );
-
-    let date = new Date();
-    date.setDate(date.getDate() + 60);
-
-    const newRefreshToken = refreshTokenModel.build({
-      refreshToken,
-      expiredTime: date,
-    });
-
-    try {
-      await newRefreshToken.save();
-    } catch (error) {
-      res.json(error);
-    }
-
-    res.json({
-      success: true,
-      message: "User create successfully",
-      accessToken,
-      refreshToken,
-      newRefreshToken,
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ success: false, message: "Internal server error" });
-  }
-});
+router.post("/signup", sighUp);
 
 // @route POST api/auth/signin
 // @desc SignIn user
 // @access Public
-router.post("/signin", async (req, res) => {
-  const { username, password } = req.body;
-
-  // Simple validation
-  if (!username || !password)
-    return res
-      .status(400)
-      .json({ success: false, message: "Missing username and/or password" });
-
-  try {
-    //Check for existing user
-    const user = await usersModel.findOne({
-      where: { username },
-    });
-    if (!user)
-      return res
-        .status(400)
-        .json({ success: false, message: "Incorrect username or password" });
-
-    //Username found
-    const passwordValid = await argon2.verify(user.password, password);
-    if (!passwordValid)
-      return res
-        .status(400)
-        .json({ success: false, message: "Incorrect username or password" });
-
-    //Return Token
-    const accessToken = jwt.sign(
-      { userId: user.id },
-      process.env.ACCESS_TOKEN_SECRET,
-      {
-        expiresIn: "1h",
-      }
-    );
-    const refreshToken = jwt.sign(
-      { userId: user.id },
-      process.env.REFRESH_TOKEN_SECRET,
-      {
-        expiresIn: "60d",
-      }
-    );
-
-    let date = new Date();
-    date.setDate(date.getDate() + 60);
-
-    const newRefreshToken = refreshTokenModel.build({
-      refreshToken,
-      expiredTime: date,
-    });
-
-    try {
-      await newRefreshToken.save();
-    } catch (error) {
-      res.json(error);
-    }
-
-    res.json({
-      success: true,
-      message: "User logged in successfully",
-      accessToken,
-      refreshToken,
-    });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ success: false, message: "Internal server error" });
-  }
-});
+router.post("/signin", sighIn);
 
 export default router;
 

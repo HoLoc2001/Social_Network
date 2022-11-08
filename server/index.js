@@ -1,6 +1,6 @@
 import express from "express";
 import cors from "cors";
-import { sequelize, connectToDb } from "./connectDB.js";
+import { connectToDb, pool } from "./connectDB.js";
 import apiRouter from "./routers/auth.js";
 import postRouter from "./routers/post.js";
 
@@ -12,5 +12,7 @@ app.use("/api", postRouter, apiRouter);
 
 app.listen(PORT, async () => {
   console.log(PORT);
-  await connectToDb();
+  // pool.query("SELECT * FROM users WHERE id = 5", function (err, rows) {
+  //   console.log(rows);
+  // });
 });
