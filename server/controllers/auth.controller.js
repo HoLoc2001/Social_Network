@@ -1,15 +1,13 @@
 import jwt from "jsonwebtoken";
 import argon2 from "argon2";
-
-import Users from "../models/users.js";
-import RefreshToken from "../models/refreshToken.js";
+import { pool } from "../connectDB.js";
 
 export const getInfo = async (req, res) => {
   try {
-    const user = await Users.findOne({
-      attributes: { exclude: ["password"] },
-      where: { id: req.userId },
+    await pool.execute("call get_user(?)", [2], function (err, rows) {
+      console.log(rows[0][0].id);
     });
+    const user = 0;
     if (!user) {
       return res
         .status(400)
@@ -23,7 +21,8 @@ export const getInfo = async (req, res) => {
 };
 
 export const sighUp = async (req, res) => {
-  const { username, password, code, fullname, birthday, address } = req.body;
+  let date = new Date();
+  const { username, password, email, fullname, birthday, city } = req.body;
 
   // Simple validation
   if (!username || !password)
@@ -32,29 +31,32 @@ export const sighUp = async (req, res) => {
       .json({ success: false, message: "Missing username and/or password" });
 
   try {
-    const user = await Users.findOne({
-      where: { username },
-    });
+    const [user] = await pool.execute(
+      "select * from users where username = ?",
+      [username]
+    );
 
-    if (user)
+    if (user.length)
       return res
         .status(400)
         .json({ success: false, message: "Username already taken" });
+
     //All good
     const hashedPassword = await argon2.hash(password);
-    const newUser = Users.build({
+
+    const [userId] = await pool.execute("call add_user(?, ?, ?, ?, ?, ?, ?)", [
       username,
-      password: hashedPassword,
-      code,
+      email,
+      hashedPassword,
       fullname,
       birthday,
-      address,
-    });
-    await newUser.save();
+      city,
+      date,
+    ]);
 
     //Return Token
     const accessToken = jwt.sign(
-      { userId: newUser.id },
+      { userId: userId[0][0].id },
       process.env.ACCESS_TOKEN_SECRET,
       {
         expiresIn: "1h",
@@ -62,33 +64,20 @@ export const sighUp = async (req, res) => {
     );
 
     const refreshToken = jwt.sign(
-      { userId: newUser.id },
+      { userId: userId[0][0].id },
       process.env.REFRESH_TOKEN_SECRET,
       {
         expiresIn: "60d",
       }
     );
 
-    let date = new Date();
-    date.setDate(date.getDate() + 60);
-
-    const newRefreshToken = RefreshToken.build({
-      refreshToken,
-      expiredTime: date,
-    });
-
-    try {
-      await newRefreshToken.save();
-    } catch (error) {
-      res.json(error);
-    }
+    await pool.execute("call add_refresh_token(?, ?)", [refreshToken, date]);
 
     res.json({
       success: true,
       message: "User create successfully",
       accessToken,
       refreshToken,
-      newRefreshToken,
     });
   } catch (error) {
     console.log(error);
@@ -107,16 +96,17 @@ export const sighIn = async (req, res) => {
 
   try {
     //Check for existing user
-    const user = await Users.findOne({
-      where: { username },
-    });
+    const [user] = await pool.execute(
+      "select * from users where username = ?",
+      [username]
+    );
     if (!user)
       return res
         .status(400)
         .json({ success: false, message: "Incorrect username or password" });
-
     //Username found
-    const passwordValid = await argon2.verify(user.password, password);
+
+    const passwordValid = await argon2.verify(user[0].password, password);
     if (!passwordValid)
       return res
         .status(400)
@@ -139,18 +129,7 @@ export const sighIn = async (req, res) => {
     );
 
     let date = new Date();
-    date.setDate(date.getDate() + 60);
-
-    const newRefreshToken = RefreshToken.build({
-      refreshToken,
-      expiredTime: date,
-    });
-
-    try {
-      await newRefreshToken.save();
-    } catch (error) {
-      res.json(error);
-    }
+    await pool.execute("call add_refresh_token(?, ?)", [refreshToken, date]);
 
     res.json({
       success: true,

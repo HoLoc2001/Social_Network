@@ -1,9 +1,8 @@
 import { QueryTypes } from "sequelize";
-import { sequelize } from "../connectDB.js";
-import Posts from "../models/posts.js";
+import { pool } from "../connectDB.js";
 
 export const getPost = async (req, res) => {
-  const post = await sequelize.query(
+  const post = await pool.execute(
     "SELECT posts.* FROM posts INNER JOIN (SELECT list_friends.userId FROM users INNER JOIN friends ON users.id = friends.userId INNER JOIN list_friends ON friends.id = list_friends.friendId WHERE users.id = $id) as usersId ON posts.userId = usersId.userId ORDER BY posts.id DESC",
     {
       bind: { id: req.userId },
@@ -16,16 +15,16 @@ export const getPost = async (req, res) => {
 
 export const addPost = async (req, res) => {
   const { userId, title, totalPhoto } = req.body;
-  const newPost = Posts.build({
-    userId,
-    title,
-    totalPhoto,
-  });
-
+  const date = new Date();
   try {
-    await newPost.save();
+    await pool.execute("call add_post(?, ?, ?, ?)", [
+      userId,
+      title,
+      totalPhoto,
+      date,
+    ]);
 
-    res.status(201).json(newPost);
+    res.status(201).json({ msg: "Thanh cong!" });
   } catch (error) {
     res.json(error);
   }
@@ -34,30 +33,22 @@ export const addPost = async (req, res) => {
 export const updatePost = async (request, res) => {
   const { id, title } = request.body;
 
-  const post = await Posts.findOne({
-    where: {
-      id,
-    },
-  });
-
-  await post.set({
-    title,
-  });
-
-  await post.save();
+  try {
+    await pool.execute("");
+  } catch (error) {
+    res.json(error);
+  }
 
   res.status(200).json(post);
 };
 
 export const deletePost = async (req, res) => {
   const { id } = req.body;
-  const post = await Posts.findOne({
-    where: {
-      id,
-    },
-  });
-
-  await post.destroy();
+  try {
+    await pool.execute("");
+  } catch (error) {
+    res.json(error);
+  }
 
   res.status(204).json({});
 };

@@ -1,16 +1,12 @@
 import express from "express";
 import jwt from "jsonwebtoken";
 import verifyToken from "../middleware/verifyToken.js";
-import refreshTokenModel from "../models/refreshToken.js";
 import { getInfo, sighIn, sighUp } from "../controllers/auth.controller.js";
-import { sequelize } from "../connectDB.js";
-import { QueryTypes } from "sequelize";
+import { pool } from "../connectDB.js";
 
 const router = express.Router();
 
-// @route GET api/auth
-// @decs Check if user is logged in
-// @access Public
+// @route GET api/
 router.get("/", verifyToken, getInfo);
 
 router.post("/refreshToken", (req, res) => {
@@ -32,13 +28,9 @@ router.post("/refreshToken", (req, res) => {
         res.sendStatus(403);
       }
 
-      await sequelize.query(
-        "delete from refresh_tokens where refreshToken = $refreshToken",
-        {
-          bind: { refreshToken: refreshToken },
-          type: QueryTypes.DELETE,
-        }
-      );
+      await pool.query("delete from refresh_tokens where refreshToken = ?", [
+        refreshToken,
+      ]);
 
       const accessToken = jwt.sign(
         { userId: data.userId },
@@ -57,16 +49,12 @@ router.post("/refreshToken", (req, res) => {
 
       let date = new Date();
 
-      await sequelize.query(
-        "INSERT INTO refresh_tokens values ($refreshToken, $expiredTime, $createAt, $updateAt)",
-        {
-          bind: {
-            refreshToken: newRefreshToken,
-            expiredTime: date,
-            createAt: date,
-            updateAt: date,
-          },
-          type: QueryTypes.INSERT,
+      await pool.query(
+        "INSERT INTO refresh_tokens values (?, ?)",
+        [newRefreshToken, date],
+        function (err, rows, fields) {
+          console.log(err);
+          console.log(rows);
         }
       );
 
@@ -75,14 +63,10 @@ router.post("/refreshToken", (req, res) => {
   );
 });
 
-// @route POST api/auth/signup
-// @desc SignUp user
-// @access Public
+// @route POST api/signup
 router.post("/signup", sighUp);
 
-// @route POST api/auth/signin
-// @desc SignIn user
-// @access Public
+// @route POST api/signin
 router.post("/signin", sighIn);
 
 export default router;

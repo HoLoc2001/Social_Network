@@ -1,10 +1,10 @@
 import express from "express";
 import cors from "cors";
-import { connectToDb, pool } from "./connectDB.js";
+import { pool } from "./connectDB.js";
 import apiRouter from "./routers/auth.js";
 import postRouter from "./routers/post.js";
 
-const PORT = process.env.PORT || 5000;
+const PORT = process.env.PORT;
 const app = express();
 app.use(cors());
 app.use(express.json());

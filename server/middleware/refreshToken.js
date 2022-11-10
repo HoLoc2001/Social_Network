@@ -1,5 +1,4 @@
 import jwt from "jsonwebtoken";
-import RefreshToken from "../models/refreshToken.js";
 
 const refreshToken = (req, res, next) => {
   const authHeader = req.header("Authorization");
@@ -18,19 +17,19 @@ const refreshToken = (req, res, next) => {
     }
     console.log(data);
     const accessToken = jwt.sign(
-      { username: data.username, age: data.age },
+      { username: data.userId },
       process.env.ACCESS_TOKEN_SECRET,
       {
         expiresIn: "1h",
       }
     );
     const refreshToken = jwt.sign(
-      { username: data.username, age: data.age },
-      process.env.ACCESS_TOKEN_SECRET,
+      { username: data.userId },
+      process.env.REFRESH_TOKEN_SECRET,
       {
-        expiresIn: "1h",
+        expiresIn: "30d",
       }
     );
-    res.json({ accessToken });
+    res.json({ accessToken, refreshToken });
   });
 };
