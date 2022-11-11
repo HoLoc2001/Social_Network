@@ -1,4 +1,4 @@
-import { Box, Button, Typography } from "@mui/material";
+import { Box, Button, Stack, TextField, Typography } from "@mui/material";
 import React from "react";
 import { Link } from "react-router-dom";
 
@@ -8,18 +8,47 @@ const SignIn = () => {
       <Box
         component="form"
         sx={{
-          width: "60%",
-          height: "1000px",
+          width: "50%",
+          height: "500px",
           backgroundColor: "#E7E9EB",
-          margin: "100px auto",
+          margin: "60px auto",
           borderRadius: "10px",
           textAlign: "center",
         }}
       >
-        <Typography component="h2">Đăng nhập</Typography>
-        <Link to="/signup">
-          <Button>Đăng ký</Button>
-        </Link>
+        <Typography component="h1" fontSize={"50px"}>
+          Đăng nhập
+        </Typography>
+        <Stack
+          component="form"
+          sx={{
+            width: "400px",
+            margin: "40px auto",
+          }}
+          spacing={3}
+          noValidate
+          autoComplete="off"
+        >
+          <TextField
+            id="outlined-basic"
+            label="Tên tài khoản"
+            variant="outlined"
+          />
+          <TextField
+            id="outlined-password-input"
+            label="Mật khẩu"
+            type="password"
+            autoComplete="current-password"
+          />
+          <Button variant="contained">Đăng nhập</Button>
+        </Stack>
+
+        <Typography>
+          Bạn chưa có tài khoản?
+          <Link to="/signup">
+            <Button>Đăng ký</Button>
+          </Link>
+        </Typography>
       </Box>
     </>
   );

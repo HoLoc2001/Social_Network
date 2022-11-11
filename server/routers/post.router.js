@@ -1,6 +1,7 @@
 import express from "express";
 import {
   addPost,
+  deletePost,
   getPost,
   updatePost,
 } from "../controllers/posts.controller.js";
@@ -16,6 +17,6 @@ router.post("/post", verifyToken, addPost);
 
 router.patch("/post", verifyToken, updatePost);
 
-router.delete("/post", verifyToken);
+router.delete("/post", verifyToken, deletePost);
 
 export default router;

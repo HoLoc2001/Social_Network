@@ -2,15 +2,15 @@ import { QueryTypes } from "sequelize";
 import { pool } from "../connectDB.js";
 
 export const getPost = async (req, res) => {
-  const post = await pool.execute(
-    "SELECT posts.* FROM posts INNER JOIN (SELECT list_friends.userId FROM users INNER JOIN friends ON users.id = friends.userId INNER JOIN list_friends ON friends.id = list_friends.friendId WHERE users.id = $id) as usersId ON posts.userId = usersId.userId ORDER BY posts.id DESC",
-    {
-      bind: { id: req.userId },
-      type: QueryTypes.SELECT,
-    }
-  );
+  const userId = req.userId;
+  console.log(userId);
+  try {
+    const [posts] = await pool.execute("call get_post(?)", [userId]);
 
-  res.status(200).json({ post });
+    res.status(200).json({ posts: posts[0] });
+  } catch (error) {
+    res.json(error);
+  }
 };
 
 export const addPost = async (req, res) => {
@@ -45,10 +45,17 @@ export const updatePost = async (request, res) => {
 export const deletePost = async (req, res) => {
   const { id } = req.body;
   try {
-    await pool.execute("");
+    const [post] = await pool.execute(
+      "select id from posts where id = ? and userId = ?",
+      [id, req.userId]
+    );
+    if (post.length) {
+      await pool.execute("call delete_post(?)", [id]);
+      res.status(204).json({});
+    } else {
+      res.status(403).json({});
+    }
   } catch (error) {
     res.json(error);
   }
-
-  res.status(204).json({});
 };

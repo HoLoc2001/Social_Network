@@ -54,9 +54,11 @@ export const sighUp = async (req, res) => {
       date,
     ]);
 
+    const id = userId[0][0].id;
+
     //Return Token
     const accessToken = jwt.sign(
-      { userId: userId[0][0].id },
+      { userId: id },
       process.env.ACCESS_TOKEN_SECRET,
       {
         expiresIn: "1h",
@@ -64,7 +66,7 @@ export const sighUp = async (req, res) => {
     );
 
     const refreshToken = jwt.sign(
-      { userId: userId[0][0].id },
+      { userId: id },
       process.env.REFRESH_TOKEN_SECRET,
       {
         expiresIn: "60d",
@@ -97,9 +99,12 @@ export const sighIn = async (req, res) => {
   try {
     //Check for existing user
     const [user] = await pool.execute(
-      "select * from users where username = ?",
+      "select id, password from users where username = ?",
       [username]
     );
+    const id = user[0].id;
+    console.log(id);
+
     if (!user)
       return res
         .status(400)
@@ -114,14 +119,14 @@ export const sighIn = async (req, res) => {
 
     //Return Token
     const accessToken = jwt.sign(
-      { userId: user.id },
+      { userId: id },
       process.env.ACCESS_TOKEN_SECRET,
       {
         expiresIn: "1h",
       }
     );
     const refreshToken = jwt.sign(
-      { userId: user.id },
+      { userId: id },
       process.env.REFRESH_TOKEN_SECRET,
       {
         expiresIn: "60d",

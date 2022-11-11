@@ -1,10 +1,19 @@
-import React from "react";
+import React, { useState } from "react";
+import { Navigate } from "react-router-dom";
 import LeftBar from "../layouts/LeftBar";
 import Navbar from "../layouts/Navbar";
 import RightBar from "../layouts/RightBar";
 
 const Home = () => {
-  return (
+  const [time, setTime] = useState(false);
+
+  setTimeout(() => {
+    setTime(!time);
+  }, 5000);
+
+  return time ? (
+    <Navigate to="/signup" />
+  ) : (
     <>
       <Navbar />
       <div style={{ display: "flex" }}>
