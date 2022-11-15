@@ -1,14 +1,16 @@
 import express from "express";
 import cors from "cors";
 import { pool } from "./connectDB.js";
-import postRouter from "./routers/post.router.js";
-import authRouter from "./routers/auth.router.js";
+import postRoute from "./routes/post.route.js";
+import authRoute from "./routes/auth.route.js";
+import userRoute from "./routes/user.route.js";
 
 const PORT = process.env.PORT;
 const app = express();
 app.use(cors());
 app.use(express.json());
-app.use("/api", postRouter, authRouter);
+app.use("/api", postRoute, authRoute);
+app.use("/api/user", userRoute);
 
 app.listen(PORT, async () => {
   console.log(PORT);

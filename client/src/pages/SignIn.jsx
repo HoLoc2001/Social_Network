@@ -1,12 +1,13 @@
-import { Box, Button, Stack, TextField, Typography } from "@mui/material";
 import React from "react";
+import { Box, Button, Stack, TextField, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
 
 const SignIn = () => {
   return (
     <>
       <Box
-        component="form"
+        noValidate
+        // autoComplete="off"
         sx={{
           width: "50%",
           height: "500px",
@@ -41,6 +42,7 @@ const SignIn = () => {
             autoComplete="current-password"
           />
           <Button variant="contained">Đăng nhập</Button>
+          <Button variant="contained">Quên mật khẩu</Button>
         </Stack>
 
         <Typography>

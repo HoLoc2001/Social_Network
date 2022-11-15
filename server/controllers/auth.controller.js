@@ -2,39 +2,18 @@ import jwt from "jsonwebtoken";
 import argon2 from "argon2";
 import { pool } from "../connectDB.js";
 
-export const getInfo = async (req, res) => {
-  try {
-    await pool.execute("call get_user(?)", [2], function (err, rows) {
-      console.log(rows[0][0].id);
-    });
-    const user = 0;
-    if (!user) {
-      return res
-        .status(400)
-        .json({ success: false, message: "User not found" });
-    }
-    res.json({ success: true, user });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ success: false, message: "Internal server error" });
-  }
-};
-
 export const sighUp = async (req, res) => {
-  let date = new Date();
-  const { username, password, email, fullname, birthday, city } = req.body;
-
+  const { email, password, fullname, birthday } = req.body;
   // Simple validation
-  if (!username || !password)
+  if (!email || !password)
     return res
       .status(400)
       .json({ success: false, message: "Missing username and/or password" });
 
   try {
-    const [user] = await pool.execute(
-      "select * from users where username = ?",
-      [username]
-    );
+    const [user] = await pool.execute("select * from users where email = ?", [
+      email,
+    ]);
 
     if (user.length)
       return res
@@ -44,18 +23,14 @@ export const sighUp = async (req, res) => {
     //All good
     const hashedPassword = await argon2.hash(password);
 
-    const [userId] = await pool.execute("call add_user(?, ?, ?, ?, ?, ?, ?)", [
-      username,
+    const [userId] = await pool.execute("call add_user(?, ?, ?, ?)", [
       email,
       hashedPassword,
       fullname,
       birthday,
-      city,
-      date,
     ]);
 
     const id = userId[0][0].id;
-
     //Return Token
     const accessToken = jwt.sign(
       { userId: id },
@@ -73,7 +48,7 @@ export const sighUp = async (req, res) => {
       }
     );
 
-    await pool.execute("call add_refresh_token(?, ?)", [refreshToken, date]);
+    await pool.execute("call add_refresh_token(?)", [refreshToken]);
 
     res.json({
       success: true,
@@ -88,10 +63,10 @@ export const sighUp = async (req, res) => {
 };
 
 export const sighIn = async (req, res) => {
-  const { username, password } = req.body;
+  const { email, password } = req.body;
 
   // Simple validation
-  if (!username || !password)
+  if (!email || !password)
     return res
       .status(400)
       .json({ success: false, message: "Missing username and/or password" });
@@ -99,8 +74,8 @@ export const sighIn = async (req, res) => {
   try {
     //Check for existing user
     const [user] = await pool.execute(
-      "select id, password from users where username = ?",
-      [username]
+      "select id, password from users where email = ?",
+      [email]
     );
     const id = user[0].id;
     console.log(id);
@@ -133,8 +108,7 @@ export const sighIn = async (req, res) => {
       }
     );
 
-    let date = new Date();
-    await pool.execute("call add_refresh_token(?, ?)", [refreshToken, date]);
+    await pool.execute("call add_refresh_token(?)", [refreshToken]);
 
     res.json({
       success: true,

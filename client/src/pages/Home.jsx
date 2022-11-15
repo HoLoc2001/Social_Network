@@ -9,7 +9,7 @@ const Home = () => {
 
   setTimeout(() => {
     setTime(!time);
-  }, 5000);
+  }, 4000);
 
   return time ? (
     <Navigate to="/signup" />

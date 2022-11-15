@@ -8,8 +8,6 @@ import {
 import verifyToken from "../middleware/verifyToken.js";
 
 const router = express.Router();
-const app = express();
-app.use(express.json());
 
 router.get("/post", verifyToken, getPost);
 

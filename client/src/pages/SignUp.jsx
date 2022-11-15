@@ -1,12 +1,11 @@
+import React from "react";
 import { Box, Button, Stack, TextField, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
-import React from "react";
 
 const SignUp = () => {
   return (
     <>
       <Box
-        component="form"
         sx={{
           width: "50%",
           height: "650px",
@@ -29,24 +28,24 @@ const SignUp = () => {
           noValidate
           autoComplete="off"
         >
-          <TextField id="outlined-basic" label="Email" variant="outlined" />
-
+          <TextField id="email" label="Email" variant="outlined" />
+          <TextField id="fullname" label="Họ và tên" variant="outlined" />
           <TextField
             id="date"
-            label="Birthday"
+            label="Ngày sinh"
             type="date"
             InputLabelProps={{
               shrink: true,
             }}
           />
           <TextField
-            id="outlined-basic"
+            id="password"
             label="Mật khẩu"
             type="password"
             autoComplete="current-password"
           />
           <TextField
-            id="outlined-password-input"
+            id="replayPassword"
             label="Nhập lại mật khẩu"
             type="password"
             autoComplete="current-password"

@@ -1,9 +1,7 @@
-import { QueryTypes } from "sequelize";
 import { pool } from "../connectDB.js";
 
 export const getPost = async (req, res) => {
   const userId = req.userId;
-  console.log(userId);
   try {
     const [posts] = await pool.execute("call get_post(?)", [userId]);
 
@@ -17,12 +15,7 @@ export const addPost = async (req, res) => {
   const { userId, title, totalPhoto } = req.body;
   const date = new Date();
   try {
-    await pool.execute("call add_post(?, ?, ?, ?)", [
-      userId,
-      title,
-      totalPhoto,
-      date,
-    ]);
+    await pool.execute("call add_post(?, ?, ?)", [userId, title, totalPhoto]);
 
     res.status(201).json({ msg: "Thanh cong!" });
   } catch (error) {
