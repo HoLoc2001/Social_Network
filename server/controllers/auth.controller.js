@@ -11,9 +11,7 @@ export const sighUp = async (req, res) => {
       .json({ success: false, message: "Missing username and/or password" });
 
   try {
-    const [user] = await pool.execute("select * from users where email = ?", [
-      email,
-    ]);
+    const [user] = await pool.execute("call get_user_by_email(?)", [email]);
 
     if (user.length)
       return res

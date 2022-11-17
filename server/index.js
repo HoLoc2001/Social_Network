@@ -14,7 +14,4 @@ app.use("/api/user", userRoute);
 
 app.listen(PORT, async () => {
   console.log(PORT);
-  // pool.query("SELECT * FROM users WHERE id = 5", function (err, rows) {
-  //   console.log(rows);
-  // });
 });

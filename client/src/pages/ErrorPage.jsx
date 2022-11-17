@@ -1,17 +1,16 @@
 import React from "react";
-import Filters from "../components/Filters";
-import "../assets/style/style.css";
 import { Link } from "react-router-dom";
+import "../assets/style/style.css";
 
-const NavBar = () => {
+const erorrPage = () => {
   return (
     <div style={{ display: "flex" }}>
       <Link to="/" style={{ textDecoration: "none" }}>
-        <h1 className="noselect">Social</h1>
+        <h1 className="noselect">Ve Trang chu</h1>
       </Link>
-      <Filters />
+      <p>Duong dan khong ton tai</p>
     </div>
   );
 };
 
-export default NavBar;
+export default erorrPage;
