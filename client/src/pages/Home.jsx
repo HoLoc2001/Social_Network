@@ -1,18 +1,17 @@
-import React, { useState } from "react";
-import { Navigate } from "react-router-dom";
-import Posts from "../components/Posts";
+import React from "react";
+import { Outlet } from "react-router-dom";
 import LeftBar from "../layouts/LeftBar";
-import Navbar from "../layouts/Navbar";
+import NavbarHome from "../layouts/NavbarHome";
 import RightBar from "../layouts/RightBar";
 
 const Home = () => {
   return (
     <>
-      <Navbar />
+      <NavbarHome />
       <div style={{ display: "flex" }}>
         <LeftBar />
         <div style={{ flex: 6 }}>
-          <Posts />
+          <Outlet />
         </div>
         <RightBar />
       </div>

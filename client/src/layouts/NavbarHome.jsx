@@ -2,7 +2,6 @@ import {
   AppBar,
   Avatar,
   Box,
-  Button,
   Container,
   IconButton,
   Menu,
@@ -10,14 +9,13 @@ import {
   Toolbar,
   Tooltip,
   Typography,
+  Paper,
+  InputBase,
 } from "@mui/material";
 import React from "react";
-import AccountCircleIcon from "@mui/icons-material/AccountCircle";
+import SearchIcon from "@mui/icons-material/Search";
 import avatar from "../assets/img/avatar.jpg";
 import "../assets/style/style.css";
-
-const pages = ["Products", "Pricing", "Blog"];
-const settings = ["Profile", "Account", "Dashboard", "Logout"];
 
 const Navbar = () => {
   const [anchorElNav, setAnchorElNav] = React.useState(null);
@@ -40,57 +38,95 @@ const Navbar = () => {
 
   return (
     <>
-      <AppBar position="fixed" className="abc">
+      <AppBar position="fixed" sx={{ backgroundColor: "#20B2AA" }}>
         <Container maxWidth="xl">
           <Toolbar disableGutters>
-            <Typography
-              className="abc"
-              variant="h6"
-              noWrap
-              component="a"
-              href="/"
+            <Box
               sx={{
-                mr: 2,
-                display: { md: "flex" },
-                fontFamily: "monospace",
-                fontWeight: 700,
-                letterSpacing: ".3rem",
-                textDecoration: "none",
+                display: "flex",
+                justifyContent: "space-between",
+                alignItems: "center",
+                width: "100%",
               }}
             >
-              SOCIAL
-            </Typography>
+              <Box>
+                <Typography
+                  // className="abc"
+                  variant="h6"
+                  noWrap
+                  component="a"
+                  href="/"
+                  sx={{
+                    mr: 2,
+                    fontFamily: "monospace",
+                    fontWeight: 700,
+                    letterSpacing: ".3rem",
+                    textDecoration: "none",
+                    fontSize: "30px",
+                  }}
+                >
+                  SOCIAL
+                </Typography>
+              </Box>
 
-            <Box sx={{ flexGrow: 1, display: { md: "flex" } }}>Filters</Box>
+              <Box>
+                <Paper
+                  sx={{
+                    p: "2px 4px",
+                    display: "flex",
+                    alignItems: "center",
+                    width: "400px",
+                    height: "40px",
+                    borderRadius: "20px",
+                    backgroundColor: "#AFEEEE",
+                  }}
+                >
+                  <InputBase
+                    sx={{ ml: 1, flex: 1 }}
+                    placeholder="Tìm kiếm trên Social"
+                  />
+                  <IconButton
+                    type="button"
+                    sx={{ p: "10px" }}
+                    aria-label="search"
+                  >
+                    <SearchIcon />
+                  </IconButton>
+                </Paper>
+              </Box>
 
-            <Box sx={{ flexDirection: "row-reverse", display: { md: "flex" } }}>
-              <Tooltip title="Open settings">
-                <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                  <Avatar alt="Sharp" src={avatar} />
-                </IconButton>
-              </Tooltip>
-              <Menu
-                sx={{ mt: "45px" }}
-                id="menu-appbar"
-                anchorEl={anchorElUser}
-                anchorOrigin={{
-                  vertical: "top",
-                  horizontal: "right",
-                }}
-                keepMounted
-                transformOrigin={{
-                  vertical: "top",
-                  horizontal: "right",
-                }}
-                open={Boolean(anchorElUser)}
-                onClose={handleCloseUserMenu}
-              >
-                {settings.map((setting) => (
-                  <MenuItem key={setting} onClick={handleCloseUserMenu}>
-                    <Typography textAlign="center">{setting}</Typography>
+              <Box>
+                <Tooltip title="Open settings">
+                  <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
+                    <Avatar alt="Sharp" src={avatar} />
+                  </IconButton>
+                </Tooltip>
+                <Menu
+                  sx={{ mt: "45px" }}
+                  id="menu-appbar"
+                  anchorEl={anchorElUser}
+                  anchorOrigin={{
+                    vertical: "top",
+                    horizontal: "right",
+                  }}
+                  keepMounted
+                  transformOrigin={{
+                    vertical: "top",
+                    horizontal: "right",
+                  }}
+                  open={Boolean(anchorElUser)}
+                  onClose={handleCloseUserMenu}
+                >
+                  <MenuItem key="1" onClick={handleCloseUserMenu}>
+                    <Typography textAlign="center">
+                      Thong tin tai khoan
+                    </Typography>
                   </MenuItem>
-                ))}
-              </Menu>
+                  <MenuItem key="2" onClick={handleCloseUserMenu}>
+                    <Typography textAlign="center">Dang xuat</Typography>
+                  </MenuItem>
+                </Menu>
+              </Box>
             </Box>
           </Toolbar>
         </Container>
