@@ -2,19 +2,13 @@ import React from "react";
 import { Outlet } from "react-router-dom";
 import LeftBar from "../layouts/LeftBar";
 import NavbarHome from "../layouts/NavbarHome";
-import RightBar from "../layouts/RightBar";
 
 const Home = () => {
   return (
     <>
       <NavbarHome />
-      <div style={{ display: "flex" }}>
-        <LeftBar />
-        <div style={{ flex: 6 }}>
-          <Outlet />
-        </div>
-        <RightBar />
-      </div>
+      <LeftBar />
+      <Outlet />
     </>
   );
 };

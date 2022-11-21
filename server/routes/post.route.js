@@ -2,14 +2,14 @@ import express from "express";
 import {
   addPost,
   deletePost,
-  getPost,
+  getPosts,
   updatePost,
 } from "../controllers/posts.controller.js";
 import verifyToken from "../middleware/verifyToken.js";
 
 const router = express.Router();
 
-router.get("/post", verifyToken, getPost);
+router.get("/posts", getPosts);
 
 router.post("/post", verifyToken, addPost);
 
