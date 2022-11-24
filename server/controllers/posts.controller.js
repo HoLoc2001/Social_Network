@@ -3,7 +3,7 @@ import { pool } from "../connectDB.js";
 export const getPosts = async (req, res) => {
   const userId = req.userId;
   try {
-    const [posts] = await pool.execute("call get_post(?)", [2]);
+    const [posts] = await pool.execute("call get_post(?)", [userId]);
 
     res.status(200).json({ posts: posts[0] });
   } catch (error) {

@@ -8,6 +8,7 @@ import Dashboard from "./pages/Dashboard";
 import Protected from "./routing/Protected";
 import Posts from "./components/Posts";
 import User from "./components/User";
+import Socket from "./layouts/Socket";
 
 function App() {
   return (
@@ -23,6 +24,7 @@ function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
+        <Route path="/socket" element={<Socket />} />
         <Route path="*" element={<ErrorPage />} />
       </Routes>
     </BrowserRouter>

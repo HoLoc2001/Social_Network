@@ -13,7 +13,7 @@ export const sighUp = async (req, res) => {
   try {
     const [user] = await pool.execute("call get_user_by_email(?)", [email]);
 
-    if (user.length)
+    if (user[0].length)
       return res
         .status(400)
         .json({ success: false, message: "Username already taken" });
@@ -114,6 +114,27 @@ export const sighIn = async (req, res) => {
       accessToken,
       refreshToken,
     });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+export const checkEmail = async (req, res) => {
+  const { email } = req.body;
+  if (!email)
+    return res.status(400).json({ success: false, message: "Missing email" });
+
+  try {
+    const [user] = await pool.execute("call get_user_by_email(?)", [email]);
+
+    if (!user[0].length)
+      return res
+        .status(200)
+        .json({ success: false, message: "Email already taken" });
+    return res
+      .status(200)
+      .json({ success: true, message: "Email not already taken" });
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false, message: "Internal server error" });

@@ -1,8 +1,23 @@
 import React from "react";
 import { Box, Button, Stack, TextField, Typography } from "@mui/material";
 import { Link } from "react-router-dom";
+import { useState } from "react";
 
 const SignIn = () => {
+  const [signinForm, setSigninForm] = useState({
+    email: "",
+    password: "",
+  });
+
+  const { email, password } = signinForm;
+
+  const onChangeSigninForm = (e) => {
+    return setSigninForm({
+      ...signinForm,
+      [e.target.name]: e.target.value,
+    });
+  };
+
   return (
     <>
       <Box
@@ -28,18 +43,24 @@ const SignIn = () => {
           }}
           spacing={3}
           noValidate
-          autoComplete="off"
+          autoComplete="on"
         >
           <TextField
-            id="outlined-basic"
-            label="Tên tài khoản"
+            id="email"
+            name="email"
+            label="Email"
             variant="outlined"
+            value={email}
+            onChange={onChangeSigninForm}
           />
           <TextField
             id="outlined-password-input"
+            name="password"
             label="Mật khẩu"
             type="password"
             autoComplete="current-password"
+            value={password}
+            onChange={onChangeSigninForm}
           />
           <Button variant="contained">Đăng nhập</Button>
           <Button variant="contained">Quên mật khẩu</Button>

@@ -1,7 +1,7 @@
 import express from "express";
 import jwt from "jsonwebtoken";
 import verifyToken from "../middleware/verifyToken.js";
-import { sighIn, sighUp } from "../controllers/auth.controller.js";
+import { checkEmail, sighIn, sighUp } from "../controllers/auth.controller.js";
 import { pool } from "../connectDB.js";
 
 const router = express.Router();
@@ -60,10 +60,10 @@ router.post("/refreshToken", (req, res) => {
   );
 });
 
-// @route POST api/signup
 router.post("/signup", sighUp);
 
-// @route POST api/signin
 router.post("/signin", sighIn);
+
+router.post("/checkemail", checkEmail);
 
 export default router;
