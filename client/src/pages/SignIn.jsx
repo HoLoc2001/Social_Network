@@ -1,9 +1,24 @@
 import React from "react";
-import { Box, Button, Stack, TextField, Typography } from "@mui/material";
-import { Link } from "react-router-dom";
+import {
+  Alert,
+  Box,
+  Button,
+  Snackbar,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
+import { Link, Navigate } from "react-router-dom";
 import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
+import { signin, tokenSelector } from "../components/User/userSlice";
 
 const SignIn = () => {
+  const token = useSelector(tokenSelector);
+  const dispatch = useDispatch();
+
+  const [errMissInput, setErrMissInput] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [signinForm, setSigninForm] = useState({
     email: "",
     password: "",
@@ -18,7 +33,23 @@ const SignIn = () => {
     });
   };
 
-  return (
+  const handleClickSignin = async () => {
+    if (!email || !password) {
+      return setErrMissInput(true);
+    }
+    await dispatch(signin(signinForm));
+    setIsAuthenticated(true);
+  };
+
+  if (token?.accessToken && token?.refreshToken) {
+    console.log(123);
+    localStorage.setItem("AT", token.accessToken);
+    localStorage.setItem("RT", token.refreshToken);
+  }
+
+  return isAuthenticated ? (
+    <Navigate to="/" replace />
+  ) : (
     <>
       <Box
         noValidate
@@ -62,7 +93,9 @@ const SignIn = () => {
             value={password}
             onChange={onChangeSigninForm}
           />
-          <Button variant="contained">Đăng nhập</Button>
+          <Button variant="contained" onClick={handleClickSignin}>
+            Đăng nhập
+          </Button>
           <Button variant="contained">Quên mật khẩu</Button>
         </Stack>
 
@@ -73,6 +106,15 @@ const SignIn = () => {
           </Link>
         </Typography>
       </Box>
+      <Stack sx={{ width: "60%" }} spacing={2}>
+        <Snackbar
+          open={errMissInput}
+          autoHideDuration={4000}
+          onClose={() => setErrMissInput(false)}
+        >
+          <Alert severity="warning">Vui long nhap email va mat khau</Alert>
+        </Snackbar>
+      </Stack>
     </>
   );
 };

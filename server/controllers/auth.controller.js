@@ -3,7 +3,7 @@ import argon2 from "argon2";
 import { pool } from "../connectDB.js";
 
 export const sighUp = async (req, res) => {
-  const { email, password, fullname, birthday } = req.body;
+  const { email, password, username, birthday } = req.body;
   // Simple validation
   if (!email || !password)
     return res
@@ -24,7 +24,7 @@ export const sighUp = async (req, res) => {
     const [userId] = await pool.execute("call add_user(?, ?, ?, ?)", [
       email,
       hashedPassword,
-      fullname,
+      username,
       birthday,
     ]);
 
@@ -51,8 +51,7 @@ export const sighUp = async (req, res) => {
     res.json({
       success: true,
       message: "User create successfully",
-      accessToken,
-      refreshToken,
+      token: { accessToken, refreshToken },
     });
   } catch (error) {
     console.log(error);
@@ -70,7 +69,6 @@ export const sighIn = async (req, res) => {
       .json({ success: false, message: "Missing username and/or password" });
 
   try {
-    //Check for existing user
     const [user] = await pool.execute(
       "select id, password from users where email = ?",
       [email]
@@ -82,7 +80,6 @@ export const sighIn = async (req, res) => {
       return res
         .status(400)
         .json({ success: false, message: "Incorrect username or password" });
-    //Username found
 
     const passwordValid = await argon2.verify(user[0].password, password);
     if (!passwordValid)
@@ -111,8 +108,7 @@ export const sighIn = async (req, res) => {
     res.json({
       success: true,
       message: "User logged in successfully",
-      accessToken,
-      refreshToken,
+      token: { accessToken, refreshToken },
     });
   } catch (error) {
     console.log(error);
@@ -130,7 +126,7 @@ export const checkEmail = async (req, res) => {
 
     if (!user[0].length)
       return res
-        .status(200)
+        .status(400)
         .json({ success: false, message: "Email already taken" });
     return res
       .status(200)
