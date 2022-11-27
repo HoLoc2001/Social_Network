@@ -1,9 +1,8 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { axiosPublic, axiosPrivate } from "../../utils";
+import { axiosPrivate } from "../../utils";
 
 export const getPosts = createAsyncThunk("posts/getPosts", async () => {
   const res = await axiosPrivate.get(`posts`);
-  console.log(res);
   return res.data;
 });
 

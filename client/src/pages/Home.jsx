@@ -6,9 +6,11 @@ import NavbarHome from "../layouts/NavbarHome";
 const Home = () => {
   return (
     <>
-      <NavbarHome />
-      <LeftBar />
-      <Outlet />
+      <div style={{ backgroundColor: "#F0F2F5" }}>
+        <NavbarHome />
+        <LeftBar />
+        <Outlet />
+      </div>
     </>
   );
 };

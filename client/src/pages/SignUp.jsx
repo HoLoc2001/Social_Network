@@ -34,6 +34,12 @@ const SignUp = () => {
 
   const { email, fullname, password, birthday } = signupForm;
 
+  function validateEmailRegex(str) {
+    const isEmail = /^[a-z0-9.]{1,64}@[a-z0-9.]{1,64}$/i.test(str);
+    console.log(isEmail, str);
+    return isEmail;
+  }
+
   const onChangeSignupForm = (e) => {
     return setSignupForm({
       ...signupForm,
@@ -41,9 +47,9 @@ const SignUp = () => {
     });
   };
 
-  const handleValidateEmail = (e) => {
+  const handleValidateEmail = async (e) => {
     if (e.target.value) {
-      dispatch(checkEmail(e.target.value));
+      await dispatch(checkEmail(e.target.value));
     }
   };
 
@@ -104,8 +110,14 @@ const SignUp = () => {
             value={email}
             onChange={onChangeSignupForm}
             onBlur={handleValidateEmail}
-            error={validateEmail}
-            helperText={validateEmail ? "Email da co nguoi su dung" : ""}
+            error={validateEmail || validateEmailRegex(email)}
+            helperText={
+              validateEmail
+                ? "Email đã được sử dụng"
+                : validateEmailRegex(email) === false
+                ? ""
+                : "Email không đúng định dạng"
+            }
           />
           <TextField
             id="fullname"
@@ -165,6 +177,13 @@ const SignUp = () => {
         >
           <Alert severity="warning">Vui lòng nhập đầy đủ!!!</Alert>
         </Snackbar>
+        {/* <Snackbar
+          open={errMissInput}
+          autoHideDuration={4000}
+          onClose={() => setErrMissInput(false)}
+        >
+          <Alert severity="warning">Vui lòng nhập đầy đủ!!!</Alert>
+        </Snackbar> */}
       </Stack>
     </>
   );

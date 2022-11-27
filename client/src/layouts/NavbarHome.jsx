@@ -1,6 +1,5 @@
 import {
   AppBar,
-  Avatar,
   Box,
   Container,
   IconButton,
@@ -13,14 +12,14 @@ import {
   InputBase,
 } from "@mui/material";
 import React from "react";
+import SettingsIcon from "@mui/icons-material/Settings";
 import SearchIcon from "@mui/icons-material/Search";
-import avatar from "../assets/img/avatar.jpg";
-import "../assets/style/style.css";
-import { useDispatch } from "react-redux";
 import { getInfo } from "../components/User/userSlice";
+import { useAppDispatch } from "../redux/store";
+import { Link } from "react-router-dom";
 
 const Navbar = () => {
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
@@ -38,6 +37,11 @@ const Navbar = () => {
 
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
+  };
+
+  const handleSignOut = () => {
+    localStorage.clear();
+    window.location.href = "/";
   };
 
   const handleClickInfo = () => {
@@ -58,23 +62,24 @@ const Navbar = () => {
               }}
             >
               <Box>
-                <Typography
-                  // className="abc"
-                  variant="h6"
-                  noWrap
-                  component="a"
-                  href="/"
-                  sx={{
-                    mr: 2,
-                    fontFamily: "monospace",
-                    fontWeight: 700,
-                    letterSpacing: ".3rem",
-                    textDecoration: "none",
-                    fontSize: "30px",
-                  }}
-                >
-                  SOCIAL
-                </Typography>
+                <Link to="/" style={{ textDecoration: "none" }}>
+                  <Typography
+                    variant="h6"
+                    noWrap
+                    component="a"
+                    href="/"
+                    sx={{
+                      mr: 2,
+                      fontFamily: "monospace",
+                      fontWeight: 700,
+                      letterSpacing: ".3rem",
+                      textDecoration: "none",
+                      fontSize: "30px",
+                    }}
+                  >
+                    SOCIAL
+                  </Typography>
+                </Link>
               </Box>
 
               <Box>
@@ -106,7 +111,7 @@ const Navbar = () => {
               <Box>
                 <Tooltip title="Open settings">
                   <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                    <Avatar alt="Sharp" src={avatar} />
+                    <SettingsIcon fontSize="large" />
                   </IconButton>
                 </Tooltip>
                 <Menu
@@ -127,11 +132,11 @@ const Navbar = () => {
                 >
                   <MenuItem key="1" onClick={() => handleClickInfo()}>
                     <Typography textAlign="center">
-                      Thong tin tai khoan
+                      Thông tin tài khoản
                     </Typography>
                   </MenuItem>
-                  <MenuItem key="2" onClick={handleCloseUserMenu}>
-                    <Typography textAlign="center">Dang xuat</Typography>
+                  <MenuItem key="2" onClick={handleSignOut}>
+                    <Typography textAlign="center">Đăng xuất</Typography>
                   </MenuItem>
                 </Menu>
               </Box>

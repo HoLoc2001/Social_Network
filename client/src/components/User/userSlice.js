@@ -36,9 +36,6 @@ export const checkEmail = createAsyncThunk("user/checkEmail", async (email) => {
     const res = await axiosPublic.post("checkEmail", {
       email,
     });
-    console.log({ res });
-    // const data = await res.json();
-    // console.log({ data });
     return res.data;
   } catch (error) {
     console.log(error);

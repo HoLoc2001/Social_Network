@@ -87,6 +87,7 @@ const SignIn = () => {
             value={email}
             onChange={onChangeSigninForm}
             onKeyDown={keyPress}
+            autoFocus
           />
           <TextField
             id="outlined-password-input"

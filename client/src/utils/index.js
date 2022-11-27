@@ -1,15 +1,3 @@
-// import axios from "axios";
-
-// const setAuthToken = (token) => {
-//   if (token) {
-//     axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
-//   } else {
-//     delete axios.defaults.headers.common["Authorization"];
-//   }
-// };
-
-// export default setAuthToken;
-
 import axios from "axios";
 import jwt_decode from "jwt-decode";
 // import { refreshToken } from "../components/User/userSlice";
@@ -31,7 +19,6 @@ axiosPrivate.interceptors.request.use(
     if (accessToken) {
       const decodedToken = jwt_decode(accessToken);
       if (decodedToken.exp * 1000 < currentDate.getTime()) {
-        console.log(localStorage["RT"]);
         const res = await axiosPublic.post("refreshToken", {
           refreshToken: localStorage["RT"],
         });
@@ -46,7 +33,6 @@ axiosPrivate.interceptors.request.use(
         }
       }
     }
-    console.log(config);
 
     return config;
   },
