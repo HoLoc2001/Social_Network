@@ -1,15 +1,20 @@
 import React from "react";
+import { useEffect } from "react";
 import { useState } from "react";
+import { useDispatch, useSelector } from "react-redux";
 import { Navigate, Outlet } from "react-router-dom";
+import { isAuthenticatedSelector } from "../components/User/userSlice";
 
 const ProtectedRoute = () => {
-  const [user, setUser] = useState(true);
+  const dispatch = useDispatch();
+  const isAuthenticated = useSelector(isAuthenticatedSelector);
 
-  if (!user) {
-    return <Navigate to="/signin" replace />;
+  if (!localStorage["AT"] || !localStorage["RT"] || isAuthenticated === false) {
+    return <Navigate to="/signin" />;
   }
-
-  return <Outlet />;
+  if (true) {
+    return <Outlet />;
+  }
 };
 
 export default ProtectedRoute;

@@ -1,5 +1,4 @@
 import React, { useEffect } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import {
   Button,
   CardActionArea,
@@ -11,10 +10,11 @@ import {
 } from "@mui/material";
 import logo from "../../assets/img/photo2.jpg";
 import { getPosts, postsSelector } from "./postsSlice";
+import { useAppDispatch, useAppSelector } from "../../redux/store";
 
 const Posts = () => {
-  const dispatch = useDispatch();
-  const posts = useSelector(postsSelector);
+  const dispatch = useAppDispatch();
+  const posts = useAppSelector((state) => state.posts.post);
   useEffect(() => {
     dispatch(getPosts());
   }, []);

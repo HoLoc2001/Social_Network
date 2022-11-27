@@ -16,8 +16,12 @@ import React from "react";
 import SearchIcon from "@mui/icons-material/Search";
 import avatar from "../assets/img/avatar.jpg";
 import "../assets/style/style.css";
+import { useDispatch } from "react-redux";
+import { getInfo } from "../components/User/userSlice";
 
 const Navbar = () => {
+  const dispatch = useDispatch();
+
   const [anchorElNav, setAnchorElNav] = React.useState(null);
   const [anchorElUser, setAnchorElUser] = React.useState(null);
 
@@ -34,6 +38,10 @@ const Navbar = () => {
 
   const handleCloseUserMenu = () => {
     setAnchorElUser(null);
+  };
+
+  const handleClickInfo = () => {
+    dispatch(getInfo());
   };
 
   return (
@@ -117,7 +125,7 @@ const Navbar = () => {
                   open={Boolean(anchorElUser)}
                   onClose={handleCloseUserMenu}
                 >
-                  <MenuItem key="1" onClick={handleCloseUserMenu}>
+                  <MenuItem key="1" onClick={() => handleClickInfo()}>
                     <Typography textAlign="center">
                       Thong tin tai khoan
                     </Typography>

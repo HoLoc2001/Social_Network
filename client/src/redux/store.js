@@ -1,12 +1,15 @@
 import { configureStore } from "@reduxjs/toolkit";
-import postsSlice from "../components/Posts/postsSlice";
-import userSlice from "../components/User/userSlice";
+import { useSelector, useDispatch } from "react-redux";
 
-const store = configureStore({
+import { postsSlice } from "../components/Posts/postsSlice";
+import { userSlice } from "../components/User/userSlice";
+
+export const store = configureStore({
   reducer: {
     posts: postsSlice.reducer,
     user: userSlice.reducer,
   },
 });
 
-export default store;
+export const useAppDispatch = () => useDispatch();
+export const useAppSelector = useSelector;

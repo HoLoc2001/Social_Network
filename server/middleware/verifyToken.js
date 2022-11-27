@@ -13,6 +13,9 @@ const verifyToken = (req, res, next) => {
     req.userId = decoded.userId;
     next();
   } catch (error) {
+    if (error.message === "jwt expired") {
+      return res.status(403).json({ tokenExpired: true });
+    }
     console.log(error);
     return res.status(403).json({ success: false, message: "Invalid token" });
   }

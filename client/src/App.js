@@ -7,7 +7,6 @@ import ErrorPage from "./pages/ErrorPage";
 import Dashboard from "./pages/Dashboard";
 import Protected from "./routing/Protected";
 import Posts from "./components/Posts";
-import User from "./components/User";
 import Socket from "./layouts/Socket";
 
 function App() {

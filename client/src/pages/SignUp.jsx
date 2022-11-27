@@ -13,16 +13,18 @@ import { useDispatch, useSelector } from "react-redux";
 import {
   checkEmail,
   signup,
+  tokenSelector,
   validateEmailSelector,
 } from "../components/User/userSlice";
 
 const SignUp = () => {
+  const token = useSelector(tokenSelector);
   const dispatch = useDispatch();
   const validateEmail = useSelector(validateEmailSelector);
 
   const [signupForm, setSignupForm] = useState({
     email: "",
-    username: "",
+    fullname: "",
     password: "",
     birthday: "",
   });
@@ -30,7 +32,7 @@ const SignUp = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [errMissInput, setErrMissInput] = useState(false);
 
-  const { email, username, password, birthday } = signupForm;
+  const { email, fullname, password, birthday } = signupForm;
 
   const onChangeSignupForm = (e) => {
     return setSignupForm({
@@ -53,14 +55,19 @@ const SignUp = () => {
     }
   };
 
-  const handleSignup = () => {
-    if (!email || !username || !birthday || !password) {
+  const handleSignup = async () => {
+    if (!email || !fullname || !birthday || !password) {
       setErrMissInput(true);
     } else {
-      dispatch(signup(signupForm));
+      await dispatch(signup(signupForm));
       setIsAuthenticated(true);
     }
   };
+
+  if (token?.accessToken && token?.refreshToken) {
+    localStorage.setItem("AT", token.accessToken);
+    localStorage.setItem("RT", token.refreshToken);
+  }
 
   return isAuthenticated ? (
     <Navigate to="/" replace />
@@ -101,11 +108,11 @@ const SignUp = () => {
             helperText={validateEmail ? "Email da co nguoi su dung" : ""}
           />
           <TextField
-            id="username"
+            id="fullname"
             label="Họ và tên"
             variant="outlined"
-            name="username"
-            value={username}
+            name="fullname"
+            value={fullname}
             onChange={onChangeSignupForm}
           />
           <TextField

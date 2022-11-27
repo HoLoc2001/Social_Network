@@ -10,12 +10,11 @@ import {
 } from "@mui/material";
 import { Link, Navigate } from "react-router-dom";
 import { useState } from "react";
-import { useDispatch, useSelector } from "react-redux";
 import { signin, tokenSelector } from "../components/User/userSlice";
+import { useAppDispatch } from "../redux/store";
 
 const SignIn = () => {
-  const token = useSelector(tokenSelector);
-  const dispatch = useDispatch();
+  const dispatch = useAppDispatch();
 
   const [errMissInput, setErrMissInput] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
@@ -41,11 +40,15 @@ const SignIn = () => {
     setIsAuthenticated(true);
   };
 
-  if (token?.accessToken && token?.refreshToken) {
-    console.log(123);
-    localStorage.setItem("AT", token.accessToken);
-    localStorage.setItem("RT", token.refreshToken);
-  }
+  const keyPress = async (e) => {
+    if (e.key === "Enter") {
+      if (!email || !password) {
+        return setErrMissInput(true);
+      }
+      await dispatch(signin(signinForm));
+      setIsAuthenticated(true);
+    }
+  };
 
   return isAuthenticated ? (
     <Navigate to="/" replace />
@@ -83,6 +86,7 @@ const SignIn = () => {
             variant="outlined"
             value={email}
             onChange={onChangeSigninForm}
+            onKeyDown={keyPress}
           />
           <TextField
             id="outlined-password-input"
@@ -92,6 +96,7 @@ const SignIn = () => {
             autoComplete="current-password"
             value={password}
             onChange={onChangeSigninForm}
+            onKeyDown={keyPress}
           />
           <Button variant="contained" onClick={handleClickSignin}>
             Đăng nhập
