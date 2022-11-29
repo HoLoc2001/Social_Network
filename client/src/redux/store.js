@@ -9,6 +9,11 @@ export const store = configureStore({
     posts: postsSlice.reducer,
     user: userSlice.reducer,
   },
+  middleware: (getDefaultMiddleware) =>
+    getDefaultMiddleware({
+      immutableCheck: { warnAfter: 128 },
+      serializableCheck: { warnAfter: 128 },
+    }),
 });
 
 export const useAppDispatch = () => useDispatch();

@@ -1,5 +1,6 @@
 import axios from "axios";
 import jwt_decode from "jwt-decode";
+// import { Buffer } from "buffer";
 // import { refreshToken } from "../components/User/userSlice";
 // import { store } from "../redux/store";
 
@@ -40,3 +41,12 @@ axiosPrivate.interceptors.request.use(
     return Promise.reject(error);
   }
 );
+
+export function getBase64(file) {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = () => resolve(reader.result);
+    reader.onerror = (error) => reject(error);
+  });
+}

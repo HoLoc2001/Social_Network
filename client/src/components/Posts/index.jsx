@@ -8,16 +8,20 @@ import {
   CardMedia,
   Typography,
 } from "@mui/material";
+import FavoriteIcon from "@mui/icons-material/Favorite";
 import logo from "../../assets/img/photo2.jpg";
 import { getPosts, postsSelector } from "./postsSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/store";
 
 const Posts = () => {
   const dispatch = useAppDispatch();
-  const posts = useAppSelector((state) => state.posts.post);
+  const posts = useAppSelector((state) => state.posts.posts);
+  console.log(posts);
   useEffect(() => {
     dispatch(getPosts());
   }, []);
+
+  const handleClickFavorite = (postId) => {};
 
   return (
     <div
@@ -35,19 +39,13 @@ const Posts = () => {
               alt="green iguana"
             />
             <CardContent>
-              <Typography gutterBottom variant="h5" component="div">
-                Lizard
-              </Typography>
               <Typography variant="body2" color="text.secondary">
-                Lizards are a widespread group of squamate reptiles, with over
-                6,000 species, ranging across all continents except Antarctica
+                {post.title}
               </Typography>
             </CardContent>
           </CardActionArea>
           <CardActions>
-            <Button size="small" color="primary">
-              Share
-            </Button>
+            <FavoriteIcon onClick={handleClickFavorite(post.id)} />
           </CardActions>
         </Card>
       ))}

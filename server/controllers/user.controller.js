@@ -31,3 +31,18 @@ export const updateInfo = async (req, res) => {
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
+
+export const updateAvatar = async (req, res) => {
+  try {
+    const { avatar } = req.body;
+    const [row] = await pool.execute("call updateAvatar(?, ?)", [
+      req.userId,
+      avatar,
+    ]);
+
+    res.json({ success: true, avatar: row[0] });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};

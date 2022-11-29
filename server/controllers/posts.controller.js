@@ -52,3 +52,12 @@ export const deletePost = async (req, res) => {
     res.json(error);
   }
 };
+
+export const getMyPosts = async (req, res) => {
+  try {
+    const userId = req.userId;
+    const [posts] = await pool.execute("call get_my_post(?)", [userId]);
+
+    res.status(200).json({ myPosts: posts[0] });
+  } catch (error) {}
+};

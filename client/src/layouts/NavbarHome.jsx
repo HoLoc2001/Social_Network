@@ -10,6 +10,12 @@ import {
   Typography,
   Paper,
   InputBase,
+  Dialog,
+  DialogTitle,
+  DialogContent,
+  DialogContentText,
+  DialogActions,
+  Button,
 } from "@mui/material";
 import React from "react";
 import SettingsIcon from "@mui/icons-material/Settings";
@@ -45,7 +51,7 @@ const Navbar = () => {
   };
 
   const handleClickInfo = () => {
-    dispatch(getInfo());
+    // dispatch(getInfo());
   };
 
   return (
@@ -66,8 +72,6 @@ const Navbar = () => {
                   <Typography
                     variant="h6"
                     noWrap
-                    component="a"
-                    href="/"
                     sx={{
                       mr: 2,
                       fontFamily: "monospace",
@@ -145,6 +149,23 @@ const Navbar = () => {
         </Container>
       </AppBar>
       <Toolbar />
+      {/* <Dialog
+        open={false}
+        onClose={false}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">Social</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Bạn đang muốn đăng xuất?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button>Hủy bỏ</Button>
+          <Button autoFocus>Đăng xuất</Button>
+        </DialogActions>
+      </Dialog> */}
     </>
   );
 };

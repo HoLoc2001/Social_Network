@@ -16,19 +16,27 @@ export const updatePost = createAsyncThunk("posts/updatePost", async () => {
   return res.data;
 });
 
+export const getMyPosts = createAsyncThunk("posts/getMyPosts", async () => {
+  const res = await axiosPrivate.get("myPosts");
+  return res.data;
+});
+
 export const postsSlice = createSlice({
   name: "posts",
-  initialState: { status: "", post: [], tokenExpired: null },
+  initialState: { status: "", posts: [], myPosts: [] },
   extraReducers: (builder) => {
     builder
       .addCase(getPosts.fulfilled, (state, action) => {
-        state.post = action?.payload?.posts;
+        state.posts = action?.payload?.posts;
       })
       .addCase(addPost.fulfilled, (state, action) => {
-        state.post.push();
+        state.posts.push();
       })
       .addCase(updatePost.fulfilled, (state, action) => {
-        state.post.push();
+        state.posts.push();
+      })
+      .addCase(getMyPosts.fulfilled, (state, action) => {
+        state.myPosts = action?.payload?.myPosts;
       });
   },
 });

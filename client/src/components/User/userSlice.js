@@ -51,6 +51,19 @@ export const getInfo = createAsyncThunk("user/getInfo", async () => {
   }
 });
 
+export const updateAvatar = createAsyncThunk(
+  "user/updateAvatar",
+  async (avatar) => {
+    try {
+      const res = await axiosPrivate.post("user/updateAvatar", { avatar });
+      console.log(res.data);
+      return res.data;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+);
+
 export const userSlice = createSlice({
   name: "user",
   initialState: {
@@ -72,7 +85,6 @@ export const userSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(signin.fulfilled, (state, action) => {
-        console.log(action.payload);
         localStorage.setItem("AT", action.payload.token.accessToken);
         localStorage.setItem("RT", action.payload.token.refreshToken);
         state.isAuthenticated = true;
@@ -91,6 +103,9 @@ export const userSlice = createSlice({
       })
       .addCase(refreshToken.fulfilled, (state, action) => {
         state.token = action.payload;
+      })
+      .addCase(updateAvatar.fulfilled, (state, action) => {
+        state.user.avatar = action.payload.avatar;
       });
   },
 });
