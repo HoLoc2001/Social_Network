@@ -86,8 +86,8 @@ export const userSlice = createSlice({
   extraReducers: (builder) => {
     builder
       .addCase(signin.fulfilled, (state, action) => {
-        localStorage.setItem("AT", action.payload.token.accessToken);
-        localStorage.setItem("RT", action.payload.token.refreshToken);
+        localStorage.setItem("AT", action.payload.token.accessToken || "");
+        localStorage.setItem("RT", action.payload.token.refreshToken || "");
         state.isAuthenticated = true;
       })
       .addCase(signup.fulfilled, (state, action) => {

@@ -29,24 +29,29 @@ const Posts = () => {
   return (
     <div
       style={{
-        margin: "40px 5% 0 22%",
+        margin: "40px 5% 0 35%",
       }}
     >
       {posts.map((post) => (
-        <Card key={post.id} sx={{ width: "100%", marginBottom: "20px" }}>
-          <CardActionArea>
+        <Card key={post.id} sx={{ width: "60%", marginBottom: "20px" }}>
+          {post.image ? (
             <CardMedia
               component="img"
-              height="300px"
-              image={logo}
-              alt="green iguana"
+              height="500px"
+              sx={{
+                background: `no-repeat center/cover url(${post.image})`,
+              }}
             />
-            <CardContent>
-              <Typography variant="body2" color="text.secondary">
-                {post.title}
-              </Typography>
-            </CardContent>
-          </CardActionArea>
+          ) : (
+            ""
+          )}
+
+          <CardContent>
+            <Typography variant="body2" color="text.secondary">
+              {post.title}
+            </Typography>
+          </CardContent>
+
           <CardActions>
             <FavoriteIcon onClick={handleClickFavorite(post.id)} />
           </CardActions>

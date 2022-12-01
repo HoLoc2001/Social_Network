@@ -24,6 +24,7 @@ import { useState } from "react";
 import { getBase64 } from "../../utils";
 import { addPost, getMyPosts } from "../Posts/postsSlice";
 import { Box } from "@mui/system";
+import { convertLength } from "@mui/material/styles/cssUtils";
 
 const User = () => {
   const dispatch = useAppDispatch();
@@ -60,8 +61,8 @@ const User = () => {
       let file = data[0];
       if (file) {
         let objectUrl = URL.createObjectURL(file);
-        setImgPost(objectUrl);
         imageBase64 = await getBase64(file);
+        setImgPost(imageBase64);
       }
     } catch (error) {
       console.log(error);
@@ -70,6 +71,7 @@ const User = () => {
 
   const handleAddPost = async () => {
     try {
+      console.log(imgPost);
       const dataAddPost = { title, imgPost };
       await dispatch(addPost(dataAddPost));
     } catch (error) {
@@ -113,7 +115,7 @@ const User = () => {
             <Avatar
               src={user.avatar}
               aria-label="recipe"
-              sx={{ height: "100px", width: "100px" }}
+              sx={{ height: "100px", width: "100px", position: "relative" }}
             />
           }
           title={
@@ -146,15 +148,16 @@ const User = () => {
               </IconButton>
             }
             title={user.fullname}
-            subheader="September 14, 2016"
+            subheader={post.createdAt}
           />
           <CardMedia
             component="img"
             height="300px"
-            image={logo}
-            alt="green iguana"
+            sx={{
+              background: `no-repeat center/cover url(${post.image})`,
+            }}
           />
-
+          {console.log(post.image)}
           <CardContent>
             <Typography gutterBottom variant="h5" component="div">
               Lizard
