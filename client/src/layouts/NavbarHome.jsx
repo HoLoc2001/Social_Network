@@ -17,28 +17,24 @@ import {
   DialogActions,
   Button,
 } from "@mui/material";
-import React from "react";
+import React, { useState } from "react";
 import SettingsIcon from "@mui/icons-material/Settings";
 import SearchIcon from "@mui/icons-material/Search";
-import { getInfo } from "../components/User/userSlice";
 import { useAppDispatch } from "../redux/store";
 import { Link } from "react-router-dom";
 
 const Navbar = () => {
   const dispatch = useAppDispatch();
 
-  const [anchorElNav, setAnchorElNav] = React.useState(null);
-  const [anchorElUser, setAnchorElUser] = React.useState(null);
+  const [anchorElNav, setAnchorElNav] = useState(null);
+  const [anchorElUser, setAnchorElUser] = useState(null);
+  const [openSignOut, setOpenSignOut] = useState(false);
 
   const handleOpenNavMenu = (event) => {
     setAnchorElNav(event.currentTarget);
   };
   const handleOpenUserMenu = (event) => {
     setAnchorElUser(event.currentTarget);
-  };
-
-  const handleCloseNavMenu = () => {
-    setAnchorElNav(null);
   };
 
   const handleCloseUserMenu = () => {
@@ -139,7 +135,7 @@ const Navbar = () => {
                       Thông tin tài khoản
                     </Typography>
                   </MenuItem>
-                  <MenuItem key="2" onClick={handleSignOut}>
+                  <MenuItem key="2" onClick={() => setOpenSignOut(true)}>
                     <Typography textAlign="center">Đăng xuất</Typography>
                   </MenuItem>
                 </Menu>
@@ -149,9 +145,9 @@ const Navbar = () => {
         </Container>
       </AppBar>
       <Toolbar />
-      {/* <Dialog
-        open={false}
-        onClose={false}
+      <Dialog
+        open={openSignOut}
+        onClose={() => !openSignOut}
         aria-labelledby="alert-dialog-title"
         aria-describedby="alert-dialog-description"
       >
@@ -162,10 +158,10 @@ const Navbar = () => {
           </DialogContentText>
         </DialogContent>
         <DialogActions>
-          <Button>Hủy bỏ</Button>
-          <Button autoFocus>Đăng xuất</Button>
+          <Button onClick={() => setOpenSignOut(false)}>Hủy bỏ</Button>
+          <Button onClick={handleSignOut}>Đăng xuất</Button>
         </DialogActions>
-      </Dialog> */}
+      </Dialog>
     </>
   );
 };

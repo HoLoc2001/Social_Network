@@ -23,6 +23,7 @@ axiosPrivate.interceptors.request.use(
         const res = await axiosPublic.post("refreshToken", {
           refreshToken: localStorage["RT"],
         });
+        console.log(res.data.accessToken);
         localStorage.setItem("AT", res.data.accessToken);
         localStorage.setItem("RT", res.data.refreshToken);
         if (config?.headers) {

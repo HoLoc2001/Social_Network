@@ -55,6 +55,7 @@ export const updateAvatar = createAsyncThunk(
   "user/updateAvatar",
   async (avatar) => {
     try {
+      console.log(avatar);
       const res = await axiosPrivate.post("user/updateAvatar", { avatar });
       console.log(res.data);
       return res.data;
@@ -105,7 +106,7 @@ export const userSlice = createSlice({
         state.token = action.payload;
       })
       .addCase(updateAvatar.fulfilled, (state, action) => {
-        state.user.avatar = action.payload.avatar;
+        state.user.avatar = action?.payload?.avatar?.avatar;
       });
   },
 });

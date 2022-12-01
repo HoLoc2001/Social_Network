@@ -18,7 +18,10 @@ const Posts = () => {
   const posts = useAppSelector((state) => state.posts.posts);
   console.log(posts);
   useEffect(() => {
-    dispatch(getPosts());
+    async function load() {
+      // await dispatch(getPosts());
+    }
+    load();
   }, []);
 
   const handleClickFavorite = (postId) => {};

@@ -3,57 +3,57 @@ import argon2 from "argon2";
 import { pool } from "../connectDB.js";
 
 export const refreshToken = async (req, res) => {
-  const { refreshToken } = req.body;
-  console.log(refreshToken);
-  if (!refreshToken) {
-    res.sendStatus(401);
-  }
-
-  // if (!refreshTokenModel.findOne({ where: { refreshToken } })) {
-  //   res.sendStatus(403);
-  // }
-
-  jwt.verify(
-    refreshToken,
-    process.env.REFRESH_TOKEN_SECRET,
-    async (err, data) => {
-      if (err) {
-        res.sendStatus(403);
-      }
-
-      await pool.query("delete from refresh_tokens where refreshToken = ?", [
-        refreshToken,
-      ]);
-
-      const accessToken = jwt.sign(
-        { userId: data.userId },
-        process.env.ACCESS_TOKEN_SECRET,
-        {
-          expiresIn: "1h",
-        }
-      );
-      const newRefreshToken = jwt.sign(
-        { userId: data.userId },
-        process.env.REFRESH_TOKEN_SECRET,
-        {
-          expiresIn: "30d",
-        }
-      );
-
-      let date = new Date();
-
-      await pool.query(
-        "INSERT INTO refresh_tokens values (?, ?)",
-        [newRefreshToken, date],
-        function (err, rows, fields) {
-          console.log(err);
-          console.log(rows);
-        }
-      );
-
-      res.json({ accessToken, refreshToken: newRefreshToken });
+  try {
+    const { refreshToken } = req.body;
+    console.log(refreshToken);
+    if (!refreshToken) {
+      res.sendStatus(401);
     }
-  );
+
+    const [row] = await pool.query("call get_refresh_token(?)", [refreshToken]);
+    if (!row[0]) {
+      res.sendStatus(403);
+    }
+    jwt.verify(
+      refreshToken,
+      process.env.REFRESH_TOKEN_SECRET,
+      async (err, data) => {
+        if (err) {
+          res.sendStatus(403);
+        }
+
+        await pool.query("call delete_refresh_token(?)", [refreshToken]);
+
+        const accessToken = jwt.sign(
+          { userId: data.userId },
+          process.env.ACCESS_TOKEN_SECRET,
+          {
+            expiresIn: "1h",
+          }
+        );
+        const newRefreshToken = jwt.sign(
+          { userId: data.userId },
+          process.env.REFRESH_TOKEN_SECRET,
+          {
+            expiresIn: "30d",
+          }
+        );
+
+        await pool.query(
+          "call add_refresh_token(?)",
+          [newRefreshToken],
+          function (err, rows, fields) {
+            console.log(err);
+          }
+        );
+
+        res.json({ accessToken, refreshToken: newRefreshToken });
+      }
+    );
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
 };
 
 export const sighUp = async (req, res) => {

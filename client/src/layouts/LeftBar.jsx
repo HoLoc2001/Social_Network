@@ -4,13 +4,18 @@ import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
 import { getInfo } from "../components/User/userSlice";
 import { useAppDispatch, useAppSelector } from "../redux/store";
+import { getPosts } from "../components/Posts/postsSlice";
 
 const LeftBar = () => {
   const dispatch = useAppDispatch();
-  useEffect(() => {
-    dispatch(getInfo());
-  }, []);
   const user = useAppSelector((state) => state.user.user);
+  useEffect(() => {
+    async function load() {
+      await dispatch(getInfo());
+      await dispatch(getPosts());
+    }
+    load();
+  }, []);
   const [atHome, setAtHome] = useState(true);
 
   const handleClickUser = () => {

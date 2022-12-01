@@ -12,12 +12,15 @@ export const getPosts = async (req, res) => {
 };
 
 export const addPost = async (req, res) => {
-  const { userId, title, totalPhoto } = req.body;
-  const date = new Date();
+  const { title, image } = req.body;
   try {
-    await pool.execute("call add_post(?, ?, ?)", [userId, title, totalPhoto]);
+    const [row] = await pool.execute("call add_post(?, ?, ?)", [
+      req.userId,
+      title,
+      image,
+    ]);
 
-    res.status(201).json({ msg: "Thanh cong!" });
+    res.status(201).json({ msg: "Thanh cong!", post: row[0] });
   } catch (error) {
     res.json(error);
   }
