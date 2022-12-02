@@ -21,6 +21,16 @@ export const updatePost = createAsyncThunk("posts/updatePost", async () => {
   return res.data;
 });
 
+export const updateLikePost = createAsyncThunk(
+  "posts/updateLikePost",
+  async (postId) => {
+    const res = await axiosPrivate.patch(`updateLikePost`, {
+      postId: postId,
+    });
+    return res.data.data[0];
+  }
+);
+
 export const getMyPosts = createAsyncThunk("posts/getMyPosts", async () => {
   const res = await axiosPrivate.get("myPosts");
   return res.data;
@@ -39,6 +49,17 @@ export const postsSlice = createSlice({
       })
       .addCase(updatePost.fulfilled, (state, action) => {
         state.posts.push();
+      })
+      .addCase(updateLikePost.fulfilled, (state, action) => {
+        state.posts.map((post) => {
+          if (post.id === action.payload?.id) {
+            return (
+              (post.totalLike = action.payload?.totalLike),
+              (post.isLike = action.payload?.isLike)
+            );
+          }
+          return post;
+        });
       })
       .addCase(getMyPosts.fulfilled, (state, action) => {
         state.myPosts = action?.payload?.myPosts;

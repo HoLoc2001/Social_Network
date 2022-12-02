@@ -4,6 +4,7 @@ import {
   deletePost,
   getMyPosts,
   getPosts,
+  updateLikePost,
   updatePost,
 } from "../controllers/posts.controller.js";
 import verifyToken from "../middleware/verifyToken.js";
@@ -17,6 +18,8 @@ router.get("/myPosts", verifyToken, getMyPosts);
 router.post("/post", verifyToken, addPost);
 
 router.patch("/post", verifyToken, updatePost);
+
+router.patch("/updateLikePost", verifyToken, updateLikePost);
 
 router.delete("/post", verifyToken, deletePost);
 

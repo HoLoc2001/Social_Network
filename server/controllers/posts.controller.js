@@ -31,11 +31,10 @@ export const updatePost = async (request, res) => {
 
   try {
     await pool.execute("");
+    res.status(200).json(post);
   } catch (error) {
     res.json(error);
   }
-
-  res.status(200).json(post);
 };
 
 export const deletePost = async (req, res) => {
@@ -62,5 +61,21 @@ export const getMyPosts = async (req, res) => {
     const [posts] = await pool.execute("call get_my_post(?)", [userId]);
 
     res.status(200).json({ myPosts: posts[0] });
-  } catch (error) {}
+  } catch (error) {
+    res.json(error);
+  }
+};
+
+export const updateLikePost = async (req, res) => {
+  try {
+    const { postId } = req.body;
+    const userId = req.userId;
+    const [row] = await pool.execute("call update_like_post(?, ?)", [
+      postId,
+      userId,
+    ]);
+    res.status(200).json({ data: row[0] });
+  } catch (error) {
+    res.json(error);
+  }
 };

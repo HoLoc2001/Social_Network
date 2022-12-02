@@ -56,7 +56,7 @@ export const updateAvatar = createAsyncThunk(
   async (avatar) => {
     try {
       console.log(avatar);
-      const res = await axiosPrivate.post("user/updateAvatar", { avatar });
+      const res = await axiosPrivate.patch("user/updateAvatar", { avatar });
       console.log(res.data);
       return res.data;
     } catch (error) {

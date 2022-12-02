@@ -2,7 +2,6 @@ import {
   Avatar,
   Button,
   Card,
-  CardActionArea,
   CardActions,
   CardContent,
   CardHeader,
@@ -14,24 +13,30 @@ import {
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
 import AddAPhotoIcon from "@mui/icons-material/AddAPhoto";
+import CommentIcon from "@mui/icons-material/Comment";
+import FavoriteIcon from "@mui/icons-material/Favorite";
 import AddIcon from "@mui/icons-material/Add";
 import React from "react";
+import moment from "moment";
+import "moment/locale/vi";
 import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../../redux/store";
-import { getInfo, updateAvatar } from "./userSlice";
-import logo from "../../assets/img/avatar.jpg";
+import { updateAvatar } from "./userSlice";
 import { useState } from "react";
 import { getBase64 } from "../../utils";
 import { addPost, getMyPosts } from "../Posts/postsSlice";
 import { Box } from "@mui/system";
-import { convertLength } from "@mui/material/styles/cssUtils";
+moment.locale("vi");
 
 const User = () => {
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.user.user);
   const myPosts = useAppSelector((state) => state.posts.myPosts);
   useEffect(() => {
-    dispatch(getMyPosts());
+    async function load() {
+      await dispatch(getMyPosts());
+    }
+    load();
   }, []);
 
   let imageBase64 = "";
@@ -100,13 +105,13 @@ const User = () => {
   return (
     <div
       style={{
-        margin: "40px 5% 0 22%",
+        margin: "40px 0 0 30%",
       }}
     >
       {/* {info user} */}
       <Card
         sx={{
-          width: "100%",
+          width: "60%",
           marginBottom: "20px",
         }}
       >
@@ -123,23 +128,16 @@ const User = () => {
               {user.fullname}
             </Typography>
           }
-          subheader="September 14, 2016"
           action={
             <IconButton aria-label="settings">
               <MoreVertIcon />
             </IconButton>
           }
         />
-
-        {/* <CardContent>
-          <Typography gutterBottom variant="h5" component="div">
-            {user.fullname}
-          </Typography>
-        </CardContent> */}
       </Card>
 
       {myPosts.map((post) => (
-        <Card key={post.id} sx={{ width: "100%", marginBottom: "20px" }}>
+        <Card key={post.id} sx={{ width: "60%", marginBottom: "20px" }}>
           <CardHeader
             avatar={<Avatar src={user.avatar} aria-label="recipe" />}
             action={
@@ -148,28 +146,53 @@ const User = () => {
               </IconButton>
             }
             title={user.fullname}
-            subheader={post.createdAt}
+            subheader={moment(post.createdAt).format("llll")}
           />
-          <CardMedia
-            component="img"
-            height="300px"
-            sx={{
-              background: `no-repeat center/cover url(${post.image})`,
-            }}
-          />
-          {console.log(post.image)}
-          <CardContent>
-            <Typography gutterBottom variant="h5" component="div">
-              Lizard
-            </Typography>
-            <Typography variant="body2" color="text.secondary">
-              hello u are fine
-            </Typography>
-          </CardContent>
+          {post.image ? (
+            <CardMedia
+              component="img"
+              height="500px"
+              sx={{
+                background: `no-repeat center/cover url(${post.image})`,
+              }}
+            />
+          ) : (
+            ""
+          )}
+
+          {post.title ? (
+            <CardContent>
+              <Typography variant="body2">{post.title}</Typography>
+            </CardContent>
+          ) : (
+            ""
+          )}
           <CardActions>
-            <Button size="small" color="primary">
-              Like
-            </Button>
+            <div
+              style={{
+                paddingLeft: "20%",
+                display: "flex",
+                alignItems: "center",
+                width: "50%",
+              }}
+            >
+              <FavoriteIcon
+                sx={{ color: post.isLike ? "red" : "gray", cursor: "pointer" }}
+                // onClick={() => handleClickFavorite(post.id)}
+              />
+              <Typography variant="body2">{post.totalLike}</Typography>
+            </div>
+            <div
+              style={{
+                paddingLeft: "20%",
+                display: "flex",
+                alignItems: "center",
+                width: "50%",
+              }}
+            >
+              <CommentIcon sx={{ color: "gray" }} />
+              <Typography variant="body2">{post.totalComment}</Typography>
+            </div>
           </CardActions>
         </Card>
       ))}
@@ -190,7 +213,7 @@ const User = () => {
           height: "70px",
           position: "fixed",
           bottom: "10px",
-          right: "0",
+          left: "1430px",
           borderRadius: "50%",
         }}
         onClick={handleOpenModal}

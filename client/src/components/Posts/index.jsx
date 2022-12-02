@@ -1,4 +1,6 @@
 import React, { useEffect } from "react";
+import moment from "moment";
+import "moment/locale/vi";
 import {
   Button,
   CardActionArea,
@@ -7,11 +9,14 @@ import {
   CardContent,
   CardMedia,
   Typography,
+  CardHeader,
+  Avatar,
 } from "@mui/material";
+import CommentIcon from "@mui/icons-material/Comment";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-import logo from "../../assets/img/photo2.jpg";
-import { getPosts, postsSelector } from "./postsSlice";
+import { getPosts, postsSelector, updateLikePost } from "./postsSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/store";
+moment.locale("vi");
 
 const Posts = () => {
   const dispatch = useAppDispatch();
@@ -24,16 +29,23 @@ const Posts = () => {
     load();
   }, []);
 
-  const handleClickFavorite = (postId) => {};
+  const handleClickFavorite = async (postId) => {
+    await dispatch(updateLikePost(postId));
+  };
 
   return (
     <div
       style={{
-        margin: "40px 5% 0 35%",
+        margin: "40px 0 0 30%",
       }}
     >
       {posts.map((post) => (
         <Card key={post.id} sx={{ width: "60%", marginBottom: "20px" }}>
+          <CardHeader
+            avatar={<Avatar src={post.avatar} aria-label="recipe" />}
+            title={post.fullname}
+            subheader={moment(post.createdAt).format("llll")}
+          />
           {post.image ? (
             <CardMedia
               component="img"
@@ -46,14 +58,40 @@ const Posts = () => {
             ""
           )}
 
-          <CardContent>
-            <Typography variant="body2" color="text.secondary">
-              {post.title}
-            </Typography>
-          </CardContent>
+          {post.title ? (
+            <CardContent>
+              <Typography variant="body2">{post.title}</Typography>
+            </CardContent>
+          ) : (
+            ""
+          )}
 
           <CardActions>
-            <FavoriteIcon onClick={handleClickFavorite(post.id)} />
+            <div
+              style={{
+                paddingLeft: "20%",
+                display: "flex",
+                alignItems: "center",
+                width: "50%",
+              }}
+            >
+              <FavoriteIcon
+                sx={{ color: post.isLike ? "red" : "gray", cursor: "pointer" }}
+                onClick={() => handleClickFavorite(post.id)}
+              />
+              <Typography variant="body2">{post.totalLike}</Typography>
+            </div>
+            <div
+              style={{
+                paddingLeft: "20%",
+                display: "flex",
+                alignItems: "center",
+                width: "50%",
+              }}
+            >
+              <CommentIcon sx={{ color: "gray" }} />
+              <Typography variant="body2">{post.totalComment}</Typography>
+            </div>
           </CardActions>
         </Card>
       ))}

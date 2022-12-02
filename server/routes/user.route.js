@@ -5,6 +5,6 @@ import verifyToken from "../middleware/verifyToken.js";
 const router = express.Router();
 
 router.get("/", verifyToken, getInfo);
-router.post("/updateAvatar", verifyToken, updateAvatar);
+router.patch("/updateAvatar", verifyToken, updateAvatar);
 
 export default router;
