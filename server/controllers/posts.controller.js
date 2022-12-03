@@ -79,3 +79,30 @@ export const updateLikePost = async (req, res) => {
     res.json(error);
   }
 };
+
+export const getCommentPost = async (req, res) => {
+  try {
+    const { postId } = req.body;
+    const [row] = await pool.execute("call get_comment_post(?)", [postId]);
+    res.status(200).json({ data: row[0] });
+  } catch (error) {
+    console.log(error);
+    res.json(error);
+  }
+};
+
+export const addCommentPost = async (req, res) => {
+  try {
+    const { postId, content } = req.body;
+    const userId = req.userId;
+    const [row] = await pool.execute("call add_comment_post(?, ?, ?)", [
+      postId,
+      userId,
+      content,
+    ]);
+    res.status(200).json({ data: row[0] });
+  } catch (error) {
+    console.log(error);
+    res.json(error);
+  }
+};

@@ -31,10 +31,39 @@ export const updateLikePost = createAsyncThunk(
   }
 );
 
+export const updateLikeMyPost = createAsyncThunk(
+  "posts/updateLikeMyPost",
+  async (postId) => {
+    const res = await axiosPrivate.patch(`updateLikePost`, {
+      postId: postId,
+    });
+    return res.data.data[0];
+  }
+);
+
 export const getMyPosts = createAsyncThunk("posts/getMyPosts", async () => {
   const res = await axiosPrivate.get("myPosts");
   return res.data;
 });
+
+export const getCommentPost = createAsyncThunk(
+  "posts/getCommentPost",
+  async (postId) => {
+    const res = await axiosPrivate.post("getCommentPost", { postId });
+    return res.data;
+  }
+);
+
+export const addCommentPost = createAsyncThunk(
+  "posts/addCommentPost",
+  async (data) => {
+    const res = await axiosPrivate.post("addCommentPost", {
+      postId: data.postId,
+      content: data.content,
+    });
+    return res.data.data[0];
+  }
+);
 
 export const postsSlice = createSlice({
   name: "posts",
@@ -61,8 +90,38 @@ export const postsSlice = createSlice({
           return post;
         });
       })
+      .addCase(updateLikeMyPost.fulfilled, (state, action) => {
+        state.myPosts.map((post) => {
+          if (post.id === action.payload?.id) {
+            return (
+              (post.totalLike = action.payload?.totalLike),
+              (post.isLike = action.payload?.isLike)
+            );
+          }
+          return post;
+        });
+      })
       .addCase(getMyPosts.fulfilled, (state, action) => {
         state.myPosts = action?.payload?.myPosts;
+      })
+      .addCase(getCommentPost.fulfilled, (state, action) => {
+        state.posts.map((post) => {
+          if (post.id === action.payload?.data[0]?.postId) {
+            return (post.comments = action.payload?.data);
+          }
+          return post;
+        });
+      })
+      .addCase(addCommentPost.fulfilled, (state, action) => {
+        state.posts.map((post) => {
+          if (post.id === action.payload?.postId) {
+            return (
+              (post.totalComment = action.payload?.totalComment),
+              (post.comment = action.payload?.content)
+            );
+          }
+          return post;
+        });
       });
   },
 });

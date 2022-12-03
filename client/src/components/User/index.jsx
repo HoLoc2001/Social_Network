@@ -24,14 +24,18 @@ import { useAppDispatch, useAppSelector } from "../../redux/store";
 import { updateAvatar } from "./userSlice";
 import { useState } from "react";
 import { getBase64 } from "../../utils";
-import { addPost, getMyPosts } from "../Posts/postsSlice";
+import { addPost, getMyPosts, updateLikeMyPost } from "../Posts/postsSlice";
 import { Box } from "@mui/system";
+import Comment from "../Comment";
 moment.locale("vi");
 
 const User = () => {
   const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.user.user);
-  const myPosts = useAppSelector((state) => state.posts.myPosts);
+  const posts = useAppSelector((state) => state.posts.posts);
+  const myPosts = posts.filter((post) => {
+    return post.userId === user.id;
+  });
   useEffect(() => {
     async function load() {
       await dispatch(getMyPosts());
@@ -60,6 +64,11 @@ const User = () => {
       console.log(error);
     }
   };
+
+  const handleClickFavorite = async (postId) => {
+    await dispatch(updateLikeMyPost(postId));
+  };
+
   const handleImagePost = async (e) => {
     try {
       let data = e.target.files;
@@ -148,6 +157,14 @@ const User = () => {
             title={user.fullname}
             subheader={moment(post.createdAt).format("llll")}
           />
+          {post.title ? (
+            <CardContent>
+              <Typography variant="body2">{post.title}</Typography>
+            </CardContent>
+          ) : (
+            ""
+          )}
+
           {post.image ? (
             <CardMedia
               component="img"
@@ -160,13 +177,6 @@ const User = () => {
             ""
           )}
 
-          {post.title ? (
-            <CardContent>
-              <Typography variant="body2">{post.title}</Typography>
-            </CardContent>
-          ) : (
-            ""
-          )}
           <CardActions>
             <div
               style={{
@@ -176,10 +186,15 @@ const User = () => {
                 width: "50%",
               }}
             >
-              <FavoriteIcon
-                sx={{ color: post.isLike ? "red" : "gray", cursor: "pointer" }}
-                // onClick={() => handleClickFavorite(post.id)}
-              />
+              <IconButton>
+                <FavoriteIcon
+                  sx={{
+                    color: post.isLike ? "red" : "gray",
+                    cursor: "pointer",
+                  }}
+                  onClick={() => handleClickFavorite(post.id)}
+                />
+              </IconButton>
               <Typography variant="body2">{post.totalLike}</Typography>
             </div>
             <div
@@ -190,10 +205,13 @@ const User = () => {
                 width: "50%",
               }}
             >
-              <CommentIcon sx={{ color: "gray" }} />
+              <IconButton>
+                <CommentIcon sx={{ color: "gray" }} />
+              </IconButton>
               <Typography variant="body2">{post.totalComment}</Typography>
             </div>
           </CardActions>
+          <Comment post={post} avatar={user.avatar} />
         </Card>
       ))}
       <Button variant="contained" component="label">

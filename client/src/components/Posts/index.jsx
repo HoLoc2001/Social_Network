@@ -11,17 +11,24 @@ import {
   Typography,
   CardHeader,
   Avatar,
+  IconButton,
+  Collapse,
+  Divider,
 } from "@mui/material";
 import CommentIcon from "@mui/icons-material/Comment";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import { getPosts, postsSelector, updateLikePost } from "./postsSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/store";
+import Comment from "../Comment";
+import { useState } from "react";
+import { userSelector } from "../User/userSlice";
 moment.locale("vi");
 
 const Posts = () => {
   const dispatch = useAppDispatch();
   const posts = useAppSelector((state) => state.posts.posts);
-  console.log(posts);
+  const user = useAppSelector((state) => state.user.user);
+
   useEffect(() => {
     async function load() {
       // await dispatch(getPosts());
@@ -33,6 +40,8 @@ const Posts = () => {
     await dispatch(updateLikePost(postId));
   };
 
+  const handleClickComment = () => {};
+
   return (
     <div
       style={{
@@ -40,12 +49,24 @@ const Posts = () => {
       }}
     >
       {posts.map((post) => (
-        <Card key={post.id} sx={{ width: "60%", marginBottom: "20px" }}>
+        <Card
+          key={post.id}
+          sx={{ width: "60%", marginBottom: "20px", borderRadius: "10px" }}
+        >
           <CardHeader
             avatar={<Avatar src={post.avatar} aria-label="recipe" />}
             title={post.fullname}
             subheader={moment(post.createdAt).format("llll")}
           />
+          <Divider />
+
+          {post.title ? (
+            <CardContent>
+              <Typography variant="body2">{post.title}</Typography>
+            </CardContent>
+          ) : (
+            ""
+          )}
           {post.image ? (
             <CardMedia
               component="img"
@@ -54,14 +75,6 @@ const Posts = () => {
                 background: `no-repeat center/cover url(${post.image})`,
               }}
             />
-          ) : (
-            ""
-          )}
-
-          {post.title ? (
-            <CardContent>
-              <Typography variant="body2">{post.title}</Typography>
-            </CardContent>
           ) : (
             ""
           )}
@@ -75,10 +88,14 @@ const Posts = () => {
                 width: "50%",
               }}
             >
-              <FavoriteIcon
-                sx={{ color: post.isLike ? "red" : "gray", cursor: "pointer" }}
-                onClick={() => handleClickFavorite(post.id)}
-              />
+              <IconButton onClick={() => handleClickFavorite(post.id)}>
+                <FavoriteIcon
+                  sx={{
+                    color: post.isLike ? "red" : "gray",
+                    cursor: "pointer",
+                  }}
+                />
+              </IconButton>
               <Typography variant="body2">{post.totalLike}</Typography>
             </div>
             <div
@@ -89,10 +106,14 @@ const Posts = () => {
                 width: "50%",
               }}
             >
-              <CommentIcon sx={{ color: "gray" }} />
+              <CommentIcon
+                sx={{ color: "gray" }}
+                onClick={() => handleClickComment()}
+              />
               <Typography variant="body2">{post.totalComment}</Typography>
             </div>
           </CardActions>
+          <Comment post={post} avatar={user.avatar} />
         </Card>
       ))}
     </div>

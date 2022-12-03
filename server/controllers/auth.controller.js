@@ -5,7 +5,6 @@ import { pool } from "../connectDB.js";
 export const refreshToken = async (req, res) => {
   try {
     const { refreshToken } = req.body;
-    console.log(refreshToken);
     if (!refreshToken) {
       res.sendStatus(401);
     }
