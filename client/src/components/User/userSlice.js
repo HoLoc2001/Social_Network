@@ -65,6 +65,18 @@ export const updateAvatar = createAsyncThunk(
   }
 );
 
+export const getListFollower = createAsyncThunk(
+  "user/getListFollower",
+  async () => {
+    try {
+      const res = await axiosPrivate.post("user/getListFollower");
+      return res.data;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+);
+
 export const userSlice = createSlice({
   name: "user",
   initialState: {
@@ -76,6 +88,7 @@ export const userSlice = createSlice({
       avatar: null,
       createdAt: null,
     },
+    listFollower: [],
     token: {
       accessToken: localStorage["AT"] || null,
       refreshToken: localStorage["RT"] || null,
@@ -107,14 +120,9 @@ export const userSlice = createSlice({
       })
       .addCase(updateAvatar.fulfilled, (state, action) => {
         state.user.avatar = action?.payload?.avatar?.avatar;
+      })
+      .addCase(getListFollower.fulfilled, (state, action) => {
+        state.listFollower = action?.payload?.data;
       });
   },
 });
-
-export const validateEmailSelector = (state) => state.user.validateEmail;
-
-export const userSelector = (state) => state.user.user;
-
-export const tokenSelector = (state) => state.user.token;
-
-export const isAuthenticatedSelector = (state) => state.user.isAuthenticated;

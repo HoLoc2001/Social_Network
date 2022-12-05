@@ -20,8 +20,6 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import { getPosts, postsSelector, updateLikePost } from "./postsSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/store";
 import Comment from "../Comment";
-import { useState } from "react";
-import { userSelector } from "../User/userSlice";
 moment.locale("vi");
 
 const Posts = () => {

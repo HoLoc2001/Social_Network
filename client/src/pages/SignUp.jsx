@@ -14,13 +14,13 @@ import {
   checkEmail,
   signup,
   tokenSelector,
-  validateEmailSelector,
 } from "../components/User/userSlice";
+import { useAppSelector } from "../redux/store";
 
 const SignUp = () => {
-  const token = useSelector(tokenSelector);
+  const token = useAppSelector((state) => state.user.token);
   const dispatch = useDispatch();
-  const validateEmail = useSelector(validateEmailSelector);
+  const validateEmail = useAppSelector((state) => state.user.validateEmail);
 
   const [signupForm, setSignupForm] = useState({
     email: "",

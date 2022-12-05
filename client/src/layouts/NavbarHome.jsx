@@ -3,10 +3,7 @@ import {
   Box,
   Container,
   IconButton,
-  Menu,
-  MenuItem,
   Toolbar,
-  Tooltip,
   Typography,
   Paper,
   InputBase,
@@ -26,20 +23,7 @@ import { Link } from "react-router-dom";
 const Navbar = () => {
   const dispatch = useAppDispatch();
 
-  const [anchorElNav, setAnchorElNav] = useState(null);
-  const [anchorElUser, setAnchorElUser] = useState(null);
   const [openSignOut, setOpenSignOut] = useState(false);
-
-  const handleOpenNavMenu = (event) => {
-    setAnchorElNav(event.currentTarget);
-  };
-  const handleOpenUserMenu = (event) => {
-    setAnchorElUser(event.currentTarget);
-  };
-
-  const handleCloseUserMenu = () => {
-    setAnchorElUser(null);
-  };
 
   const handleSignOut = () => {
     localStorage.clear();
@@ -52,7 +36,10 @@ const Navbar = () => {
 
   return (
     <>
-      <AppBar position="fixed" sx={{ backgroundColor: "#20B2AA" }}>
+      <AppBar
+        position="fixed"
+        sx={{ color: "black", backgroundColor: "#20B2AA" }}
+      >
         <Container maxWidth="xl">
           <Toolbar disableGutters>
             <Box
@@ -75,6 +62,7 @@ const Navbar = () => {
                       letterSpacing: ".3rem",
                       textDecoration: "none",
                       fontSize: "30px",
+                      color: "whitesmoke",
                     }}
                   >
                     SOCIAL
@@ -108,38 +96,21 @@ const Navbar = () => {
                 </Paper>
               </Box>
 
-              <Box>
-                <Tooltip title="Open settings">
-                  <IconButton onClick={handleOpenUserMenu} sx={{ p: 0 }}>
-                    <SettingsIcon fontSize="large" />
-                  </IconButton>
-                </Tooltip>
-                <Menu
-                  sx={{ mt: "45px" }}
-                  id="menu-appbar"
-                  anchorEl={anchorElUser}
-                  anchorOrigin={{
-                    vertical: "top",
-                    horizontal: "right",
-                  }}
-                  keepMounted
-                  transformOrigin={{
-                    vertical: "top",
-                    horizontal: "right",
-                  }}
-                  open={Boolean(anchorElUser)}
-                  onClose={handleCloseUserMenu}
-                >
-                  <MenuItem key="1" onClick={() => handleClickInfo()}>
-                    <Typography textAlign="center">
-                      Thông tin tài khoản
-                    </Typography>
-                  </MenuItem>
-                  <MenuItem key="2" onClick={() => setOpenSignOut(true)}>
-                    <Typography textAlign="center">Đăng xuất</Typography>
-                  </MenuItem>
-                </Menu>
-              </Box>
+              <div className="mui-dropdown">
+                <IconButton aria-label="settings" data-mui-toggle="dropdown">
+                  <SettingsIcon fontSize="large" />
+                </IconButton>
+                <ul className="mui-dropdown__menu mui-dropdown__menu--right">
+                  <li style={{ textAlign: "center" }}>
+                    <Button
+                      onClick={() => setOpenSignOut(true)}
+                      sx={{ color: "black" }}
+                    >
+                      <Typography>Đăng xuất</Typography>
+                    </Button>
+                  </li>
+                </ul>
+              </div>
             </Box>
           </Toolbar>
         </Container>

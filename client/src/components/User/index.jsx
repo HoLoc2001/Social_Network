@@ -24,30 +24,39 @@ import { useAppDispatch, useAppSelector } from "../../redux/store";
 import { updateAvatar } from "./userSlice";
 import { useState } from "react";
 import { getBase64 } from "../../utils";
-import { addPost, getMyPosts, updateLikeMyPost } from "../Posts/postsSlice";
+import {
+  addPost,
+  getMyPosts,
+  updateLikeMyPost,
+  updateLikePost,
+} from "../Posts/postsSlice";
 import { Box } from "@mui/system";
 import Comment from "../Comment";
+import { Link, Navigate, useParams } from "react-router-dom";
 moment.locale("vi");
 
 const User = () => {
   const dispatch = useAppDispatch();
+  const params = useParams();
+  let imageBase64 = "";
+  let isMe = false;
+  const [avatar, setAvatar] = useState("");
+  const [imgPost, setImgPost] = useState("");
+  const [openModal, setOpenModal] = useState(false);
+  const [title, setTitle] = useState("");
   const user = useAppSelector((state) => state.user.user);
   const posts = useAppSelector((state) => state.posts.posts);
   const myPosts = posts.filter((post) => {
     return post.userId === user.id;
   });
-  useEffect(() => {
-    async function load() {
-      await dispatch(getMyPosts());
-    }
-    load();
-  }, []);
 
-  let imageBase64 = "";
-  const [avatar, setAvatar] = useState("");
-  const [imgPost, setImgPost] = useState("");
-  const [openModal, setOpenModal] = useState(false);
-  const [title, setTitle] = useState("");
+  if (!Number(params.id)) {
+    return <Navigate to="../" />;
+  }
+
+  if (Number(params.id) === user.id) {
+    isMe = true;
+  }
 
   const handleImageAvatar = async (e) => {
     try {
@@ -66,7 +75,7 @@ const User = () => {
   };
 
   const handleClickFavorite = async (postId) => {
-    await dispatch(updateLikeMyPost(postId));
+    await dispatch(updateLikePost(postId));
   };
 
   const handleImagePost = async (e) => {
@@ -133,14 +142,31 @@ const User = () => {
             />
           }
           title={
-            <Typography gutterBottom variant="h5" component="div">
+            <Typography sx={{ marginTop: "15px" }} variant="h5" component="div">
               {user.fullname}
             </Typography>
           }
+          subheader={
+            <div style={{ display: "flex" }}>
+              <h5>Người theo dõi: {user.totalFollower} &emsp;</h5>
+              <h5>Đang theo dõi: {user.totalFollowing}</h5>
+            </div>
+          }
           action={
-            <IconButton aria-label="settings">
-              <MoreVertIcon />
-            </IconButton>
+            isMe ? (
+              <div className="mui-dropdown mui-dropdown--left">
+                <IconButton aria-label="settings" data-mui-toggle="dropdown">
+                  <MoreVertIcon />
+                </IconButton>
+                <ul className="mui-dropdown__menu">
+                  <li>
+                    <Link to="/profile">Thông tin tài khoản</Link>
+                  </li>
+                </ul>
+              </div>
+            ) : (
+              ""
+            )
           }
         />
       </Card>
@@ -150,9 +176,23 @@ const User = () => {
           <CardHeader
             avatar={<Avatar src={user.avatar} aria-label="recipe" />}
             action={
-              <IconButton aria-label="settings">
-                <MoreVertIcon />
-              </IconButton>
+              isMe ? (
+                <div className="mui-dropdown mui-dropdown--left">
+                  <IconButton aria-label="settings" data-mui-toggle="dropdown">
+                    <MoreVertIcon />
+                  </IconButton>
+                  <ul className="mui-dropdown__menu">
+                    <li>
+                      <a>Xóa</a>
+                    </li>
+                    <li>
+                      <a href="#">Sửa</a>
+                    </li>
+                  </ul>
+                </div>
+              ) : (
+                ""
+              )
             }
             title={user.fullname}
             subheader={moment(post.createdAt).format("llll")}
@@ -186,13 +226,12 @@ const User = () => {
                 width: "50%",
               }}
             >
-              <IconButton>
+              <IconButton onClick={() => handleClickFavorite(post.id)}>
                 <FavoriteIcon
                   sx={{
                     color: post.isLike ? "red" : "gray",
                     cursor: "pointer",
                   }}
-                  onClick={() => handleClickFavorite(post.id)}
                 />
               </IconButton>
               <Typography variant="body2">{post.totalLike}</Typography>

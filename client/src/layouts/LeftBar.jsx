@@ -2,7 +2,7 @@ import { Avatar, Box, Button } from "@mui/material";
 import HomeIcon from "@mui/icons-material/Home";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getInfo } from "../components/User/userSlice";
+import { getInfo, getListFollower } from "../components/User/userSlice";
 import { useAppDispatch, useAppSelector } from "../redux/store";
 import { getPosts } from "../components/Posts/postsSlice";
 

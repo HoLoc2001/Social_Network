@@ -88,13 +88,15 @@ const Comment = (props) => {
             totalComment === 0 ? (
               ""
             ) : (
-              <p onClick={() => handleSeeMore()}>Xem tất cả bình luận</p>
+              <p style={{ cursor: "pointer" }} onClick={() => handleSeeMore()}>
+                Xem tất cả bình luận
+              </p>
             )
           ) : (
             comments?.map((comment) => {
               return (
                 <div
-                  key={nanoid()}
+                  key={comment.commentId}
                   style={{
                     display: "flex",
                     marginBottom: "10px",
