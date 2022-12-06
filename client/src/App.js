@@ -9,6 +9,7 @@ import Protected from "./routing/Protected";
 import Posts from "./components/Posts";
 import Socket from "./layouts/Socket";
 import User from "./components/User";
+import OtherUser from "./components/OtherUser";
 
 function App() {
   return (
@@ -18,7 +19,8 @@ function App() {
         <Route path="/" element={<Protected />}>
           <Route path="/" element={<Home />}>
             <Route path="/" element={<Posts />} />
-            <Route path="/:id" element={<User />} />
+            <Route path="/profile" element={<User />} />
+            <Route path="/:id" element={<OtherUser />} />
           </Route>
         </Route>
         <Route path="/dashboard" element={<Dashboard />} />

@@ -33,30 +33,48 @@ import {
 import { Box } from "@mui/system";
 import Comment from "../Comment";
 import { Link, Navigate, useParams } from "react-router-dom";
+import InfiniteScroll from "../InfiniteScroll";
 moment.locale("vi");
 
 const User = () => {
   const dispatch = useAppDispatch();
   const params = useParams();
   let imageBase64 = "";
-  let isMe = false;
+  let isMe = true;
   const [avatar, setAvatar] = useState("");
   const [imgPost, setImgPost] = useState("");
   const [openModal, setOpenModal] = useState(false);
   const [title, setTitle] = useState("");
   const user = useAppSelector((state) => state.user.user);
-  const posts = useAppSelector((state) => state.posts.posts);
-  const myPosts = posts.filter((post) => {
-    return post.userId === user.id;
+  const myPosts = useAppSelector((state) => state.posts.myPosts);
+
+  const [page, setPage] = useState(myPosts.length);
+  const [hasPost, setHasPost] = useState(() => {
+    if (myPosts.length % 5 === 0 && myPosts.length !== 0) {
+      return true;
+    }
+    return false;
   });
 
-  if (!Number(params.id)) {
-    return <Navigate to="../" />;
-  }
+  useEffect(() => {
+    (async () => {
+      await dispatch(getMyPosts(page));
+      setHasPost(() => {
+        if (myPosts.length % 5 === 0) {
+          return true;
+        }
+        return false;
+      });
+    })();
+  }, [page]);
 
-  if (Number(params.id) === user.id) {
-    isMe = true;
-  }
+  // if (!Number(params.id)) {
+  //   return <Navigate to="../" />;
+  // }
+
+  // if (Number(params.id) === user.id) {
+  //   isMe = true;
+  // }
 
   const handleImageAvatar = async (e) => {
     try {
@@ -170,89 +188,98 @@ const User = () => {
           }
         />
       </Card>
-
-      {myPosts.map((post) => (
-        <Card key={post.id} sx={{ width: "60%", marginBottom: "20px" }}>
-          <CardHeader
-            avatar={<Avatar src={user.avatar} aria-label="recipe" />}
-            action={
-              isMe ? (
-                <div className="mui-dropdown mui-dropdown--left">
-                  <IconButton aria-label="settings" data-mui-toggle="dropdown">
-                    <MoreVertIcon />
-                  </IconButton>
-                  <ul className="mui-dropdown__menu">
-                    <li>
-                      <a>Xóa</a>
-                    </li>
-                    <li>
-                      <a href="#">Sửa</a>
-                    </li>
-                  </ul>
-                </div>
-              ) : (
-                ""
-              )
-            }
-            title={user.fullname}
-            subheader={moment(post.createdAt).format("llll")}
-          />
-          {post.title ? (
-            <CardContent>
-              <Typography variant="body2">{post.title}</Typography>
-            </CardContent>
-          ) : (
-            ""
-          )}
-
-          {post.image ? (
-            <CardMedia
-              component="img"
-              height="500px"
-              sx={{
-                background: `no-repeat center/cover url(${post.image})`,
-              }}
+      <InfiniteScroll
+        getMore={() => {
+          setPage((prev) => prev + 5);
+        }}
+        hasMore={myPosts.length && hasPost}
+      >
+        {myPosts.map((post) => (
+          <Card key={post.id} sx={{ width: "60%", marginBottom: "20px" }}>
+            <CardHeader
+              avatar={<Avatar src={user.avatar} aria-label="recipe" />}
+              action={
+                isMe ? (
+                  <div className="mui-dropdown mui-dropdown--left">
+                    <IconButton
+                      aria-label="settings"
+                      data-mui-toggle="dropdown"
+                    >
+                      <MoreVertIcon />
+                    </IconButton>
+                    <ul className="mui-dropdown__menu">
+                      <li>
+                        <a>Xóa</a>
+                      </li>
+                      <li>
+                        <a href="#">Sửa</a>
+                      </li>
+                    </ul>
+                  </div>
+                ) : (
+                  ""
+                )
+              }
+              title={user.fullname}
+              subheader={moment(post.createdAt).format("llll")}
             />
-          ) : (
-            ""
-          )}
+            {post.title ? (
+              <CardContent>
+                <Typography variant="body2">{post.title}</Typography>
+              </CardContent>
+            ) : (
+              ""
+            )}
 
-          <CardActions>
-            <div
-              style={{
-                paddingLeft: "20%",
-                display: "flex",
-                alignItems: "center",
-                width: "50%",
-              }}
-            >
-              <IconButton onClick={() => handleClickFavorite(post.id)}>
-                <FavoriteIcon
-                  sx={{
-                    color: post.isLike ? "red" : "gray",
-                    cursor: "pointer",
-                  }}
-                />
-              </IconButton>
-              <Typography variant="body2">{post.totalLike}</Typography>
-            </div>
-            <div
-              style={{
-                paddingLeft: "20%",
-                display: "flex",
-                alignItems: "center",
-                width: "50%",
-              }}
-            >
-              <IconButton>
-                <CommentIcon sx={{ color: "gray" }} />
-              </IconButton>
-              <Typography variant="body2">{post.totalComment}</Typography>
-            </div>
-          </CardActions>
-          <Comment post={post} avatar={user.avatar} />
-        </Card>
-      ))}
+            {post.image ? (
+              <CardMedia
+                component="img"
+                height="500px"
+                sx={{
+                  background: `no-repeat center/cover url(${post.image})`,
+                }}
+              />
+            ) : (
+              ""
+            )}
+
+            <CardActions>
+              <div
+                style={{
+                  paddingLeft: "20%",
+                  display: "flex",
+                  alignItems: "center",
+                  width: "50%",
+                }}
+              >
+                <IconButton onClick={() => handleClickFavorite(post.id)}>
+                  <FavoriteIcon
+                    sx={{
+                      color: post.isLike ? "red" : "gray",
+                      cursor: "pointer",
+                    }}
+                  />
+                </IconButton>
+                <Typography variant="body2">{post.totalLike}</Typography>
+              </div>
+              <div
+                style={{
+                  paddingLeft: "20%",
+                  display: "flex",
+                  alignItems: "center",
+                  width: "50%",
+                }}
+              >
+                <IconButton>
+                  <CommentIcon sx={{ color: "gray" }} />
+                </IconButton>
+                <Typography variant="body2">{post.totalComment}</Typography>
+              </div>
+            </CardActions>
+            <Comment post={post} avatar={user.avatar} />
+          </Card>
+        ))}
+      </InfiniteScroll>
       <Button variant="contained" component="label">
         Upload File
         <input

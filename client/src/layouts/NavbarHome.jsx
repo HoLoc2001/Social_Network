@@ -64,6 +64,7 @@ const Navbar = () => {
                       fontSize: "30px",
                       color: "whitesmoke",
                     }}
+                    onClick={() => (window.location.href = "/")}
                   >
                     SOCIAL
                   </Typography>

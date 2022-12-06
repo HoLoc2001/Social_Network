@@ -51,6 +51,18 @@ export const getInfo = createAsyncThunk("user/getInfo", async () => {
   }
 });
 
+export const getOtherInfo = createAsyncThunk(
+  "user/getOtherInfo",
+  async (userId) => {
+    try {
+      const res = await axiosPrivate.post("user/getOtherInfo", { userId });
+      return res.data;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+);
+
 export const updateAvatar = createAsyncThunk(
   "user/updateAvatar",
   async (avatar) => {
@@ -88,6 +100,7 @@ export const userSlice = createSlice({
       avatar: null,
       createdAt: null,
     },
+    otherUser: [],
     listFollower: [],
     token: {
       accessToken: localStorage["AT"] || null,
@@ -114,6 +127,9 @@ export const userSlice = createSlice({
       })
       .addCase(getInfo.fulfilled, (state, action) => {
         state.user = action.payload?.user[0];
+      })
+      .addCase(getOtherInfo.fulfilled, (state, action) => {
+        state.otherUser = action.payload?.user[0];
       })
       .addCase(refreshToken.fulfilled, (state, action) => {
         state.token = action.payload;

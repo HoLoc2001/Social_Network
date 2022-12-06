@@ -5,6 +5,7 @@ import {
   deletePost,
   getCommentPost,
   getMyPosts,
+  getOtherPosts,
   getPosts,
   updateLikePost,
   updatePost,
@@ -13,17 +14,19 @@ import verifyToken from "../middleware/verifyToken.js";
 
 const router = express.Router();
 
-router.get("/posts", verifyToken, getPosts);
+router.post("/getPosts", verifyToken, getPosts);
 
-router.get("/myPosts", verifyToken, getMyPosts);
+router.post("/getMyPosts", verifyToken, getMyPosts);
+
+router.post("/getOtherPosts", verifyToken, getOtherPosts);
 
 router.post("/getCommentPost", verifyToken, getCommentPost);
 
 router.post("/addCommentPost", verifyToken, addCommentPost);
 
-router.post("/post", verifyToken, addPost);
+router.post("/addPost", verifyToken, addPost);
 
-router.patch("/post", verifyToken, updatePost);
+router.patch("/updatePost", verifyToken, updatePost);
 
 router.patch("/updateLikePost", verifyToken, updateLikePost);
 

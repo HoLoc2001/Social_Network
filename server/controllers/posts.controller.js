@@ -1,10 +1,10 @@
 import { pool } from "../connectDB.js";
 
 export const getPosts = async (req, res) => {
+  const { page } = req.body;
   const userId = req.userId;
   try {
-    const [posts] = await pool.execute("call get_post(?)", [userId]);
-
+    const [posts] = await pool.execute("call get_post(?, ?)", [userId, page]);
     res.status(200).json({ posts: posts[0] });
   } catch (error) {
     res.json(error);
@@ -58,9 +58,27 @@ export const deletePost = async (req, res) => {
 export const getMyPosts = async (req, res) => {
   try {
     const userId = req.userId;
-    const [posts] = await pool.execute("call get_my_post(?)", [userId]);
+    const { page } = req.body;
+    const [posts] = await pool.execute("call get_my_post(?, ?)", [
+      userId,
+      page,
+    ]);
 
     res.status(200).json({ myPosts: posts[0] });
+  } catch (error) {
+    res.json(error);
+  }
+};
+
+export const getOtherPosts = async (req, res) => {
+  try {
+    const { page, userId } = req.body;
+    const [posts] = await pool.execute("call get_my_post(?, ?)", [
+      userId,
+      page,
+    ]);
+
+    res.status(200).json({ otherPosts: posts[0] });
   } catch (error) {
     res.json(error);
   }

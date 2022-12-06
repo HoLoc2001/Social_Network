@@ -1,36 +1,45 @@
-import React, { useEffect } from "react";
-import moment from "moment";
-import "moment/locale/vi";
 import {
-  Button,
-  CardActionArea,
-  CardActions,
-  Card,
-  CardContent,
-  CardMedia,
-  Typography,
-  CardHeader,
   Avatar,
+  Card,
+  CardActions,
+  CardContent,
+  CardHeader,
+  CardMedia,
   IconButton,
-  Collapse,
-  Divider,
+  Typography,
 } from "@mui/material";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 import CommentIcon from "@mui/icons-material/Comment";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-import { getPosts, postsSelector, updateLikePost } from "./postsSlice";
-import { useAppDispatch, useAppSelector } from "../../redux/store";
-import Comment from "../Comment";
+import React from "react";
+import moment from "moment";
+import "moment/locale/vi";
+import { useEffect } from "react";
+import { useAppDispatch, useAppSelector } from "../redux/store";
 import { useState } from "react";
-import InfiniteScroll from "../InfiniteScroll";
+import {
+  addPost,
+  getMyPosts,
+  getOtherPosts,
+  updateLikeMyPost,
+  updateLikePost,
+} from "../components/Posts/postsSlice";
+import Comment from "../components/Comment";
+import { Link, Navigate, useParams } from "react-router-dom";
+import InfiniteScroll from "../components/InfiniteScroll";
+import { getOtherInfo } from "./User/userSlice";
 moment.locale("vi");
 
-const Posts = () => {
+const OtherUser = () => {
   const dispatch = useAppDispatch();
-  const posts = useAppSelector((state) => state.posts.posts);
+  const params = useParams();
+
+  const otherUser = useAppSelector((state) => state.user.otherUser);
   const user = useAppSelector((state) => state.user.user);
-  const [page, setPage] = useState(posts.length);
+  const otherPosts = useAppSelector((state) => state.posts.otherPosts);
+  const [page, setPage] = useState(otherPosts.length);
   const [hasPost, setHasPost] = useState(() => {
-    if (posts.length % 5 === 0 && posts.length !== 0) {
+    if (otherPosts.length % 5 === 0 && otherPosts.length !== 0) {
       return true;
     }
     return false;
@@ -38,9 +47,15 @@ const Posts = () => {
 
   useEffect(() => {
     (async () => {
-      await dispatch(getPosts(page));
+      await dispatch(getOtherInfo(params.id));
+    })();
+  }, []);
+
+  useEffect(() => {
+    (async () => {
+      await dispatch(getOtherPosts({ page, userId: params.id }));
       setHasPost(() => {
-        if (posts.length % 5 === 0) {
+        if (otherPosts.length % 5 === 0) {
           return true;
         }
         return false;
@@ -52,32 +67,53 @@ const Posts = () => {
     await dispatch(updateLikePost(postId));
   };
 
-  const handleClickComment = () => {};
-
   return (
     <div
       style={{
         margin: "40px 0 0 30%",
       }}
     >
+      {/* {info user} */}
+      <Card
+        sx={{
+          width: "60%",
+          marginBottom: "20px",
+        }}
+      >
+        <CardHeader
+          avatar={
+            <Avatar
+              src={otherUser.avatar}
+              aria-label="recipe"
+              sx={{ height: "100px", width: "100px", position: "relative" }}
+            />
+          }
+          title={
+            <Typography sx={{ marginTop: "15px" }} variant="h5" component="div">
+              {otherUser.fullname}
+            </Typography>
+          }
+          subheader={
+            <div style={{ display: "flex" }}>
+              <h5>Người theo dõi: {otherUser.totalFollower} &emsp;</h5>
+              <h5>Đang theo dõi: {otherUser.totalFollowing}</h5>
+            </div>
+          }
+        />
+      </Card>
       <InfiniteScroll
         getMore={() => {
           setPage((prev) => prev + 5);
         }}
-        hasMore={posts.length && hasPost}
+        hasMore={otherPosts.length && hasPost}
       >
-        {posts.map((post) => (
-          <Card
-            key={post.id}
-            sx={{ width: "60%", marginBottom: "20px", borderRadius: "10px" }}
-          >
+        {otherPosts.map((post) => (
+          <Card key={post.id} sx={{ width: "60%", marginBottom: "20px" }}>
             <CardHeader
-              avatar={<Avatar src={post.avatar} aria-label="recipe" />}
-              title={post.fullname}
+              avatar={<Avatar src={otherUser.avatar} aria-label="recipe" />}
+              title={otherUser.fullname}
               subheader={moment(post.createdAt).format("llll")}
             />
-            <Divider />
-
             {post.title ? (
               <CardContent>
                 <Typography variant="body2">{post.title}</Typography>
@@ -85,6 +121,7 @@ const Posts = () => {
             ) : (
               ""
             )}
+
             {post.image ? (
               <CardMedia
                 component="img"
@@ -124,10 +161,9 @@ const Posts = () => {
                   width: "50%",
                 }}
               >
-                <CommentIcon
-                  sx={{ color: "gray" }}
-                  onClick={() => handleClickComment()}
-                />
+                <IconButton>
+                  <CommentIcon sx={{ color: "gray" }} />
+                </IconButton>
                 <Typography variant="body2">{post.totalComment}</Typography>
               </div>
             </CardActions>
@@ -139,4 +175,4 @@ const Posts = () => {
   );
 };
 
-export default Posts;
+export default OtherUser;

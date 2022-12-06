@@ -5,6 +5,7 @@ import { Link } from "react-router-dom";
 import { getInfo, getListFollower } from "../components/User/userSlice";
 import { useAppDispatch, useAppSelector } from "../redux/store";
 import { getPosts } from "../components/Posts/postsSlice";
+import { borderLeft } from "@mui/system";
 
 const LeftBar = () => {
   const dispatch = useAppDispatch();
@@ -12,7 +13,6 @@ const LeftBar = () => {
   useEffect(() => {
     async function load() {
       await dispatch(getInfo());
-      await dispatch(getPosts());
     }
     load();
   }, []);
@@ -22,6 +22,7 @@ const LeftBar = () => {
     setAtHome(false);
   };
   const handleClickHome = () => {
+    // window.location.reload();
     setAtHome(true);
   };
 
@@ -42,6 +43,7 @@ const LeftBar = () => {
                 paddingLeft: "10px",
                 paddingBottom: "10px",
                 textTransform: "none",
+                ...(atHome ? { borderLeft: "5px solid #20B2AA" } : {}),
               }}
             >
               <HomeIcon fontSize="large" />
@@ -50,8 +52,14 @@ const LeftBar = () => {
               </span>
             </Button>
           </Link>
-          <Link to={`/${user.id}`} style={{ textDecoration: "none" }}>
-            <Button onClick={handleClickUser} style={{ textTransform: "none" }}>
+          <Link to={`/profile`} style={{ textDecoration: "none" }}>
+            <Button
+              onClick={handleClickUser}
+              style={{
+                textTransform: "none",
+                ...(!atHome ? { borderLeft: "5px solid #20B2AA" } : {}),
+              }}
+            >
               <Avatar src={user.avatar} alt="Avatar"></Avatar>
               <span style={{ fontSize: "20px", paddingLeft: "10px" }}>
                 {user.fullname}

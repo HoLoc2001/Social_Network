@@ -1,15 +1,18 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { axiosPrivate } from "../../utils";
 
-export const getPosts = createAsyncThunk("posts/getPosts", async () => {
-  const res = await axiosPrivate.get(`posts`);
-  return res.data;
-});
+export const getPosts = createAsyncThunk(
+  "posts/getPosts",
+  async (page, { getState }) => {
+    const { posts } = getState().posts;
+    const res = await axiosPrivate.post(`getPosts`, { page });
+    const data = [...posts, ...res.data.posts];
+    return data;
+  }
+);
 
 export const addPost = createAsyncThunk("posts/addPost", async (data) => {
-  console.log(data);
-
-  const res = await axiosPrivate.post(`post`, {
+  const res = await axiosPrivate.post(`addPost`, {
     title: data.title,
     image: data.imgPost,
   });
@@ -17,7 +20,7 @@ export const addPost = createAsyncThunk("posts/addPost", async (data) => {
 });
 
 export const updatePost = createAsyncThunk("posts/updatePost", async () => {
-  const res = await axiosPrivate.patch(`posts`);
+  const res = await axiosPrivate.patch(`updatePost`);
   return res.data;
 });
 
@@ -41,10 +44,26 @@ export const updateLikeMyPost = createAsyncThunk(
   }
 );
 
-export const getMyPosts = createAsyncThunk("posts/getMyPosts", async () => {
-  const res = await axiosPrivate.get("myPosts");
-  return res.data;
-});
+export const getMyPosts = createAsyncThunk(
+  "posts/getMyPosts",
+  async (page, { getState }) => {
+    const { myPosts } = getState().posts;
+    const res = await axiosPrivate.post(`getMyPosts`, { page });
+    const data = [...myPosts, ...res.data.myPosts];
+    return data;
+  }
+);
+
+export const getOtherPosts = createAsyncThunk(
+  "posts/getOtherPosts",
+  async (data, { getState }) => {
+    const { otherPosts } = getState().posts;
+    const { page, userId } = data;
+    const res = await axiosPrivate.post(`getOtherPosts`, { page, userId });
+    const dataPosts = [...otherPosts, ...res.data.otherPosts];
+    return dataPosts;
+  }
+);
 
 export const getCommentPost = createAsyncThunk(
   "posts/getCommentPost",
@@ -67,60 +86,80 @@ export const addCommentPost = createAsyncThunk(
 
 export const postsSlice = createSlice({
   name: "posts",
-  initialState: { status: "", posts: [], myPosts: [], photo: "" },
+  initialState: { status: "", posts: [], otherPosts: [], myPosts: [] },
   extraReducers: (builder) => {
     builder
       .addCase(getPosts.fulfilled, (state, action) => {
-        state.posts = action?.payload?.posts;
+        state.posts = action?.payload;
       })
       .addCase(addPost.fulfilled, (state, action) => {
-        state.myPosts.unshift(action.payload?.post);
+        state.myPosts.concat(action.payload?.post);
       })
       .addCase(updatePost.fulfilled, (state, action) => {
         state.posts.push();
       })
+      .addCase(getMyPosts.fulfilled, (state, action) => {
+        state.myPosts = action?.payload;
+      })
+      .addCase(getOtherPosts.fulfilled, (state, action) => {
+        state.otherPosts = action?.payload;
+      })
       .addCase(updateLikePost.fulfilled, (state, action) => {
-        state.posts.map((post) => {
-          if (post.id === action.payload?.id) {
+        state.posts.forEach((e) => {
+          if (e.id === action.payload?.id) {
             return (
-              (post.totalLike = action.payload?.totalLike),
-              (post.isLike = action.payload?.isLike)
+              (e.totalLike = action.payload?.totalLike),
+              (e.isLike = action.payload?.isLike)
             );
           }
-          return post;
+        });
+        state.myPosts.forEach((e) => {
+          if (e.id === action.payload?.id) {
+            return (
+              (e.totalLike = action.payload?.totalLike),
+              (e.isLike = action.payload?.isLike)
+            );
+          }
         });
       })
       .addCase(updateLikeMyPost.fulfilled, (state, action) => {
-        state.myPosts.map((post) => {
-          if (post.id === action.payload?.id) {
+        state.myPosts.forEach((e) => {
+          if (e.id === action.payload?.id) {
             return (
-              (post.totalLike = action.payload?.totalLike),
-              (post.isLike = action.payload?.isLike)
+              (e.totalLike = action.payload?.totalLike),
+              (e.isLike = action.payload?.isLike)
             );
           }
-          return post;
         });
       })
-      .addCase(getMyPosts.fulfilled, (state, action) => {
-        state.myPosts = action?.payload?.myPosts;
-      })
       .addCase(getCommentPost.fulfilled, (state, action) => {
-        state.posts.map((post) => {
-          if (post.id === action.payload?.data[0]?.postId) {
-            return (post.comments = action.payload?.data);
+        state.posts.forEach((e) => {
+          if (e.id === action.payload?.data[0]?.postId) {
+            return (e.comments = action.payload?.data);
           }
-          return post;
+        });
+        state.myPosts.forEach((e) => {
+          if (e.id === action.payload?.data[0]?.postId) {
+            return (e.comments = action.payload?.data);
+          }
         });
       })
       .addCase(addCommentPost.fulfilled, (state, action) => {
-        state.posts.map((post) => {
-          if (post.id === action.payload?.postId) {
+        state.posts.forEach((e) => {
+          if (e.id === action.payload?.postId) {
             return (
-              (post.totalComment = action.payload?.totalComment),
-              (post.comment = action.payload?.content)
+              (e.totalComment = action.payload?.totalComment),
+              (e.comment = action.payload?.content)
             );
           }
-          return post;
+        });
+        state.myPosts.forEach((e) => {
+          if (e.id === action.payload?.postId) {
+            return (
+              (e.totalComment = action.payload?.totalComment),
+              (e.comment = action.payload?.content)
+            );
+          }
         });
       });
   },

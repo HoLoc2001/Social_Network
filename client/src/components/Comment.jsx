@@ -11,14 +11,13 @@ import {
 } from "@mui/material";
 import React from "react";
 import SendIcon from "@mui/icons-material/Send";
-import { nanoid } from "@reduxjs/toolkit";
 import { useEffect } from "react";
-import { useAppDispatch, useAppSelector } from "../redux/store";
+import { useAppDispatch } from "../redux/store";
 import { addCommentPost, getCommentPost } from "./Posts/postsSlice";
 import { useState } from "react";
 
 const Comment = (props) => {
-  const postId = props.post.id;
+  const postId = props.post?.id;
   const dispatch = useAppDispatch();
   const comments = props.post?.comments;
   const totalComment = props.post?.totalComment;
