@@ -177,7 +177,7 @@ const User = () => {
                 </IconButton>
                 <ul className="mui-dropdown__menu">
                   <li>
-                    <Link to="/profile">Thông tin tài khoản</Link>
+                    <Link to="/EditProfile">Thông tin tài khoản</Link>
                   </li>
                 </ul>
               </div>
@@ -295,7 +295,7 @@ const User = () => {
           width: "70px",
           height: "70px",
           position: "fixed",
-          bottom: "10px",
+          bottom: "0",
           left: "1430px",
           borderRadius: "50%",
         }}

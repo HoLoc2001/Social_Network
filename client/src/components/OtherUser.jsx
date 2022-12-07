@@ -1,5 +1,6 @@
 import {
   Avatar,
+  Button,
   Card,
   CardActions,
   CardContent,
@@ -27,7 +28,7 @@ import {
 import Comment from "../components/Comment";
 import { Link, Navigate, useParams } from "react-router-dom";
 import InfiniteScroll from "../components/InfiniteScroll";
-import { getOtherInfo } from "./User/userSlice";
+import { addFollower, getOtherInfo } from "./User/userSlice";
 moment.locale("vi");
 
 const OtherUser = () => {
@@ -63,10 +64,15 @@ const OtherUser = () => {
     await dispatch(updateLikePost(postId));
   };
 
+  const handleFollower = async (userId) => {
+    await dispatch(addFollower(userId));
+  };
+
   return (
     <div
       style={{
         margin: "40px 0 0 30%",
+        minHeight: "100vh",
       }}
     >
       {/* {info user} */}
@@ -94,6 +100,15 @@ const OtherUser = () => {
               <h5>Người theo dõi: {otherUser.totalFollower} &emsp;</h5>
               <h5>Đang theo dõi: {otherUser.totalFollowing}</h5>
             </div>
+          }
+          action={
+            <Button
+              variant="contained"
+              sx={{ textTransform: "none", margin: "30px 30px" }}
+              onClick={() => handleFollower(otherUser.id)}
+            >
+              Theo dõi
+            </Button>
           }
         />
       </Card>

@@ -7,7 +7,7 @@ import RightBar from "../layouts/RightBar";
 const Home = () => {
   return (
     <>
-      <div style={{ backgroundColor: "#F0F2F5" }}>
+      <div style={{ height: "100%", backgroundColor: "#F0F2F5" }}>
         <NavbarHome />
         <LeftBar />
         <Outlet />

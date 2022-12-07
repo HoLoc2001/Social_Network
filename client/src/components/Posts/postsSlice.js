@@ -130,6 +130,14 @@ export const postsSlice = createSlice({
             );
           }
         });
+        state.otherPosts.forEach((e) => {
+          if (e.id === action.payload?.id) {
+            return (
+              (e.totalLike = action.payload?.totalLike),
+              (e.isLike = action.payload?.isLike)
+            );
+          }
+        });
       })
       .addCase(updateLikeMyPost.fulfilled, (state, action) => {
         state.myPosts.forEach((e) => {
@@ -152,6 +160,11 @@ export const postsSlice = createSlice({
             return (e.comments = action.payload?.data);
           }
         });
+        state.otherPosts.forEach((e) => {
+          if (e.id === action.payload?.data[0]?.postId) {
+            return (e.comments = action.payload?.data);
+          }
+        });
       })
       .addCase(addCommentPost.fulfilled, (state, action) => {
         state.posts.forEach((e) => {
@@ -163,6 +176,14 @@ export const postsSlice = createSlice({
           }
         });
         state.myPosts.forEach((e) => {
+          if (e.id === action.payload?.postId) {
+            return (
+              (e.totalComment = action.payload?.totalComment),
+              (e.comment = action.payload?.content)
+            );
+          }
+        });
+        state.otherPosts.forEach((e) => {
           if (e.id === action.payload?.postId) {
             return (
               (e.totalComment = action.payload?.totalComment),

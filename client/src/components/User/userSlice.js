@@ -103,10 +103,16 @@ export const getNotFollower = createAsyncThunk(
 
 export const addFollower = createAsyncThunk(
   "user/addFollower",
-  async (user) => {
+  async (user, { getState }) => {
     try {
+      const { listFollower } = getState().user;
       const res = await axiosPrivate.post("user/addFollower", { user });
-      return res.data;
+      if (res.data.data) {
+        const data = [...res?.data?.data, ...listFollower];
+        return data;
+      }
+      const data = [...listFollower];
+      return data;
     } catch (error) {
       console.log(error);
     }
@@ -126,6 +132,7 @@ export const userSlice = createSlice({
     },
     otherUser: [],
     listFollower: [],
+    notFollower: [],
     token: {
       accessToken: localStorage["AT"] || null,
       refreshToken: localStorage["RT"] || null,
@@ -163,6 +170,12 @@ export const userSlice = createSlice({
       })
       .addCase(getListFollower.fulfilled, (state, action) => {
         state.listFollower = action?.payload?.data;
+      })
+      .addCase(getNotFollower.fulfilled, (state, action) => {
+        state.notFollower = action?.payload?.data;
+      })
+      .addCase(addFollower.fulfilled, (state, action) => {
+        state.listFollower = action?.payload;
       });
   },
 });

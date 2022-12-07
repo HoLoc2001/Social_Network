@@ -3,21 +3,23 @@ import RefreshIcon from "@mui/icons-material/Refresh";
 import React from "react";
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
-import { getListFollower } from "../components/User/userSlice";
+import { getListFollower, getNotFollower } from "../components/User/userSlice";
 import { useAppDispatch, useAppSelector } from "../redux/store";
 
 const RightBar = () => {
   const dispatch = useAppDispatch();
   useEffect(() => {
     async function load() {
+      await dispatch(getNotFollower());
       await dispatch(getListFollower());
     }
     load();
   }, []);
   const listFollower = useAppSelector((state) => state.user.listFollower);
+  const notFollower = useAppSelector((state) => state.user.notFollower);
 
-  const handleClickFollower = async (userId) => {
-    console.log(userId);
+  const handleRefresh = async () => {
+    await dispatch(getNotFollower());
   };
 
   return (
@@ -35,10 +37,40 @@ const RightBar = () => {
           <Button
             variant="outlinedz"
             sx={{ textTransform: "none", color: "black", marginLeft: "100px" }}
+            onClick={handleRefresh}
           >
             <RefreshIcon />
             Làm mới
           </Button>
+        </div>
+        <div style={{ height: "100%" }}>
+          {notFollower.map((follower) => (
+            <div
+              key={follower.id}
+              style={{
+                display: "flex",
+                paddingBottom: "10px",
+                alignItems: "center",
+              }}
+            >
+              <Link to={`/${follower.id}`} style={{ textDecoration: "none" }}>
+                <Button
+                  size="small"
+                  style={{
+                    textTransform: "none",
+                    color: "black",
+                    width: "250px",
+                    ...{ justifyContent: "flex-start" },
+                  }}
+                >
+                  <Avatar src={follower.avatar} alt="Avatar" />
+                  <span style={{ fontSize: "18px", paddingLeft: "10px" }}>
+                    {follower.fullname}
+                  </span>
+                </Button>
+              </Link>
+            </div>
+          ))}
         </div>
       </div>
       <h4>Đang theo dõi</h4>
@@ -54,7 +86,6 @@ const RightBar = () => {
           >
             <Link to={`/${follower.id}`} style={{ textDecoration: "none" }}>
               <Button
-                onClick={() => handleClickFollower(follower.id)}
                 size="small"
                 style={{
                   textTransform: "none",
