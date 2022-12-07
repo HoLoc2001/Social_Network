@@ -89,6 +89,30 @@ export const getListFollower = createAsyncThunk(
   }
 );
 
+export const getNotFollower = createAsyncThunk(
+  "user/getNotFollower",
+  async () => {
+    try {
+      const res = await axiosPrivate.post("user/getNotFollower");
+      return res.data;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+);
+
+export const addFollower = createAsyncThunk(
+  "user/addFollower",
+  async (user) => {
+    try {
+      const res = await axiosPrivate.post("user/addFollower", { user });
+      return res.data;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+);
+
 export const userSlice = createSlice({
   name: "user",
   initialState: {

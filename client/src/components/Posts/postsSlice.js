@@ -11,13 +11,18 @@ export const getPosts = createAsyncThunk(
   }
 );
 
-export const addPost = createAsyncThunk("posts/addPost", async (data) => {
-  const res = await axiosPrivate.post(`addPost`, {
-    title: data.title,
-    image: data.imgPost,
-  });
-  return res.data;
-});
+export const addPost = createAsyncThunk(
+  "posts/addPost",
+  async (data, { getState }) => {
+    const { myPosts } = getState().posts;
+    const res = await axiosPrivate.post(`addPost`, {
+      title: data.title,
+      image: data.imgPost,
+    });
+    const resData = [...res.data.post, ...myPosts];
+    return resData;
+  }
+);
 
 export const updatePost = createAsyncThunk("posts/updatePost", async () => {
   const res = await axiosPrivate.patch(`updatePost`);
@@ -60,6 +65,10 @@ export const getOtherPosts = createAsyncThunk(
     const { otherPosts } = getState().posts;
     const { page, userId } = data;
     const res = await axiosPrivate.post(`getOtherPosts`, { page, userId });
+    if (page === 0) {
+      const dataPosts = [...res.data.otherPosts];
+      return dataPosts;
+    }
     const dataPosts = [...otherPosts, ...res.data.otherPosts];
     return dataPosts;
   }
@@ -93,7 +102,7 @@ export const postsSlice = createSlice({
         state.posts = action?.payload;
       })
       .addCase(addPost.fulfilled, (state, action) => {
-        state.myPosts.concat(action.payload?.post);
+        state.myPosts = action?.payload;
       })
       .addCase(updatePost.fulfilled, (state, action) => {
         state.posts.push();
@@ -102,7 +111,7 @@ export const postsSlice = createSlice({
         state.myPosts = action?.payload;
       })
       .addCase(getOtherPosts.fulfilled, (state, action) => {
-        state.otherPosts = action?.payload;
+        state.otherPosts = action.payload || [];
       })
       .addCase(updateLikePost.fulfilled, (state, action) => {
         state.posts.forEach((e) => {

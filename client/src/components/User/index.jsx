@@ -112,7 +112,6 @@ const User = () => {
 
   const handleAddPost = async () => {
     try {
-      console.log(imgPost);
       const dataAddPost = { title, imgPost };
       await dispatch(addPost(dataAddPost));
     } catch (error) {

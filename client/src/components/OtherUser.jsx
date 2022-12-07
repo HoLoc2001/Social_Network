@@ -37,22 +37,18 @@ const OtherUser = () => {
   const otherUser = useAppSelector((state) => state.user.otherUser);
   const user = useAppSelector((state) => state.user.user);
   const otherPosts = useAppSelector((state) => state.posts.otherPosts);
-  const [page, setPage] = useState(otherPosts.length);
-  const [hasPost, setHasPost] = useState(() => {
-    if (otherPosts.length % 5 === 0 && otherPosts.length !== 0) {
-      return true;
-    }
-    return false;
-  });
+  const [page, setPage] = useState(0);
+  const [hasPost, setHasPost] = useState(false);
 
   useEffect(() => {
     (async () => {
       await dispatch(getOtherInfo(params.id));
     })();
-  }, []);
+  }, [params.id]);
 
   useEffect(() => {
     (async () => {
+      setPage(0);
       await dispatch(getOtherPosts({ page, userId: params.id }));
       setHasPost(() => {
         if (otherPosts.length % 5 === 0) {
@@ -61,7 +57,7 @@ const OtherUser = () => {
         return false;
       });
     })();
-  }, [page]);
+  }, [page, params.id]);
 
   const handleClickFavorite = async (postId) => {
     await dispatch(updateLikePost(postId));

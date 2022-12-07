@@ -1,4 +1,5 @@
 import { Avatar, Box, Button } from "@mui/material";
+import RefreshIcon from "@mui/icons-material/Refresh";
 import React from "react";
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
@@ -24,33 +25,53 @@ const RightBar = () => {
       position="fixed"
       top="50px"
       left="80%"
-      width="100%"
+      maxWidth="100%"
       height="80%"
       sx={{ p: "20px" }}
     >
-      <h3>Đang theo dõi</h3>
-      {listFollower.map((follower) => (
-        <div
-          key={follower.id}
-          style={{
-            display: "flex",
-            paddingBottom: "10px",
-            alignItems: "center",
-          }}
-        >
-          <Link to={`/${follower.id}`} style={{ textDecoration: "none" }}>
-            <Button
-              onClick={() => handleClickFollower(follower.id)}
-              style={{ textTransform: "none", color: "black" }}
-            >
-              <Avatar src={follower.avatar} alt="Avatar" />
-              <span style={{ fontSize: "20px", paddingLeft: "10px" }}>
-                {follower.fullname}
-              </span>
-            </Button>
-          </Link>
+      <div style={{ height: "30%" }}>
+        <div style={{ display: "flex", alignItems: "center" }}>
+          <h4>Gợi ý</h4>
+          <Button
+            variant="outlinedz"
+            sx={{ textTransform: "none", color: "black", marginLeft: "100px" }}
+          >
+            <RefreshIcon />
+            Làm mới
+          </Button>
         </div>
-      ))}
+      </div>
+      <h4>Đang theo dõi</h4>
+      <div style={{ height: "70%", overflowY: "scroll" }}>
+        {listFollower.map((follower) => (
+          <div
+            key={follower.id}
+            style={{
+              display: "flex",
+              paddingBottom: "10px",
+              alignItems: "center",
+            }}
+          >
+            <Link to={`/${follower.id}`} style={{ textDecoration: "none" }}>
+              <Button
+                onClick={() => handleClickFollower(follower.id)}
+                size="small"
+                style={{
+                  textTransform: "none",
+                  color: "black",
+                  width: "250px",
+                  ...{ justifyContent: "flex-start" },
+                }}
+              >
+                <Avatar src={follower.avatar} alt="Avatar" />
+                <span style={{ fontSize: "18px", paddingLeft: "10px" }}>
+                  {follower.fullname}
+                </span>
+              </Button>
+            </Link>
+          </div>
+        ))}
+      </div>
     </Box>
   );
 };
