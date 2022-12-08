@@ -6,6 +6,7 @@ import {
   CardContent,
   CardHeader,
   CardMedia,
+  Divider,
   IconButton,
   Typography,
 } from "@mui/material";
@@ -20,13 +21,14 @@ import { useAppDispatch, useAppSelector } from "../redux/store";
 import { useState } from "react";
 import {
   addPost,
+  getCommentPost,
   getMyPosts,
   getOtherPosts,
   updateLikeMyPost,
   updateLikePost,
 } from "../components/Posts/postsSlice";
 import Comment from "../components/Comment";
-import { Link, Navigate, useParams } from "react-router-dom";
+import { json, Link, Navigate, useParams } from "react-router-dom";
 import InfiniteScroll from "../components/InfiniteScroll";
 import { addFollower, getOtherInfo } from "./User/userSlice";
 moment.locale("vi");
@@ -38,11 +40,18 @@ const OtherUser = () => {
   const otherUser = useAppSelector((state) => state.user.otherUser);
   const user = useAppSelector((state) => state.user.user);
   const otherPosts = useAppSelector((state) => state.posts.otherPosts);
+  const listFollower = useAppSelector((state) => state.user.listFollower);
   const [page, setPage] = useState(0);
   const [hasPost, setHasPost] = useState(false);
 
+  let hasFollower = listFollower.find((e) => {
+    return "" + e.id === params.id;
+  });
+
   useEffect(() => {
     (async () => {
+      window.scrollTo(0, 0);
+
       await dispatch(getOtherInfo(params.id));
     })();
   }, [params.id]);
@@ -60,12 +69,20 @@ const OtherUser = () => {
     })();
   }, [page, params.id]);
 
+  if ("" + user.id === params.id) {
+    return <Navigate to="/profile" />;
+  }
+
   const handleClickFavorite = async (postId) => {
     await dispatch(updateLikePost(postId));
   };
 
   const handleFollower = async (userId) => {
     await dispatch(addFollower(userId));
+  };
+
+  const handleClickComment = async (postId) => {
+    await dispatch(getCommentPost(postId));
   };
 
   return (
@@ -102,13 +119,23 @@ const OtherUser = () => {
             </div>
           }
           action={
-            <Button
-              variant="contained"
-              sx={{ textTransform: "none", margin: "30px 30px" }}
-              onClick={() => handleFollower(otherUser.id)}
-            >
-              Theo dõi
-            </Button>
+            hasFollower ? (
+              <Button
+                variant="contained"
+                sx={{ textTransform: "none", margin: "30px 30px" }}
+                onClick={() => handleFollower(otherUser.id)}
+              >
+                Hủy theo dõi
+              </Button>
+            ) : (
+              <Button
+                variant="contained"
+                sx={{ textTransform: "none", margin: "30px 30px" }}
+                onClick={() => handleFollower(otherUser.id)}
+              >
+                Theo dõi
+              </Button>
+            )
           }
         />
       </Card>
@@ -121,10 +148,30 @@ const OtherUser = () => {
         {otherPosts.map((post) => (
           <Card key={post.id} sx={{ width: "60%", marginBottom: "20px" }}>
             <CardHeader
-              avatar={<Avatar src={otherUser.avatar} aria-label="recipe" />}
-              title={otherUser.fullname}
+              avatar={
+                <Avatar
+                  onClick={() =>
+                    window.scroll({ top: 0, left: 0, behavior: "smooth" })
+                  }
+                  style={{ cursor: "pointer" }}
+                  src={otherUser.avatar}
+                  aria-label="recipe"
+                />
+              }
+              title={
+                <Link
+                  onClick={() =>
+                    window.scroll({ top: 0, left: 0, behavior: "smooth" })
+                  }
+                  style={{ color: "black" }}
+                >
+                  {otherUser.fullname}
+                </Link>
+              }
               subheader={moment(post.createdAt).format("llll")}
             />
+            <Divider />
+
             {post.title ? (
               <CardContent>
                 <Typography variant="body2">{post.title}</Typography>
@@ -172,7 +219,7 @@ const OtherUser = () => {
                   width: "50%",
                 }}
               >
-                <IconButton>
+                <IconButton onClick={() => handleClickComment(post.id)}>
                   <CommentIcon sx={{ color: "gray" }} />
                 </IconButton>
                 <Typography variant="body2">{post.totalComment}</Typography>

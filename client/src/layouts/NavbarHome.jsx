@@ -19,6 +19,7 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import SearchIcon from "@mui/icons-material/Search";
 import { useAppDispatch } from "../redux/store";
 import { Link } from "react-router-dom";
+import Filters from "../components/Search";
 
 const Navbar = () => {
   const dispatch = useAppDispatch();
@@ -71,31 +72,7 @@ const Navbar = () => {
                 </Link>
               </Box>
 
-              <Box>
-                <Paper
-                  sx={{
-                    p: "2px 4px",
-                    display: "flex",
-                    alignItems: "center",
-                    width: "400px",
-                    height: "40px",
-                    borderRadius: "20px",
-                    backgroundColor: "#AFEEEE",
-                  }}
-                >
-                  <InputBase
-                    sx={{ ml: 1, flex: 1 }}
-                    placeholder="Tìm kiếm trên Social"
-                  />
-                  <IconButton
-                    type="button"
-                    sx={{ p: "10px" }}
-                    aria-label="search"
-                  >
-                    <SearchIcon />
-                  </IconButton>
-                </Paper>
-              </Box>
+              <Filters />
 
               <div className="mui-dropdown">
                 <IconButton aria-label="settings" data-mui-toggle="dropdown">

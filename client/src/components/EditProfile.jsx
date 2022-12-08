@@ -4,34 +4,55 @@ import AddAPhotoIcon from "@mui/icons-material/AddAPhoto";
 import { Box } from "@mui/system";
 import React, { useState } from "react";
 import { getBase64 } from "../utils";
-import { useAppSelector } from "../redux/store";
+import { useAppDispatch, useAppSelector } from "../redux/store";
+import { useEffect } from "react";
+import { getInfo, updateUser } from "./User/userSlice";
+import { Link } from "react-router-dom";
 
 const EditProfile = () => {
+  const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.user.user);
-  const [imgPost, setImgPost] = useState(user.avatar);
+  const [avatar, setAvatar] = useState(user.avatar);
+  const [fullname, setFullname] = useState(user.fullname);
+  useEffect(() => {
+    (async () => {
+      await dispatch(getInfo());
+    })();
+  }, []);
+  useEffect(() => {
+    setAvatar(user.avatar);
+    setFullname(user.fullname);
+  }, [user]);
 
-  const handleImagePost = async (e) => {
+  const handleAvatar = async (e) => {
     try {
       let data = e.target.files;
       let file = data[0];
       if (file) {
         let imageBase64 = await getBase64(file);
-        setImgPost(imageBase64);
+        setAvatar(imageBase64);
       }
     } catch (error) {
       console.log(error);
     }
   };
 
-  const handleSave = async () => {};
+  const onChangeFullname = (e) => {
+    setFullname(e.target.value);
+  };
+
+  const handleSave = async () => {
+    if (fullname !== "") {
+      await dispatch(updateUser({ avatar, fullname }));
+    }
+  };
 
   const handleCancel = () => {};
   return (
     <div
       style={{
         margin: "40px 0 0 40%",
-        paddingBottom: "20px",
-        minHeight: "100vh",
+        minHeight: "90vh",
         backgroundColor: "#F0F2F5",
       }}
     >
@@ -41,10 +62,8 @@ const EditProfile = () => {
           height: "200px",
           border: "1px solid black",
           borderRadius: "50%",
-          // position: "absolute",
-          // top: "65px",
-          // right: "50px",
-          background: `no-repeat center/cover url(${imgPost})`,
+          background: `no-repeat center/cover url(${avatar})`,
+          marginBottom: "30px",
         }}
       >
         <Button
@@ -56,12 +75,7 @@ const EditProfile = () => {
             borderRadius: "50%",
           }}
         >
-          <input
-            type="file"
-            accept="image/*"
-            hidden
-            onChange={handleImagePost}
-          />
+          <input type="file" accept="image/*" hidden onChange={handleAvatar} />
         </Button>
       </Box>
 
@@ -70,21 +84,31 @@ const EditProfile = () => {
         label="Họ và tên"
         variant="outlined"
         name="fullname"
-        // value={fullname}
-        // onChange={onChangeSignupForm}
+        value={fullname}
+        onChange={onChangeFullname}
+        sx={{ marginBottom: "30px" }}
       />
 
       <div style={{ display: "flex" }}>
-        <Button
-          variant="contained"
-          sx={{ marginRight: "10px" }}
-          onClick={() => handleSave()}
+        <Link to="../profile" style={{ textDecoration: "none" }}>
+          <Button
+            variant="contained"
+            sx={{ marginRight: "50px" }}
+            onClick={() => handleSave()}
+          >
+            Lưu
+          </Button>
+        </Link>
+
+        <Link
+          to="../profile"
+          // onClick={(e) => e.preventDefault()}
+          style={{ textDecoration: "none" }}
         >
-          Lưu
-        </Button>
-        <Button variant="contained" onClick={() => handleCancel}>
-          Hủy bỏ
-        </Button>
+          <Button variant="contained" onClick={() => handleCancel}>
+            Hủy bỏ
+          </Button>
+        </Link>
       </div>
     </div>
   );

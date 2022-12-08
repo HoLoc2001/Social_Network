@@ -6,6 +6,7 @@ import {
   CardContent,
   CardHeader,
   CardMedia,
+  Divider,
   IconButton,
   Modal,
   TextareaAutosize,
@@ -21,27 +22,23 @@ import moment from "moment";
 import "moment/locale/vi";
 import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../../redux/store";
-import { updateAvatar } from "./userSlice";
 import { useState } from "react";
 import { getBase64 } from "../../utils";
 import {
   addPost,
+  getCommentPost,
   getMyPosts,
-  updateLikeMyPost,
   updateLikePost,
 } from "../Posts/postsSlice";
 import { Box } from "@mui/system";
 import Comment from "../Comment";
-import { Link, Navigate, useParams } from "react-router-dom";
+import { Link } from "react-router-dom";
 import InfiniteScroll from "../InfiniteScroll";
 moment.locale("vi");
 
 const User = () => {
   const dispatch = useAppDispatch();
-  const params = useParams();
   let imageBase64 = "";
-  let isMe = true;
-  const [avatar, setAvatar] = useState("");
   const [imgPost, setImgPost] = useState("");
   const [openModal, setOpenModal] = useState(false);
   const [title, setTitle] = useState("");
@@ -68,30 +65,6 @@ const User = () => {
     })();
   }, [page]);
 
-  // if (!Number(params.id)) {
-  //   return <Navigate to="../" />;
-  // }
-
-  // if (Number(params.id) === user.id) {
-  //   isMe = true;
-  // }
-
-  const handleImageAvatar = async (e) => {
-    try {
-      let data = e.target.files;
-      let file = data[0];
-      if (file) {
-        let objectUrl = URL.createObjectURL(file);
-        setAvatar(objectUrl);
-        let base64 = await getBase64(file);
-
-        await dispatch(updateAvatar(base64));
-      }
-    } catch (error) {
-      console.log(error);
-    }
-  };
-
   const handleClickFavorite = async (postId) => {
     await dispatch(updateLikePost(postId));
   };
@@ -101,7 +74,6 @@ const User = () => {
       let data = e.target.files;
       let file = data[0];
       if (file) {
-        let objectUrl = URL.createObjectURL(file);
         imageBase64 = await getBase64(file);
         setImgPost(imageBase64);
       }
@@ -124,7 +96,12 @@ const User = () => {
   };
 
   const handleCloseModal = () => {
+    setTitle("");
+    setImgPost("");
+    setOpenModal(false);
     if (!title && !imageBase64) {
+      setTitle("");
+      imageBase64 = "";
       setOpenModal(false);
     }
   };
@@ -135,6 +112,10 @@ const User = () => {
 
   const onChangeTitle = (e) => {
     setTitle(e.target.value);
+  };
+
+  const handleClickComment = async (postId) => {
+    await dispatch(getCommentPost(postId));
   };
 
   return (
@@ -170,20 +151,16 @@ const User = () => {
             </div>
           }
           action={
-            isMe ? (
-              <div className="mui-dropdown mui-dropdown--left">
-                <IconButton aria-label="settings" data-mui-toggle="dropdown">
-                  <MoreVertIcon />
-                </IconButton>
-                <ul className="mui-dropdown__menu">
-                  <li>
-                    <Link to="/EditProfile">Thông tin tài khoản</Link>
-                  </li>
-                </ul>
-              </div>
-            ) : (
-              ""
-            )
+            <div className="mui-dropdown mui-dropdown--left">
+              <IconButton aria-label="settings" data-mui-toggle="dropdown">
+                <MoreVertIcon />
+              </IconButton>
+              <ul className="mui-dropdown__menu">
+                <li>
+                  <Link to="/EditProfile">Thông tin tài khoản</Link>
+                </li>
+              </ul>
+            </div>
           }
         />
       </Card>
@@ -196,32 +173,41 @@ const User = () => {
         {myPosts.map((post) => (
           <Card key={post.id} sx={{ width: "60%", marginBottom: "20px" }}>
             <CardHeader
-              avatar={<Avatar src={user.avatar} aria-label="recipe" />}
-              action={
-                isMe ? (
-                  <div className="mui-dropdown mui-dropdown--left">
-                    <IconButton
-                      aria-label="settings"
-                      data-mui-toggle="dropdown"
-                    >
-                      <MoreVertIcon />
-                    </IconButton>
-                    <ul className="mui-dropdown__menu">
-                      <li>
-                        <a>Xóa</a>
-                      </li>
-                      <li>
-                        <a href="#">Sửa</a>
-                      </li>
-                    </ul>
-                  </div>
-                ) : (
-                  ""
-                )
+              avatar={
+                <Avatar
+                  onClick={() =>
+                    window.scroll({ top: 0, left: 0, behavior: "smooth" })
+                  }
+                  style={{ cursor: "pointer" }}
+                  src={user.avatar}
+                  aria-label="recipe"
+                />
               }
-              title={user.fullname}
+              action={
+                <div className="mui-dropdown mui-dropdown--left">
+                  <IconButton aria-label="settings" data-mui-toggle="dropdown">
+                    <MoreVertIcon />
+                  </IconButton>
+                  <ul className="mui-dropdown__menu">
+                    <li>Xoa</li>
+                    <li>Sua</li>
+                  </ul>
+                </div>
+              }
+              title={
+                <Link
+                  onClick={() =>
+                    window.scroll({ top: 0, left: 0, behavior: "smooth" })
+                  }
+                  style={{ color: "black" }}
+                >
+                  {user.fullname}
+                </Link>
+              }
               subheader={moment(post.createdAt).format("llll")}
             />
+            <Divider />
+
             {post.title ? (
               <CardContent>
                 <Typography variant="body2">{post.title}</Typography>
@@ -269,7 +255,7 @@ const User = () => {
                   width: "50%",
                 }}
               >
-                <IconButton>
+                <IconButton onClick={() => handleClickComment(post.id)}>
                   <CommentIcon sx={{ color: "gray" }} />
                 </IconButton>
                 <Typography variant="body2">{post.totalComment}</Typography>
@@ -279,15 +265,7 @@ const User = () => {
           </Card>
         ))}
       </InfiniteScroll>
-      <Button variant="contained" component="label">
-        Upload File
-        <input
-          type="file"
-          accept="image/*"
-          hidden
-          onChange={handleImageAvatar}
-        />
-      </Button>
+
       <Button
         variant="contained"
         component="label"
@@ -303,7 +281,6 @@ const User = () => {
       >
         <AddIcon />
       </Button>
-      <img src={avatar} />
       <Modal
         open={openModal}
         onClose={handleCloseModal}

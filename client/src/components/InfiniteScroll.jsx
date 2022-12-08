@@ -1,7 +1,5 @@
 import { CircularProgress } from "@mui/material";
 import React, { useEffect, useRef } from "react";
-import { useState } from "react";
-import { useAppSelector } from "../redux/store";
 
 const InfiniteScroll = ({ children, getMore, hasMore }) => {
   const pageEndRef = useRef(null);
@@ -29,8 +27,12 @@ const InfiniteScroll = ({ children, getMore, hasMore }) => {
   return (
     <>
       {children}
-      <div style={{ marginLeft: "28%" }}>
-        {hasMore ? <CircularProgress ref={pageEndRef} /> : <CircularProgress />}
+      <div style={{ marginLeft: "25%" }}>
+        {hasMore ? (
+          <CircularProgress ref={pageEndRef} />
+        ) : (
+          <h3 style={{ marginRight: "45%" }}>Không có bài viết mới</h3>
+        )}
       </div>
     </>
   );

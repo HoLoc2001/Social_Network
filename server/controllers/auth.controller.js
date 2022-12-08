@@ -127,7 +127,6 @@ export const sighIn = async (req, res) => {
       [email]
     );
     const id = user[0].id;
-    console.log(id);
 
     if (!user)
       return res

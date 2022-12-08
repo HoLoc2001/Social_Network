@@ -19,7 +19,6 @@ export const getInfo = async (req, res) => {
 export const getOtherInfo = async (req, res) => {
   try {
     const { userId } = req.body;
-    console.log(userId);
     const [rows] = await pool.execute("call get_user(?)", [userId]);
     const user = rows[0];
     if (!user.length) {
@@ -50,15 +49,16 @@ export const updateInfo = async (req, res) => {
   }
 };
 
-export const updateAvatar = async (req, res) => {
+export const updateUser = async (req, res) => {
   try {
-    const { avatar } = req.body;
-    const [row] = await pool.execute("call updateAvatar(?, ?)", [
+    const { avatar, fullname } = req.body;
+    const [row] = await pool.execute("call updateUser(?, ?, ?)", [
       req.userId,
+      fullname,
       avatar,
     ]);
 
-    res.json({ success: true, avatar: row[0] });
+    res.json({ success: true, user: row[0] });
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false, message: "Internal server error" });

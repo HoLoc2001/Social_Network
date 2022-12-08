@@ -17,11 +17,17 @@ import {
 } from "@mui/material";
 import CommentIcon from "@mui/icons-material/Comment";
 import FavoriteIcon from "@mui/icons-material/Favorite";
-import { getPosts, postsSelector, updateLikePost } from "./postsSlice";
+import {
+  getCommentPost,
+  getPosts,
+  postsSelector,
+  updateLikePost,
+} from "./postsSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/store";
 import Comment from "../Comment";
 import { useState } from "react";
 import InfiniteScroll from "../InfiniteScroll";
+import { Link } from "react-router-dom";
 moment.locale("vi");
 
 const Posts = () => {
@@ -52,7 +58,9 @@ const Posts = () => {
     await dispatch(updateLikePost(postId));
   };
 
-  const handleClickComment = () => {};
+  const handleClickComment = async (postId) => {
+    await dispatch(getCommentPost(postId));
+  };
 
   return (
     <div
@@ -72,10 +80,19 @@ const Posts = () => {
             sx={{ width: "60%", marginBottom: "20px", borderRadius: "10px" }}
           >
             <CardHeader
-              avatar={<Avatar src={post.avatar} aria-label="recipe" />}
-              title={post.fullname}
+              avatar={
+                <Link to={`/${post.userId}`}>
+                  <Avatar src={post.avatar} aria-label="recipe" />
+                </Link>
+              }
+              title={
+                <Link to={`/${post.userId}`} style={{ color: "black" }}>
+                  {post.fullname}
+                </Link>
+              }
               subheader={moment(post.createdAt).format("llll")}
             />
+
             <Divider />
 
             {post.title ? (
@@ -124,14 +141,14 @@ const Posts = () => {
                   width: "50%",
                 }}
               >
-                <CommentIcon
-                  sx={{ color: "gray" }}
-                  onClick={() => handleClickComment()}
-                />
+                <IconButton onClick={() => handleClickComment(post.id)}>
+                  <CommentIcon sx={{ color: "gray" }} />
+                </IconButton>
+
                 <Typography variant="body2">{post.totalComment}</Typography>
               </div>
             </CardActions>
-            <Comment post={post} avatar={user.avatar} />
+            <Comment post={post} avatar={user.avatar} userId={user.id} />
           </Card>
         ))}
       </InfiniteScroll>

@@ -5,7 +5,7 @@ import {
   getListFollower,
   getNotFollower,
   getOtherInfo,
-  updateAvatar,
+  updateUser,
 } from "../controllers/user.controller.js";
 import verifyToken from "../middleware/verifyToken.js";
 
@@ -13,7 +13,7 @@ const router = express.Router();
 
 router.get("/", verifyToken, getInfo);
 router.post("/getOtherInfo", verifyToken, getOtherInfo);
-router.patch("/updateAvatar", verifyToken, updateAvatar);
+router.patch("/updateUser", verifyToken, updateUser);
 router.post("/getListFollower", verifyToken, getListFollower);
 router.post("/getNotFollower", verifyToken, getNotFollower);
 router.post("/addFollower", verifyToken, addFollower);

@@ -63,19 +63,18 @@ export const getOtherInfo = createAsyncThunk(
   }
 );
 
-export const updateAvatar = createAsyncThunk(
-  "user/updateAvatar",
-  async (avatar) => {
-    try {
-      console.log(avatar);
-      const res = await axiosPrivate.patch("user/updateAvatar", { avatar });
-      console.log(res.data);
-      return res.data;
-    } catch (error) {
-      console.log(error);
-    }
+export const updateUser = createAsyncThunk("user/updateUser", async (data) => {
+  try {
+    const { avatar, fullname } = data;
+    const res = await axiosPrivate.patch("user/updateUser", {
+      avatar,
+      fullname,
+    });
+    return res.data;
+  } catch (error) {
+    console.log(error);
   }
-);
+});
 
 export const getListFollower = createAsyncThunk(
   "user/getListFollower",
@@ -107,11 +106,8 @@ export const addFollower = createAsyncThunk(
     try {
       const { listFollower } = getState().user;
       const res = await axiosPrivate.post("user/addFollower", { user });
-      if (res.data.data) {
-        const data = [...res?.data?.data, ...listFollower];
-        return data;
-      }
-      const data = [...listFollower];
+
+      const data = [...res?.data?.data];
       return data;
     } catch (error) {
       console.log(error);
@@ -165,8 +161,8 @@ export const userSlice = createSlice({
       .addCase(refreshToken.fulfilled, (state, action) => {
         state.token = action.payload;
       })
-      .addCase(updateAvatar.fulfilled, (state, action) => {
-        state.user.avatar = action?.payload?.avatar?.avatar;
+      .addCase(updateUser.fulfilled, (state, action) => {
+        state.user = action.payload?.user[0];
       })
       .addCase(getListFollower.fulfilled, (state, action) => {
         state.listFollower = action?.payload?.data;

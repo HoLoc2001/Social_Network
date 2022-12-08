@@ -15,12 +15,13 @@ import { useEffect } from "react";
 import { useAppDispatch } from "../redux/store";
 import { addCommentPost, getCommentPost } from "./Posts/postsSlice";
 import { useState } from "react";
+import { Link, useParams } from "react-router-dom";
 
-const Comment = (props) => {
-  const postId = props.post?.id;
+const Comment = ({ post, avatar, userId }) => {
+  const postId = post?.id;
   const dispatch = useAppDispatch();
-  const comments = props.post?.comments;
-  const totalComment = props.post?.totalComment;
+  const comments = post?.comments;
+  const totalComment = post?.totalComment;
   useEffect(() => {
     async function load() {
       // await dispatch(getCommentPost(postId));
@@ -53,6 +54,8 @@ const Comment = (props) => {
     }
   };
 
+  const handleClickUser = async () => {};
+
   return (
     <Collapse in={true} timeout="auto" unmountOnExit>
       <Divider />
@@ -65,7 +68,7 @@ const Comment = (props) => {
           }}
         >
           <Avatar
-            src={props.avatar}
+            src={avatar}
             aria-label="recipe"
             sx={{ width: "28px", height: "28px", marginRight: "5px" }}
           />
@@ -101,11 +104,13 @@ const Comment = (props) => {
                     marginBottom: "10px",
                   }}
                 >
-                  <Avatar
-                    src={comment.avatar}
-                    aria-label="recipe"
-                    sx={{ width: "28px", height: "28px" }}
-                  />
+                  <Link to={`/${comment.id}`} onClick={() => handleClickUser()}>
+                    <Avatar
+                      src={comment.avatar}
+                      aria-label="recipe"
+                      sx={{ width: "28px", height: "28px" }}
+                    />
+                  </Link>
                   <div
                     style={{
                       backgroundColor: "#E4E6EB",
@@ -115,7 +120,13 @@ const Comment = (props) => {
                       borderRadius: "10px",
                     }}
                   >
-                    <Typography variant="i">{comment.fullname}</Typography>
+                    <Link
+                      to={`/${comment.id}`}
+                      style={{ color: "black" }}
+                      onClick={() => handleClickUser()}
+                    >
+                      <Typography variant="i">{comment.fullname}</Typography>
+                    </Link>
                     <Typography variant="body2">{comment.content}</Typography>
                   </div>
                 </div>
