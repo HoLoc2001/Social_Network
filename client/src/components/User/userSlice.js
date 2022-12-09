@@ -1,4 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import { useState } from "react";
 import { axiosPublic, axiosPrivate } from "../../utils";
 
 export const signin = createAsyncThunk("user/signin", async (signinForm) => {
@@ -107,8 +108,11 @@ export const addFollower = createAsyncThunk(
       const { listFollower } = getState().user;
       const res = await axiosPrivate.post("user/addFollower", { user });
 
-      const data = [...res?.data?.data];
-      return data;
+      // const data = [...res?.data?.data];
+      return {
+        data: res?.data?.data,
+        totalFollow: res?.data?.totalFollow[0],
+      };
     } catch (error) {
       console.log(error);
     }
@@ -171,7 +175,11 @@ export const userSlice = createSlice({
         state.notFollower = action?.payload?.data;
       })
       .addCase(addFollower.fulfilled, (state, action) => {
-        state.listFollower = action?.payload;
+        console.log(action?.payload.totalFollow?.totalFollowing);
+        state.listFollower = action?.payload.data;
+        state.user.totalFollowing = action?.payload.totalFollow?.totalFollowing;
+        state.otherUser.totalFollower =
+          action?.payload.totalFollow?.totalFollower;
       });
   },
 });

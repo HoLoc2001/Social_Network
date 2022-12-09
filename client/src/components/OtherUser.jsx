@@ -139,6 +139,7 @@ const OtherUser = () => {
           }
         />
       </Card>
+
       <InfiniteScroll
         getMore={() => {
           setPage((prev) => prev + 5);

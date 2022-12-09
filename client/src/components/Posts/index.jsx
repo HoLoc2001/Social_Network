@@ -2,8 +2,6 @@ import React, { useEffect } from "react";
 import moment from "moment";
 import "moment/locale/vi";
 import {
-  Button,
-  CardActionArea,
   CardActions,
   Card,
   CardContent,
@@ -65,7 +63,7 @@ const Posts = () => {
   return (
     <div
       style={{
-        margin: "40px 0 0 30%",
+        margin: "40px -0 0 30%",
       }}
     >
       <InfiniteScroll

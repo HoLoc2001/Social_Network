@@ -94,8 +94,12 @@ export const addFollower = async (req, res) => {
     const { user } = req.body;
     const userId = req.userId;
     const [row] = await pool.execute("call add_follower(?, ?)", [user, userId]);
+    const [rowFollower] = await pool.execute("call get_total_follower(?, ?)", [
+      user,
+      userId,
+    ]);
 
-    res.json({ success: true, data: row[0] });
+    res.json({ success: true, data: row[0], totalFollow: rowFollower[0] });
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false, message: "Internal server error" });

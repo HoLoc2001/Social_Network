@@ -19,7 +19,7 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import SearchIcon from "@mui/icons-material/Search";
 import { useAppDispatch } from "../redux/store";
 import { Link } from "react-router-dom";
-import Filters from "../components/Search";
+import Notification from "../components/Notification";
 
 const Navbar = () => {
   const dispatch = useAppDispatch();
@@ -71,23 +71,29 @@ const Navbar = () => {
                   </Typography>
                 </Link>
               </Box>
+              <div style={{ display: "flex", alignItems: "center" }}>
+                <Link to="/search">
+                  <IconButton>
+                    <SearchIcon />
+                  </IconButton>
+                </Link>
+                <Notification />
 
-              <Filters />
-
-              <div className="mui-dropdown">
-                <IconButton aria-label="settings" data-mui-toggle="dropdown">
-                  <SettingsIcon fontSize="large" />
-                </IconButton>
-                <ul className="mui-dropdown__menu mui-dropdown__menu--right">
-                  <li style={{ textAlign: "center" }}>
-                    <Button
-                      onClick={() => setOpenSignOut(true)}
-                      sx={{ color: "black" }}
-                    >
-                      <Typography>Đăng xuất</Typography>
-                    </Button>
-                  </li>
-                </ul>
+                <div className="mui-dropdown">
+                  <IconButton aria-label="settings" data-mui-toggle="dropdown">
+                    <SettingsIcon />
+                  </IconButton>
+                  <ul className="mui-dropdown__menu mui-dropdown__menu--right">
+                    <li style={{ textAlign: "center" }}>
+                      <Button
+                        onClick={() => setOpenSignOut(true)}
+                        sx={{ color: "black" }}
+                      >
+                        <Typography>Đăng xuất</Typography>
+                      </Button>
+                    </li>
+                  </ul>
+                </div>
               </div>
             </Box>
           </Toolbar>
