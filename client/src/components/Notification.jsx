@@ -4,20 +4,30 @@ import { Box, Collapse, Divider, IconButton } from "@mui/material";
 import { useState } from "react";
 import socketIOClient from "socket.io-client";
 import { useParams } from "react-router-dom";
+import { useAppSelector } from "../redux/store";
 
 const host = "http://localhost:5000";
 
 const Notification = () => {
   const socketRef = useRef();
+  const user = useAppSelector((state) => state.user.user);
 
   useEffect(() => {
     socketRef.current = socketIOClient.connect(host);
     // socketRef.current?.emit("chat message", "dasd");
-    socketRef.current?.emit("initRoom", { id: "12" });
+    console.log(user);
     socketRef.current?.on("notification", (data) => {
       console.log(data);
     });
+
+    socketRef.current?.on("notification-addPost", (data) => {
+      console.log(data);
+    });
   }, []);
+
+  useEffect(() => {
+    socketRef.current?.emit("initRoom", { id: user.id });
+  }, [user]);
 
   return (
     <>

@@ -105,3 +105,15 @@ export const addFollower = async (req, res) => {
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
+
+export const getListUserSearch = async (req, res) => {
+  try {
+    const { data } = req.body;
+    const [row] = await pool.execute("call get_search_name(?)", [data]);
+
+    res.json({ success: true, data: row[0] });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};

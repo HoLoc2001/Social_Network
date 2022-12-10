@@ -79,12 +79,17 @@ const Posts = () => {
           >
             <CardHeader
               avatar={
-                <Link to={`/${post.userId}`}>
+                <Link
+                  to={post.userId === user.id ? "/profile" : `/${post.userId}`}
+                >
                   <Avatar src={post.avatar} aria-label="recipe" />
                 </Link>
               }
               title={
-                <Link to={`/${post.userId}`} style={{ color: "black" }}>
+                <Link
+                  to={post.userId === user.id ? "/profile" : `/${post.userId}`}
+                  style={{ color: "black" }}
+                >
                   {post.fullname}
                 </Link>
               }

@@ -104,7 +104,10 @@ const Comment = ({ post, avatar, userId }) => {
                     marginBottom: "10px",
                   }}
                 >
-                  <Link to={`/${comment.id}`} onClick={() => handleClickUser()}>
+                  <Link
+                    to={userId === comment.id ? "/profile" : `/${comment.id}`}
+                    onClick={() => handleClickUser()}
+                  >
                     <Avatar
                       src={comment.avatar}
                       aria-label="recipe"
@@ -121,7 +124,7 @@ const Comment = ({ post, avatar, userId }) => {
                     }}
                   >
                     <Link
-                      to={`/${comment.id}`}
+                      to={userId === comment.id ? "/profile" : `/${comment.id}`}
                       style={{ color: "black" }}
                       onClick={() => handleClickUser()}
                     >

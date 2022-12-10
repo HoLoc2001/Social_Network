@@ -1,4 +1,5 @@
 import {
+  Avatar,
   Box,
   Button,
   IconButton,
@@ -12,19 +13,20 @@ import SearchIcon from "@mui/icons-material/Search";
 import React from "react";
 import { useState } from "react";
 import Posts from "../Posts";
+import { Link } from "react-router-dom";
+import { useAppDispatch, useAppSelector } from "../../redux/store";
+import { getListUserSearch } from "../User/userSlice";
 
 const Filters = () => {
-  const [openSearch, setOpenSearch] = useState(false);
-  const [openModal, setOpenModal] = useState(false);
+  const dispatch = useAppDispatch();
+  const MyUser = useAppSelector((state) => state.user.user);
+  const listUser = useAppSelector((state) => state.user.listUserSearch);
 
-  const [value, setValue] = useState("1");
+  const [search, setSearch] = useState("");
 
-  const handleChange = (event, newValue) => {
-    setValue(newValue);
-  };
-
-  const handleClose = () => {
-    setOpenModal(false);
+  const handleChange = async (e) => {
+    setSearch(e.target.value);
+    await dispatch(getListUserSearch(search));
   };
 
   return (
@@ -52,17 +54,10 @@ const Filters = () => {
             <InputBase
               sx={{ ml: 1, flex: 1 }}
               placeholder="Tìm kiếm trên Social"
-              onFocus={() => {
-                // setOpenModal(true);
-              }}
-              onBlur={() => setOpenSearch(false)}
+              value={search}
+              onChange={handleChange}
             />
-            <IconButton
-              onClick={() => setOpenModal(true)}
-              type="button"
-              sx={{ p: "10px" }}
-              aria-label="search"
-            >
+            <IconButton type="button" sx={{ p: "10px" }} aria-label="search">
               <SearchIcon />
             </IconButton>
           </Paper>
@@ -82,15 +77,37 @@ const Filters = () => {
           </ul>
           <Box sx={{ width: "100%", height: "550px", overflowY: "scroll" }}>
             <div className="mui-tabs__pane mui--is-active" id="pane-default-1">
-              Lorem ipsum dolor sit amet consectetur adipisicing elit. Natus
-              amet magnam odit nesciunt eligendi error sed consequatur?
-              Molestias, eligendi. Ducimus labore odio impedit porro tenetur
-              repellendus voluptate nihil pariatur reiciendis!Lorem ipsum dolor
-              sit amet consectetur adipisicing elit. Natus amet magnam odit
-              nesciunt eligendi error sed consequatur? Molestias, eligendi.
-              Ducimus labore odio impedit porro tenetur repellendus voluptate
-              nihil pariatur reiciendis!Lorem ipsum dolor sit amet consectetur
-              adipisicing elit. Natus amet magnam odit nesciunt eligendi error
+              {}
+              {listUser.map((user) => (
+                <div
+                  key={user.id}
+                  style={{
+                    display: "flex",
+                    paddingBottom: "10px",
+                    alignItems: "center",
+                  }}
+                >
+                  <Link
+                    to={user.id === MyUser.id ? "/profile" : `/${user.id}`}
+                    style={{ textDecoration: "none" }}
+                  >
+                    <Button
+                      size="small"
+                      style={{
+                        textTransform: "none",
+                        color: "black",
+                        width: "250px",
+                        ...{ justifyContent: "flex-start" },
+                      }}
+                    >
+                      <Avatar src={user.avatar} alt="Avatar" />
+                      <span style={{ fontSize: "18px", paddingLeft: "10px" }}>
+                        {user.fullname}
+                      </span>
+                    </Button>
+                  </Link>
+                </div>
+              ))}
             </div>
             <div className="mui-tabs__pane" id="pane-default-2">
               <Posts />

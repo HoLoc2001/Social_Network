@@ -119,6 +119,18 @@ export const addFollower = createAsyncThunk(
   }
 );
 
+export const getListUserSearch = createAsyncThunk(
+  "user/getListUserSearch",
+  async (data) => {
+    try {
+      const res = await axiosPrivate.post("user/getListUserSearch", { data });
+      return res.data;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+);
+
 export const userSlice = createSlice({
   name: "user",
   initialState: {
@@ -130,6 +142,7 @@ export const userSlice = createSlice({
       avatar: null,
       createdAt: null,
     },
+    listUserSearch: [],
     otherUser: [],
     listFollower: [],
     notFollower: [],
@@ -180,6 +193,9 @@ export const userSlice = createSlice({
         state.user.totalFollowing = action?.payload.totalFollow?.totalFollowing;
         state.otherUser.totalFollower =
           action?.payload.totalFollow?.totalFollower;
+      })
+      .addCase(getListUserSearch.fulfilled, (state, action) => {
+        state.listUserSearch = action?.payload?.data;
       });
   },
 });

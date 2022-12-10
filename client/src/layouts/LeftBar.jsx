@@ -8,14 +8,8 @@ import { getPosts } from "../components/Posts/postsSlice";
 import { borderLeft } from "@mui/system";
 
 const LeftBar = () => {
-  const dispatch = useAppDispatch();
   const user = useAppSelector((state) => state.user.user);
-  useEffect(() => {
-    async function load() {
-      await dispatch(getInfo());
-    }
-    load();
-  }, []);
+
   const [atHome, setAtHome] = useState(true);
 
   const handleClickUser = () => {

@@ -3,6 +3,7 @@ import {
   addFollower,
   getInfo,
   getListFollower,
+  getListUserSearch,
   getNotFollower,
   getOtherInfo,
   updateUser,
@@ -15,6 +16,7 @@ router.get("/", verifyToken, getInfo);
 router.post("/getOtherInfo", verifyToken, getOtherInfo);
 router.patch("/updateUser", verifyToken, updateUser);
 router.post("/getListFollower", verifyToken, getListFollower);
+router.post("/getListUserSearch", verifyToken, getListUserSearch);
 router.post("/getNotFollower", verifyToken, getNotFollower);
 router.post("/addFollower", verifyToken, addFollower);
 

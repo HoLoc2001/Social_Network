@@ -1,4 +1,5 @@
 import { pool } from "../connectDB.js";
+import { notificationAddPost } from "../services/Socket.service.js";
 
 export const getPosts = async (req, res) => {
   const { page } = req.body;
@@ -13,12 +14,18 @@ export const getPosts = async (req, res) => {
 
 export const addPost = async (req, res) => {
   const { title, image } = req.body;
+  const userId = req.userId;
   try {
     const [row] = await pool.execute("call add_post(?, ?, ?)", [
-      req.userId,
+      userId,
       title,
       image,
     ]);
+
+    const [listUser] = await pool.execute("call get_userId_follow(?)", [
+      userId,
+    ]);
+    notificationAddPost({ listUser, data: "Thanh cong roi" });
 
     res.status(201).json({ msg: "Thanh cong!", post: row[0] });
   } catch (error) {
