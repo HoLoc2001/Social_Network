@@ -117,3 +117,15 @@ export const getListUserSearch = async (req, res) => {
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
+
+export const getListLike = async (req, res) => {
+  try {
+    const { postId } = req.body;
+    const [row] = await pool.execute("call get_list_like(?)", [postId]);
+
+    res.json({ success: true, data: row[0] });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};

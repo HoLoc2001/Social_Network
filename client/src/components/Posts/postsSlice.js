@@ -93,9 +93,39 @@ export const addCommentPost = createAsyncThunk(
   }
 );
 
+export const getListPostSearch = createAsyncThunk(
+  "posts/getListPostSearch",
+  async (data) => {
+    try {
+      const res = await axiosPrivate.post("getListPostSearch", { data });
+      return res.data;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+);
+
+export const deletePost = createAsyncThunk(
+  "posts/deletePost",
+  async (postId) => {
+    try {
+      const res = await axiosPrivate.post("deletePost", { postId });
+      return res.data;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+);
+
 export const postsSlice = createSlice({
   name: "posts",
-  initialState: { status: "", posts: [], otherPosts: [], myPosts: [] },
+  initialState: {
+    status: "",
+    posts: [],
+    otherPosts: [],
+    myPosts: [],
+    listPostSearch: [],
+  },
   extraReducers: (builder) => {
     builder
       .addCase(getPosts.fulfilled, (state, action) => {
@@ -138,6 +168,14 @@ export const postsSlice = createSlice({
             );
           }
         });
+        state.listPostSearch.forEach((e) => {
+          if (e.id === action.payload?.id) {
+            return (
+              (e.totalLike = action.payload?.totalLike),
+              (e.isLike = action.payload?.isLike)
+            );
+          }
+        });
       })
       .addCase(updateLikeMyPost.fulfilled, (state, action) => {
         state.myPosts.forEach((e) => {
@@ -161,6 +199,11 @@ export const postsSlice = createSlice({
           }
         });
         state.otherPosts.forEach((e) => {
+          if (e.id === action.payload?.data[0]?.postId) {
+            return (e.comments = action.payload?.data);
+          }
+        });
+        state.listPostSearch.forEach((e) => {
           if (e.id === action.payload?.data[0]?.postId) {
             return (e.comments = action.payload?.data);
           }
@@ -190,6 +233,22 @@ export const postsSlice = createSlice({
               (e.comment = action.payload?.content)
             );
           }
+        });
+        state.listPostSearch.forEach((e) => {
+          if (e.id === action.payload?.postId) {
+            return (
+              (e.totalComment = action.payload?.totalComment),
+              (e.comment = action.payload?.content)
+            );
+          }
+        });
+      })
+      .addCase(getListPostSearch.fulfilled, (state, action) => {
+        state.listPostSearch = action?.payload?.data;
+      })
+      .addCase(deletePost.fulfilled, (state, action) => {
+        state.posts.filter((post) => {
+          return post !== action?.payload?.data;
         });
       });
   },

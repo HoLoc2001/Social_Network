@@ -1,5 +1,6 @@
 import {
   Avatar,
+  Box,
   Button,
   Card,
   CardActions,
@@ -8,6 +9,7 @@ import {
   CardMedia,
   Divider,
   IconButton,
+  Modal,
   Typography,
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
@@ -30,7 +32,7 @@ import {
 import Comment from "../components/Comment";
 import { json, Link, Navigate, useParams } from "react-router-dom";
 import InfiniteScroll from "../components/InfiniteScroll";
-import { addFollower, getOtherInfo } from "./User/userSlice";
+import { addFollower, getListLike, getOtherInfo } from "./User/userSlice";
 moment.locale("vi");
 
 const OtherUser = () => {
@@ -39,10 +41,20 @@ const OtherUser = () => {
 
   const otherUser = useAppSelector((state) => state.user.otherUser);
   const user = useAppSelector((state) => state.user.user);
+  const listLike = useAppSelector((state) => state.user.listLike);
   const otherPosts = useAppSelector((state) => state.posts.otherPosts);
   const listFollower = useAppSelector((state) => state.user.listFollower);
   const [page, setPage] = useState(0);
   const [hasPost, setHasPost] = useState(false);
+
+  const [open, setOpen] = useState(false);
+  const handleOpen = async (postId, totalLike) => {
+    if (totalLike) {
+      await dispatch(getListLike(postId));
+      setOpen(true);
+    }
+  };
+  const handleClose = () => setOpen(false);
 
   let hasFollower = listFollower.find((e) => {
     return "" + e.id === params.id;
@@ -210,7 +222,13 @@ const OtherUser = () => {
                     }}
                   />
                 </IconButton>
-                <Typography variant="body2">{post.totalLike}</Typography>
+                <Typography
+                  sx={{ cursor: "pointer" }}
+                  variant="body2"
+                  onClick={() => handleOpen(post.id, post.totalLike)}
+                >
+                  {post.totalLike}
+                </Typography>
               </div>
               <div
                 style={{
@@ -230,6 +248,57 @@ const OtherUser = () => {
           </Card>
         ))}
       </InfiniteScroll>
+      <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 400,
+            bgcolor: "white",
+            boxShadow: 24,
+            p: 4,
+            borderRadius: "5px",
+          }}
+        >
+          {listLike?.map((element) => (
+            <div
+              key={element.id}
+              style={{
+                display: "flex",
+                paddingBottom: "10px",
+                alignItems: "center",
+              }}
+            >
+              <Link
+                to={user.id === element.id ? "/profile" : `/${element.id}`}
+                style={{ textDecoration: "none" }}
+              >
+                <Button
+                  size="small"
+                  style={{
+                    textTransform: "none",
+                    color: "black",
+                    width: "250px",
+                    ...{ justifyContent: "flex-start" },
+                  }}
+                >
+                  <Avatar src={element.avatar} alt="Avatar" />
+                  <span style={{ fontSize: "18px", paddingLeft: "10px" }}>
+                    {element.fullname}
+                  </span>
+                </Button>
+              </Link>
+            </div>
+          ))}
+        </Box>
+      </Modal>
     </div>
   );
 };

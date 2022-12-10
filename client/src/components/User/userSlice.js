@@ -131,6 +131,18 @@ export const getListUserSearch = createAsyncThunk(
   }
 );
 
+export const getListLike = createAsyncThunk(
+  "user/getListLike",
+  async (postId) => {
+    try {
+      const res = await axiosPrivate.post("user/getListLike", { postId });
+      return res.data;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+);
+
 export const userSlice = createSlice({
   name: "user",
   initialState: {
@@ -196,6 +208,9 @@ export const userSlice = createSlice({
       })
       .addCase(getListUserSearch.fulfilled, (state, action) => {
         state.listUserSearch = action?.payload?.data;
+      })
+      .addCase(getListLike.fulfilled, (state, action) => {
+        state.listLike = action?.payload?.data;
       });
   },
 });

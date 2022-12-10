@@ -12,6 +12,9 @@ import {
   IconButton,
   Collapse,
   Divider,
+  Box,
+  Modal,
+  Button,
 } from "@mui/material";
 import CommentIcon from "@mui/icons-material/Comment";
 import FavoriteIcon from "@mui/icons-material/Favorite";
@@ -26,12 +29,27 @@ import Comment from "../Comment";
 import { useState } from "react";
 import InfiniteScroll from "../InfiniteScroll";
 import { Link } from "react-router-dom";
+import { getListLike } from "../User/userSlice";
 moment.locale("vi");
+
+const style = {
+  position: "absolute",
+  top: "50%",
+  left: "50%",
+  transform: "translate(-50%, -50%)",
+  width: 400,
+  bgcolor: "white",
+  border: "2px solid #000",
+  boxShadow: 24,
+  p: 4,
+};
 
 const Posts = () => {
   const dispatch = useAppDispatch();
   const posts = useAppSelector((state) => state.posts.posts);
   const user = useAppSelector((state) => state.user.user);
+  const listLike = useAppSelector((state) => state.user.listLike);
+  console.log(listLike);
   const [page, setPage] = useState(posts.length);
   const [hasPost, setHasPost] = useState(() => {
     if (posts.length % 5 === 0 && posts.length !== 0) {
@@ -39,6 +57,15 @@ const Posts = () => {
     }
     return false;
   });
+
+  const [open, setOpen] = useState(false);
+  const handleOpen = async (postId, totalLike) => {
+    if (totalLike) {
+      await dispatch(getListLike(postId));
+      setOpen(true);
+    }
+  };
+  const handleClose = () => setOpen(false);
 
   useEffect(() => {
     (async () => {
@@ -134,7 +161,13 @@ const Posts = () => {
                     }}
                   />
                 </IconButton>
-                <Typography variant="body2">{post.totalLike}</Typography>
+                <Typography
+                  sx={{ cursor: "pointer" }}
+                  variant="body2"
+                  onClick={() => handleOpen(post.id, post.totalLike)}
+                >
+                  {post.totalLike}
+                </Typography>
               </div>
               <div
                 style={{
@@ -155,6 +188,57 @@ const Posts = () => {
           </Card>
         ))}
       </InfiniteScroll>
+      <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 400,
+            bgcolor: "white",
+            boxShadow: 24,
+            p: 4,
+            borderRadius: "5px",
+          }}
+        >
+          {listLike?.map((element) => (
+            <div
+              key={element.id}
+              style={{
+                display: "flex",
+                paddingBottom: "10px",
+                alignItems: "center",
+              }}
+            >
+              <Link
+                to={user.id === element.id ? "/profile" : `/${element.id}`}
+                style={{ textDecoration: "none" }}
+              >
+                <Button
+                  size="small"
+                  style={{
+                    textTransform: "none",
+                    color: "black",
+                    width: "250px",
+                    ...{ justifyContent: "flex-start" },
+                  }}
+                >
+                  <Avatar src={element.avatar} alt="Avatar" />
+                  <span style={{ fontSize: "18px", paddingLeft: "10px" }}>
+                    {element.fullname}
+                  </span>
+                </Button>
+              </Link>
+            </div>
+          ))}
+        </Box>
+      </Modal>
     </div>
   );
 };

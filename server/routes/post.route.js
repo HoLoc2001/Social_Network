@@ -4,6 +4,7 @@ import {
   addPost,
   deletePost,
   getCommentPost,
+  getListPostSearch,
   getMyPosts,
   getOtherPosts,
   getPosts,
@@ -22,6 +23,8 @@ router.post("/getOtherPosts", verifyToken, getOtherPosts);
 
 router.post("/getCommentPost", verifyToken, getCommentPost);
 
+router.post("/getListPostSearch", verifyToken, getListPostSearch);
+
 router.post("/addCommentPost", verifyToken, addCommentPost);
 
 router.post("/addPost", verifyToken, addPost);
@@ -30,6 +33,6 @@ router.patch("/updatePost", verifyToken, updatePost);
 
 router.patch("/updateLikePost", verifyToken, updateLikePost);
 
-router.delete("/post", verifyToken, deletePost);
+router.post("/deletePost", verifyToken, deletePost);
 
 export default router;

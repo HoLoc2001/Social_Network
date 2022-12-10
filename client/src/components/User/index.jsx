@@ -6,6 +6,11 @@ import {
   CardContent,
   CardHeader,
   CardMedia,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   Divider,
   IconButton,
   Modal,
@@ -26,6 +31,7 @@ import { useState } from "react";
 import { getBase64 } from "../../utils";
 import {
   addPost,
+  deletePost,
   getCommentPost,
   getMyPosts,
   updateLikePost,
@@ -34,16 +40,30 @@ import { Box } from "@mui/system";
 import Comment from "../Comment";
 import { Link } from "react-router-dom";
 import InfiniteScroll from "../InfiniteScroll";
+import { getListLike } from "./userSlice";
 moment.locale("vi");
 
 const User = () => {
   const dispatch = useAppDispatch();
   let imageBase64 = "";
+  const [postIdDelete, setPostIdDelete] = useState(null);
   const [imgPost, setImgPost] = useState("");
   const [openModal, setOpenModal] = useState(false);
   const [title, setTitle] = useState("");
   const user = useAppSelector((state) => state.user.user);
+  const listLike = useAppSelector((state) => state.user.listLike);
+
   const myPosts = useAppSelector((state) => state.posts.myPosts);
+
+  const [open, setOpen] = useState(false);
+  const [openDialogDelete, setOpenDialogDelete] = useState(false);
+  const handleOpen = async (postId, totalLike) => {
+    if (totalLike) {
+      await dispatch(getListLike(postId));
+      setOpen(true);
+    }
+  };
+  const handleClose = () => setOpen(false);
 
   const [page, setPage] = useState(myPosts.length);
   const [hasPost, setHasPost] = useState(() => {
@@ -118,6 +138,15 @@ const User = () => {
     await dispatch(getCommentPost(postId));
   };
 
+  const handleOpenDelete = async (postId) => {
+    setPostIdDelete(postId);
+    setOpenDialogDelete(true);
+  };
+
+  const handleDeletePost = async () => {
+    await dispatch(deletePost(postIdDelete));
+  };
+
   return (
     <div
       style={{
@@ -189,8 +218,14 @@ const User = () => {
                     <MoreVertIcon />
                   </IconButton>
                   <ul className="mui-dropdown__menu">
-                    <li>Xoa</li>
-                    <li>Sua</li>
+                    <li>
+                      <Button>Sua</Button>
+                    </li>
+                    <li>
+                      <Button onClick={() => handleOpenDelete(post.id)}>
+                        Xoa
+                      </Button>
+                    </li>
                   </ul>
                 </div>
               }
@@ -245,7 +280,13 @@ const User = () => {
                     }}
                   />
                 </IconButton>
-                <Typography variant="body2">{post.totalLike}</Typography>
+                <Typography
+                  sx={{ cursor: "pointer" }}
+                  variant="body2"
+                  onClick={() => handleOpen(post.id, post.totalLike)}
+                >
+                  {post.totalLike}
+                </Typography>
               </div>
               <div
                 style={{
@@ -377,6 +418,75 @@ const User = () => {
           </Button>
         </Box>
       </Modal>
+      <Modal
+        open={open}
+        onClose={handleClose}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: 400,
+            bgcolor: "white",
+            boxShadow: 24,
+            p: 4,
+            borderRadius: "5px",
+          }}
+        >
+          {listLike?.map((element) => (
+            <div
+              key={element.id}
+              style={{
+                display: "flex",
+                paddingBottom: "10px",
+                alignItems: "center",
+              }}
+            >
+              <Link
+                to={user.id === element.id ? "/profile" : `/${element.id}`}
+                style={{ textDecoration: "none" }}
+              >
+                <Button
+                  size="small"
+                  style={{
+                    textTransform: "none",
+                    color: "black",
+                    width: "250px",
+                    ...{ justifyContent: "flex-start" },
+                  }}
+                >
+                  <Avatar src={element.avatar} alt="Avatar" />
+                  <span style={{ fontSize: "18px", paddingLeft: "10px" }}>
+                    {element.fullname}
+                  </span>
+                </Button>
+              </Link>
+            </div>
+          ))}
+        </Box>
+      </Modal>
+
+      <Dialog
+        open={openDialogDelete}
+        onClose={() => !openDialogDelete}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">Social</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Bạn đang muốn đăng xuất?
+          </DialogContentText>
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={() => setOpenDialogDelete(false)}>Hủy bỏ</Button>
+          <Button onClick={() => handleDeletePost()}>Đăng xuất</Button>
+        </DialogActions>
+      </Dialog>
     </div>
   );
 };

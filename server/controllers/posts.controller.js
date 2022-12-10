@@ -44,24 +44,6 @@ export const updatePost = async (request, res) => {
   }
 };
 
-export const deletePost = async (req, res) => {
-  const { id } = req.body;
-  try {
-    const [post] = await pool.execute(
-      "select id from posts where id = ? and userId = ?",
-      [id, req.userId]
-    );
-    if (post.length) {
-      await pool.execute("call delete_post(?)", [id]);
-      res.status(204).json({});
-    } else {
-      res.status(403).json({});
-    }
-  } catch (error) {
-    res.json(error);
-  }
-};
-
 export const getMyPosts = async (req, res) => {
   try {
     const userId = req.userId;
@@ -129,5 +111,35 @@ export const addCommentPost = async (req, res) => {
   } catch (error) {
     console.log(error);
     res.json(error);
+  }
+};
+
+export const getListPostSearch = async (req, res) => {
+  try {
+    const { data } = req.body;
+    const [row] = await pool.execute("call get_search_post(?, ?)", [
+      data,
+      req.userId,
+    ]);
+
+    res.json({ success: true, data: row[0] });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+export const deletePost = async (req, res) => {
+  try {
+    const { postId } = req.body;
+    const [row] = await pool.execute("call get_search_post(?, ?)", [
+      postId,
+      req.userId,
+    ]);
+
+    res.json({ success: true, data: row[0] });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
