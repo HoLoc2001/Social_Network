@@ -12,7 +12,6 @@ import {
   InputBase,
   Modal,
   Paper,
-  Tooltip,
   Typography,
 } from "@mui/material";
 import FavoriteIcon from "@mui/icons-material/Favorite";
@@ -72,6 +71,12 @@ const Filters = () => {
     }
   };
 
+  const handleClickSearch = async () => {
+    if (search) {
+      await dispatch(getListPostSearch(search));
+    }
+  };
+
   return (
     <>
       <div
@@ -101,7 +106,12 @@ const Filters = () => {
               onChange={handleChange}
               onKeyDown={keyPress}
             />
-            <IconButton type="button" sx={{ p: "10px" }} aria-label="search">
+            <IconButton
+              type="button"
+              sx={{ p: "10px" }}
+              aria-label="search"
+              onClick={handleClickSearch}
+            >
               <SearchIcon />
             </IconButton>
           </Paper>

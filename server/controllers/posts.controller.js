@@ -33,12 +33,17 @@ export const addPost = async (req, res) => {
   }
 };
 
-export const updatePost = async (request, res) => {
-  const { id, title } = request.body;
-
+export const updatePost = async (req, res) => {
   try {
-    await pool.execute("");
-    res.status(200).json(post);
+    const userId = req.userId;
+    const { postId, title, img } = req.body;
+    const [row] = await pool.execute("call update_post(?,?,?,?)", [
+      postId,
+      userId,
+      title,
+      img,
+    ]);
+    res.status(200).json({ post: row[0] });
   } catch (error) {
     res.json(error);
   }
@@ -132,11 +137,11 @@ export const getListPostSearch = async (req, res) => {
 export const deletePost = async (req, res) => {
   try {
     const { postId } = req.body;
-    const [row] = await pool.execute("call get_search_post(?, ?)", [
+    const [row] = await pool.execute("call delete_post(?, ?)", [
       postId,
       req.userId,
     ]);
-
+    console.log(row);
     res.json({ success: true, data: row[0] });
   } catch (error) {
     console.log(error);

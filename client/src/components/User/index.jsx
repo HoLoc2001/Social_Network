@@ -35,23 +35,30 @@ import {
   getCommentPost,
   getMyPosts,
   updateLikePost,
+  updateMyPost,
 } from "../Posts/postsSlice";
 import { Box } from "@mui/system";
 import Comment from "../Comment";
 import { Link } from "react-router-dom";
 import InfiniteScroll from "../InfiniteScroll";
-import { getListLike } from "./userSlice";
+import { getListLike, getListFollowing } from "./userSlice";
 moment.locale("vi");
 
 const User = () => {
   const dispatch = useAppDispatch();
   let imageBase64 = "";
-  const [postIdDelete, setPostIdDelete] = useState(null);
+  const [postId, setPostId] = useState(null);
   const [imgPost, setImgPost] = useState("");
   const [openModal, setOpenModal] = useState(false);
+  const [openModalUpdate, setOpenModalUpdate] = useState(false);
+  const [openModalFollower, setOpenModalFollower] = useState(false);
+  const [openModalFollowing, setOpenModalFollowing] = useState(false);
   const [title, setTitle] = useState("");
+  const [updatePost, setUpdatePost] = useState(null);
   const user = useAppSelector((state) => state.user.user);
   const listLike = useAppSelector((state) => state.user.listLike);
+  const listFollower = useAppSelector((state) => state.user.listFollower);
+  const listFollowing = useAppSelector((state) => state.user.listFollowing);
 
   const myPosts = useAppSelector((state) => state.posts.myPosts);
 
@@ -65,7 +72,7 @@ const User = () => {
   };
   const handleClose = () => setOpen(false);
 
-  const [page, setPage] = useState(myPosts.length);
+  const [page, setPage] = useState(myPosts?.length);
   const [hasPost, setHasPost] = useState(() => {
     if (myPosts.length % 5 === 0 && myPosts.length !== 0) {
       return true;
@@ -102,10 +109,27 @@ const User = () => {
     }
   };
 
+  const handleUpdateImagePost = async (e) => {
+    try {
+      let data = e.target.files;
+      let file = data[0];
+      if (file) {
+        imageBase64 = await getBase64(file);
+        setUpdatePost({
+          ...updatePost,
+          postImg: imageBase64,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+    }
+  };
+
   const handleAddPost = async () => {
     try {
       const dataAddPost = { title, imgPost };
       await dispatch(addPost(dataAddPost));
+      await handleCloseModal();
     } catch (error) {
       console.log(error);
     }
@@ -115,10 +139,18 @@ const User = () => {
     setImgPost("");
   };
 
+  const handleCloseUpdateImg = () => {
+    setUpdatePost({
+      ...updatePost,
+      postImg: null,
+    });
+  };
+
   const handleCloseModal = () => {
     setTitle("");
     setImgPost("");
     setOpenModal(false);
+    setOpenModalUpdate(false);
     if (!title && !imageBase64) {
       setTitle("");
       imageBase64 = "";
@@ -134,17 +166,51 @@ const User = () => {
     setTitle(e.target.value);
   };
 
+  const onChangeUpdateTitle = (e) => {
+    setUpdatePost({
+      ...updatePost,
+      postTitle: e.target.value,
+    });
+  };
+
   const handleClickComment = async (postId) => {
     await dispatch(getCommentPost(postId));
   };
 
   const handleOpenDelete = async (postId) => {
-    setPostIdDelete(postId);
+    setPostId(postId);
     setOpenDialogDelete(true);
   };
 
+  const handleUpdatePost = async () => {
+    await dispatch(
+      updateMyPost({
+        postId,
+        title: updatePost?.postTitle,
+        img: updatePost?.postImg,
+      })
+    );
+    setUpdatePost(null);
+    setOpenModalUpdate(false);
+  };
+
   const handleDeletePost = async () => {
-    await dispatch(deletePost(postIdDelete));
+    setOpenDialogDelete(false);
+    await dispatch(deletePost(postId));
+  };
+
+  const handleOpenUpdate = (postId, postTitle, postImg) => {
+    setPostId(postId);
+    setUpdatePost({
+      postTitle,
+      postImg,
+    });
+    setOpenModalUpdate(true);
+  };
+
+  const handleOpenFollowing = async (userId) => {
+    await dispatch(getListFollowing(userId));
+    setOpenModalFollowing(true);
   };
 
   return (
@@ -175,8 +241,25 @@ const User = () => {
           }
           subheader={
             <div style={{ display: "flex" }}>
-              <h5>Người theo dõi: {user.totalFollower} &emsp;</h5>
-              <h5>Đang theo dõi: {user.totalFollowing}</h5>
+              <h5>
+                Người theo dõi:{" "}
+                <span
+                  style={{ cursor: "pointer" }}
+                  onClick={() => handleOpenFollowing(user.id)}
+                >
+                  {user.totalFollower}
+                </span>{" "}
+                &emsp;
+              </h5>
+              <h5>
+                Đang theo dõi:{" "}
+                <span
+                  style={{ cursor: "pointer" }}
+                  onClick={() => setOpenModalFollower(true)}
+                >
+                  {user.totalFollowing}
+                </span>
+              </h5>
             </div>
           }
           action={
@@ -219,11 +302,21 @@ const User = () => {
                   </IconButton>
                   <ul className="mui-dropdown__menu">
                     <li>
-                      <Button>Sua</Button>
+                      <Button
+                        sx={{ width: "150px" }}
+                        onClick={() =>
+                          handleOpenUpdate(post.id, post.title, post.image)
+                        }
+                      >
+                        Sửa
+                      </Button>
                     </li>
                     <li>
-                      <Button onClick={() => handleOpenDelete(post.id)}>
-                        Xoa
+                      <Button
+                        sx={{ width: "150px" }}
+                        onClick={() => handleOpenDelete(post.id)}
+                      >
+                        Xóa
                       </Button>
                     </li>
                   </ul>
@@ -479,14 +572,218 @@ const User = () => {
         <DialogTitle id="alert-dialog-title">Social</DialogTitle>
         <DialogContent>
           <DialogContentText id="alert-dialog-description">
-            Bạn đang muốn đăng xuất?
+            Bạn muốn xóa bài đăng này?
           </DialogContentText>
         </DialogContent>
         <DialogActions>
           <Button onClick={() => setOpenDialogDelete(false)}>Hủy bỏ</Button>
-          <Button onClick={() => handleDeletePost()}>Đăng xuất</Button>
+          <Button onClick={() => handleDeletePost()}>Xóa</Button>
         </DialogActions>
       </Dialog>
+
+      <Modal
+        open={openModalUpdate}
+        onClose={handleCloseModal}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: "60%",
+            height: "70%",
+            bgcolor: "#AFEEEE",
+            borderRadius: "10px",
+            boxShadow: 24,
+            p: 4,
+          }}
+        >
+          <Typography id="modal-modal-title" variant="h6" component="h2">
+            Bài viết
+          </Typography>
+          <TextareaAutosize
+            maxRows={4}
+            aria-label="maximum height"
+            placeholder="Tiêu đề"
+            value={updatePost?.postTitle}
+            onChange={onChangeUpdateTitle}
+            style={{
+              width: "400px",
+              height: "300px",
+              minWidth: "400px",
+              maxWidth: "400px",
+              maxHeight: "300px",
+              marginBottom: "30px",
+            }}
+          />
+          <Box
+            sx={{
+              width: "300px",
+              height: "300px",
+              border: "1px solid black",
+              borderRadius: "10px",
+              position: "absolute",
+              top: "65px",
+              right: "50px",
+              background: `no-repeat center/cover url(${updatePost?.postImg})`,
+            }}
+          >
+            <Button
+              variant="text"
+              component="label"
+              sx={{
+                width: "100%",
+                height: "100%",
+                display: updatePost?.postImg ? "none" : "inline-flex",
+              }}
+            >
+              <AddAPhotoIcon
+                sx={{
+                  width: "100px",
+                  height: "100px",
+                }}
+              />
+              <input
+                type="file"
+                accept="image/*"
+                hidden
+                onChange={handleUpdateImagePost}
+              />
+            </Button>
+            <button
+              style={{
+                borderRadius: "50%",
+                cursor: "pointer",
+                backgroundColor: "rgba(255, 0, 0, 0.1)",
+                position: "absolute",
+                right: 0,
+              }}
+              onClick={handleCloseUpdateImg}
+              hidden={updatePost?.postImg ? false : true}
+            >
+              x
+            </button>
+          </Box>
+          <Button
+            variant="contained"
+            onClick={handleUpdatePost}
+            sx={{ marginTop: "20px" }}
+          >
+            Sửa bài viết
+          </Button>
+        </Box>
+      </Modal>
+
+      <Modal
+        open={openModalFollower}
+        onClose={() => setOpenModalFollower(false)}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: "400px",
+            height: "500px",
+            bgcolor: "white",
+            boxShadow: 24,
+            p: 4,
+            borderRadius: "5px",
+            overflowY: "scroll",
+          }}
+        >
+          {listFollower?.map((element) => (
+            <div
+              key={element.id}
+              style={{
+                display: "flex",
+                paddingBottom: "10px",
+                alignItems: "center",
+              }}
+            >
+              <Link
+                to={user.id === element.id ? "/profile" : `/${element.id}`}
+                style={{ textDecoration: "none" }}
+              >
+                <Button
+                  size="small"
+                  style={{
+                    textTransform: "none",
+                    color: "black",
+                    width: "250px",
+                    ...{ justifyContent: "flex-start" },
+                  }}
+                >
+                  <Avatar src={element.avatar} alt="Avatar" />
+                  <span style={{ fontSize: "18px", paddingLeft: "10px" }}>
+                    {element.fullname}
+                  </span>
+                </Button>
+              </Link>
+            </div>
+          ))}
+        </Box>
+      </Modal>
+
+      <Modal
+        open={openModalFollowing}
+        onClose={() => setOpenModalFollowing(false)}
+        aria-labelledby="modal-modal-title"
+        aria-describedby="modal-modal-description"
+      >
+        <Box
+          sx={{
+            position: "absolute",
+            top: "50%",
+            left: "50%",
+            transform: "translate(-50%, -50%)",
+            width: "400px",
+            height: "500px",
+            bgcolor: "white",
+            boxShadow: 24,
+            p: 4,
+            borderRadius: "5px",
+            overflowY: "scroll",
+          }}
+        >
+          {listFollowing?.map((element) => (
+            <div
+              key={element.id}
+              style={{
+                display: "flex",
+                paddingBottom: "10px",
+                alignItems: "center",
+              }}
+            >
+              <Link
+                to={user.id === element.id ? "/profile" : `/${element.id}`}
+                style={{ textDecoration: "none" }}
+              >
+                <Button
+                  size="small"
+                  style={{
+                    textTransform: "none",
+                    color: "black",
+                    width: "250px",
+                    ...{ justifyContent: "flex-start" },
+                  }}
+                >
+                  <Avatar src={element.avatar} alt="Avatar" />
+                  <span style={{ fontSize: "18px", paddingLeft: "10px" }}>
+                    {element.fullname}
+                  </span>
+                </Button>
+              </Link>
+            </div>
+          ))}
+        </Box>
+      </Modal>
     </div>
   );
 };

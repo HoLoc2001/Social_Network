@@ -129,3 +129,27 @@ export const getListLike = async (req, res) => {
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
+
+// export const getListFollower = async (req, res) => {
+//   try {
+//     const { userId } = req.body;
+//     const [row] = await pool.execute("call get_list_follower(?)", [userId]);
+
+//     res.json({ success: true, data: row[0] });
+//   } catch (error) {
+//     console.log(error);
+//     res.status(500).json({ success: false, message: "Internal server error" });
+//   }
+// };
+
+export const getListFollowing = async (req, res) => {
+  try {
+    const { userId } = req.body;
+    const [row] = await pool.execute("call get_list_following(?)", [userId]);
+
+    res.json({ success: true, data: row[0] });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};

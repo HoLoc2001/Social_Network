@@ -24,11 +24,6 @@ export const addPost = createAsyncThunk(
   }
 );
 
-export const updatePost = createAsyncThunk("posts/updatePost", async () => {
-  const res = await axiosPrivate.patch(`updatePost`);
-  return res.data;
-});
-
 export const updateLikePost = createAsyncThunk(
   "posts/updateLikePost",
   async (postId) => {
@@ -105,12 +100,44 @@ export const getListPostSearch = createAsyncThunk(
   }
 );
 
+export const updateMyPost = createAsyncThunk(
+  "posts/updatePost",
+  async (dataUpdate, { getState }) => {
+    try {
+      const { myPosts } = getState().posts;
+      const { postId, title, img } = dataUpdate;
+      const res = await axiosPrivate.patch("updatePost", {
+        postId,
+        title,
+        img,
+      });
+      // const data = [...myPosts];
+      // data.map((post) => {
+      //   console.log(post.title);
+      //   return (post.title = "ci");
+      //   if (post.id == res.data.post[0].id) {
+      //     // return (post.title = res.data.post[0].title);
+      //   }
+      // });
+      // console.log(data);
+      return res.data.post[0];
+    } catch (error) {
+      console.log(error);
+    }
+  }
+);
+
 export const deletePost = createAsyncThunk(
   "posts/deletePost",
-  async (postId) => {
+  async (postId, { getState }) => {
     try {
+      const { myPosts } = getState().posts;
       const res = await axiosPrivate.post("deletePost", { postId });
-      return res.data;
+      const data = myPosts.filter((post) => {
+        return post.id !== res.data.data[0].postId;
+      });
+      console.log(data);
+      return data;
     } catch (error) {
       console.log(error);
     }
@@ -133,9 +160,6 @@ export const postsSlice = createSlice({
       })
       .addCase(addPost.fulfilled, (state, action) => {
         state.myPosts = action?.payload;
-      })
-      .addCase(updatePost.fulfilled, (state, action) => {
-        state.posts.push();
       })
       .addCase(getMyPosts.fulfilled, (state, action) => {
         state.myPosts = action?.payload;
@@ -246,10 +270,19 @@ export const postsSlice = createSlice({
       .addCase(getListPostSearch.fulfilled, (state, action) => {
         state.listPostSearch = action?.payload?.data;
       })
-      .addCase(deletePost.fulfilled, (state, action) => {
-        state.posts.filter((post) => {
-          return post !== action?.payload?.data;
+      .addCase(updateMyPost.fulfilled, (state, action) => {
+        console.log(action.payload?.img);
+        state.myPosts.forEach((e) => {
+          if (e.id === action.payload?.id) {
+            return (
+              (e.title = action.payload?.title),
+              (e.image = action.payload?.image)
+            );
+          }
         });
+      })
+      .addCase(deletePost.fulfilled, (state, action) => {
+        state.myPosts = action?.payload;
       });
   },
 });
