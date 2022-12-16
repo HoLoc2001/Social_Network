@@ -20,15 +20,15 @@ import CommentIcon from "@mui/icons-material/Comment";
 import React from "react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
-import { useAppDispatch, useAppSelector } from "../../redux/store";
-import { getListLike, getListUserSearch } from "../User/userSlice";
+import { useAppDispatch, useAppSelector } from "../redux/store";
+import { getListLike, getListUserSearch } from "./User/userSlice";
 import moment from "moment";
-import Comment from "../Comment";
+import Comment from "./Comment";
 import {
   getCommentPost,
   getListPostSearch,
   updateLikePost,
-} from "../Posts/postsSlice";
+} from "./Posts/postsSlice";
 moment.locale("vi");
 
 const Filters = () => {

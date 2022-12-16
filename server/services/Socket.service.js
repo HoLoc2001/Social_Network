@@ -20,9 +20,7 @@ export const connectSocket = (socket) => {
   socket.on("initRoom", ({ id }) => {
     if (id) {
       currentUser[id] = socket.id;
-      console.log(`id: ${id}`);
       socket.join(currentUser[id]);
-      console.log(currentUser);
     }
   });
 };

@@ -1,8 +1,5 @@
 import axios from "axios";
 import jwt_decode from "jwt-decode";
-// import { Buffer } from "buffer";
-// import { refreshToken } from "../components/User/userSlice";
-// import { store } from "../redux/store";
 
 const APIurl = "http://localhost:5000/api/";
 

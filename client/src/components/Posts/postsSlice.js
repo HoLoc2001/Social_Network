@@ -111,15 +111,6 @@ export const updateMyPost = createAsyncThunk(
         title,
         img,
       });
-      // const data = [...myPosts];
-      // data.map((post) => {
-      //   console.log(post.title);
-      //   return (post.title = "ci");
-      //   if (post.id == res.data.post[0].id) {
-      //     // return (post.title = res.data.post[0].title);
-      //   }
-      // });
-      // console.log(data);
       return res.data.post[0];
     } catch (error) {
       console.log(error);
