@@ -20,9 +20,9 @@ const Notification = () => {
       console.log(data);
     });
 
-    socketRef.current?.on("notification-addPost", (data) => {
-      console.log(data);
-    });
+    // socketRef.current?.on("notification-addPost", (data) => {
+    //   console.log(data);
+    // });
   }, []);
 
   useEffect(() => {

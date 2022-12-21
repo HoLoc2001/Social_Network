@@ -57,6 +57,7 @@ export const updateUser = async (req, res) => {
       fullname,
       avatar,
     ]);
+    _io.emit("notification-updateUser", row[0][0]);
 
     res.json({ success: true, user: row[0] });
   } catch (error) {

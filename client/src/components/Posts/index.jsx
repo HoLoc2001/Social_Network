@@ -36,7 +36,6 @@ const Posts = () => {
   const posts = useAppSelector((state) => state.posts.posts);
   const user = useAppSelector((state) => state.user.user);
   const listLike = useAppSelector((state) => state.user.listLike);
-  console.log(listLike);
   const [page, setPage] = useState(posts.length);
   const [hasPost, setHasPost] = useState(() => {
     if (posts.length % 5 === 0 && posts.length !== 0) {

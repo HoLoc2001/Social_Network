@@ -77,6 +77,16 @@ export const getCommentPost = createAsyncThunk(
   }
 );
 
+export const getCommentPostSocket = createAsyncThunk(
+  "posts/getCommentPost",
+  async (postId, { getState }) => {
+    const { posts } = getState().posts;
+    const res = await axiosPrivate.post("getTotalComment", { postId });
+    console.log(res.data);
+    return res.data;
+  }
+);
+
 export const addCommentPost = createAsyncThunk(
   "posts/addCommentPost",
   async (data) => {
@@ -118,6 +128,48 @@ export const updateMyPost = createAsyncThunk(
   }
 );
 
+export const getTotalComment = createAsyncThunk(
+  "posts/getTotalComment",
+  async (postId) => {
+    try {
+      const res = await axiosPrivate.post("getTotalComment", {
+        postId,
+      });
+      return res.data;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+);
+
+export const getTotalLikePost = createAsyncThunk(
+  "posts/getTotalLikePost",
+  async (postId) => {
+    try {
+      const res = await axiosPrivate.post("getTotalLikePost", {
+        postId,
+      });
+      return res.data;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+);
+
+export const getUpdatePost = createAsyncThunk(
+  "posts/getUpdatePost",
+  async (postId) => {
+    try {
+      const res = await axiosPrivate.post("getUpdatePost", {
+        postId,
+      });
+      return res.data;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+);
+
 export const deletePost = createAsyncThunk(
   "posts/deletePost",
   async (postId, { getState }) => {
@@ -127,8 +179,23 @@ export const deletePost = createAsyncThunk(
       const data = myPosts.filter((post) => {
         return post.id !== res.data.data[0].postId;
       });
-      console.log(data);
       return data;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+);
+
+export const getPostSocket = createAsyncThunk(
+  "posts/getPostSocket",
+  async (data, { getState }) => {
+    try {
+      const { listFollower } = getState().user;
+      const { postId, userId } = data;
+
+      const res = await axiosPrivate.post("getPostSocket", { postId });
+      let hasFollow = listFollower.some((e) => e.id == userId);
+      return { post: res.data.data[0], hasFollow };
     } catch (error) {
       console.log(error);
     }
@@ -203,22 +270,22 @@ export const postsSlice = createSlice({
         });
       })
       .addCase(getCommentPost.fulfilled, (state, action) => {
-        state.posts.forEach((e) => {
+        state.posts?.forEach((e) => {
+          if (e.id === action.payload?.data[0].postId) {
+            return (e.comments = action.payload?.data);
+          }
+        });
+        state.myPosts?.forEach((e) => {
           if (e.id === action.payload?.data[0]?.postId) {
             return (e.comments = action.payload?.data);
           }
         });
-        state.myPosts.forEach((e) => {
+        state.otherPosts?.forEach((e) => {
           if (e.id === action.payload?.data[0]?.postId) {
             return (e.comments = action.payload?.data);
           }
         });
-        state.otherPosts.forEach((e) => {
-          if (e.id === action.payload?.data[0]?.postId) {
-            return (e.comments = action.payload?.data);
-          }
-        });
-        state.listPostSearch.forEach((e) => {
+        state.listPostSearch?.forEach((e) => {
           if (e.id === action.payload?.data[0]?.postId) {
             return (e.comments = action.payload?.data);
           }
@@ -274,6 +341,122 @@ export const postsSlice = createSlice({
       })
       .addCase(deletePost.fulfilled, (state, action) => {
         state.myPosts = action?.payload;
+      })
+      .addCase(getTotalComment.fulfilled, (state, action) => {
+        state.myPosts.forEach((e) => {
+          if (e.id === action.payload?.postId) {
+            return (e.totalComment = action.payload?.data[0].totalComment);
+          }
+        });
+        state.posts.forEach((e) => {
+          if (e.id === action.payload?.postId) {
+            return (e.totalComment = action.payload?.data[0].totalComment);
+          }
+        });
+        state.otherPosts.forEach((e) => {
+          if (e.id === action.payload?.postId) {
+            return (e.totalComment = action.payload?.data[0].totalComment);
+          }
+        });
+        state.listPostSearch.forEach((e) => {
+          if (e.id === action.payload?.postId) {
+            return (e.totalComment = action.payload?.data[0].totalComment);
+          }
+        });
+      })
+      .addCase(getTotalLikePost.fulfilled, (state, action) => {
+        state.myPosts.forEach((e) => {
+          if (e.id === action.payload?.postId) {
+            return (e.totalLike = action.payload?.data[0].totalLike);
+          }
+        });
+        state.posts.forEach((e) => {
+          if (e.id === action.payload?.postId) {
+            return (e.totalLike = action.payload?.data[0].totalLike);
+          }
+        });
+        state.otherPosts.forEach((e) => {
+          if (e.id === action.payload?.postId) {
+            return (e.totalLike = action.payload?.data[0].totalLike);
+          }
+        });
+        state.listPostSearch.forEach((e) => {
+          if (e.id === action.payload?.postId) {
+            return (e.totalLike = action.payload?.data[0].totalLike);
+          }
+        });
+      })
+      .addCase(getUpdatePost.fulfilled, (state, action) => {
+        state.myPosts.forEach((e) => {
+          if (e.id === action.payload?.postId) {
+            return (
+              (e.title = action.payload?.data[0].title),
+              (e.image = action.payload?.data[0].image)
+            );
+          }
+        });
+        state.posts.forEach((e) => {
+          if (e.id === action.payload?.postId) {
+            return (
+              (e.title = action.payload?.data[0].title),
+              (e.image = action.payload?.data[0].image)
+            );
+          }
+        });
+        state.otherPosts.forEach((e) => {
+          if (e.id === action.payload?.postId) {
+            return (
+              (e.title = action.payload?.data[0].title),
+              (e.image = action.payload?.data[0].image)
+            );
+          }
+        });
+        state.listPostSearch.forEach((e) => {
+          if (e.id === action.payload?.postId) {
+            return (
+              (e.title = action.payload?.data[0].title),
+              (e.image = action.payload?.data[0].image)
+            );
+          }
+        });
+      })
+      .addCase(getPostSocket.fulfilled, (state, action) => {
+        console.log(action.payload);
+        if (action.payload.hasFollow) {
+          state.posts.push(action.payload.post);
+        }
+        // state.myPosts.forEach((e) => {
+        //   if (e.id === action.payload?.postId) {
+        //     return (
+        //       (e.title = action.payload?.data[0].title),
+        //       (e.image = action.payload?.data[0].image)
+        //     );
+        //   }
+        // });
+        // state.posts.forEach((e) => {
+        //   if (e.id === action.payload?.postId) {
+        //     return (
+        //       (e.title = action.payload?.data[0].title),
+        //       (e.image = action.payload?.data[0].image)
+        //     );
+        //   }
+        // });
+        // state.otherPosts.forEach((e) => {
+        //   if (e.id === action.payload?.postId) {
+        //     return (
+        //       (e.title = action.payload?.data[0].title),
+        //       (e.image = action.payload?.data[0].image)
+        //     );
+        //   }
+        // });
+        // state.listPostSearch.forEach((e) => {
+        //   if (e.id === action.payload?.postId) {
+        //     return (
+        //       (e.title = action.payload?.data[0].title),
+        //       (e.image = action.payload?.data[0].image)
+        //     );
+        //   }
+        // });
       });
   },
 });

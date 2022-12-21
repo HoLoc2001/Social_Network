@@ -1,5 +1,4 @@
 import { pool } from "../connectDB.js";
-import { notificationAddPost } from "../services/Socket.service.js";
 
 export const getPosts = async (req, res) => {
   const { page } = req.body;
@@ -21,11 +20,10 @@ export const addPost = async (req, res) => {
       title,
       image,
     ]);
-
-    const [listUser] = await pool.execute("call get_userId_follow(?)", [
+    _io.emit("notification-addPost", {
+      postId: row[0][0].id,
       userId,
-    ]);
-    notificationAddPost({ listUser, data: "Thanh cong roi" });
+    });
 
     res.status(201).json({ msg: "Thanh cong!", post: row[0] });
   } catch (error) {
@@ -37,12 +35,13 @@ export const updatePost = async (req, res) => {
   try {
     const userId = req.userId;
     const { postId, title, img } = req.body;
-    const [row] = await pool.execute("call update_post(?,?,?,?)", [
+    const [row] = await pool.execute("call update_post(?, ?, ?, ?)", [
       postId,
       userId,
       title,
       img,
     ]);
+    _io.emit("notification-UpdatePost", { postId });
     res.status(200).json({ post: row[0] });
   } catch (error) {
     res.json(error);
@@ -86,6 +85,7 @@ export const updateLikePost = async (req, res) => {
       postId,
       userId,
     ]);
+    _io.emit("notification-LikePost", { postId });
     res.status(200).json({ data: row[0] });
   } catch (error) {
     res.json(error);
@@ -95,6 +95,7 @@ export const updateLikePost = async (req, res) => {
 export const getCommentPost = async (req, res) => {
   try {
     const { postId } = req.body;
+    console.log(postId);
     const [row] = await pool.execute("call get_comment_post(?)", [postId]);
     res.status(200).json({ data: row[0] });
   } catch (error) {
@@ -112,6 +113,7 @@ export const addCommentPost = async (req, res) => {
       userId,
       content,
     ]);
+    _io.emit("notification-CommentPost", { postId, userId: req.userId });
     res.status(200).json({ data: row[0] });
   } catch (error) {
     console.log(error);
@@ -141,7 +143,54 @@ export const deletePost = async (req, res) => {
       postId,
       req.userId,
     ]);
-    console.log(row);
+    res.json({ success: true, data: row[0] });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+export const getTotalComment = async (req, res) => {
+  try {
+    const { postId } = req.body;
+    const [row] = await pool.execute("call get_total_comments(?)", [postId]);
+    res.json({ success: true, data: row[0], postId });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+export const getTotalLikePost = async (req, res) => {
+  try {
+    const { postId } = req.body;
+    const [row] = await pool.execute("call get_total_like(?)", [postId]);
+    res.json({ success: true, data: row[0], postId });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+export const getUpdatePost = async (req, res) => {
+  try {
+    const { postId } = req.body;
+    const [row] = await pool.execute("call get_update_like(?)", [postId]);
+    res.json({ success: true, data: row[0], postId });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+export const getPostSocket = async (req, res) => {
+  try {
+    const { postId } = req.body;
+    const userId = req.userId;
+    const [row] = await pool.execute("call get_post_socket(?,?)", [
+      postId,
+      userId,
+    ]);
     res.json({ success: true, data: row[0] });
   } catch (error) {
     console.log(error);

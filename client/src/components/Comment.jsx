@@ -5,7 +5,6 @@ import {
   Collapse,
   Divider,
   IconButton,
-  InputAdornment,
   TextField,
   Typography,
 } from "@mui/material";

@@ -32,3 +32,7 @@ export const notificationAddPost = ({ listUser, data }) => {
     }
   });
 };
+
+export const notificationLikePost = ({ data }) => {
+  _io.emit("notification-addPost", { data });
+};
