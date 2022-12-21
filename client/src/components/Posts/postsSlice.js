@@ -202,6 +202,19 @@ export const getPostSocket = createAsyncThunk(
   }
 );
 
+export const updateUserSocket = createAsyncThunk(
+  "posts/updateUserSocket",
+  async (data, { getState }) => {
+    try {
+      const { id, fullname, avatar } = data;
+
+      return { id, fullname, avatar };
+    } catch (error) {
+      console.log(error);
+    }
+  }
+);
+
 export const postsSlice = createSlice({
   name: "posts",
   initialState: {
@@ -421,7 +434,6 @@ export const postsSlice = createSlice({
         });
       })
       .addCase(getPostSocket.fulfilled, (state, action) => {
-        console.log(action.payload);
         if (action.payload.hasFollow) {
           state.posts.push(action.payload.post);
         }
@@ -457,6 +469,21 @@ export const postsSlice = createSlice({
         //     );
         //   }
         // });
+      })
+      .addCase(updateUserSocket.fulfilled, (state, action) => {
+        state.myPosts.forEach((e) => {
+          if (e.userId === action.payload?.id) {
+            e.fullname = action.payload?.fullname;
+            e.avatar = action.payload?.avatar;
+          }
+          e.comments?.forEach((comment) => {
+            if (comment.userId === action.payload?.id) {
+              console.log(action.payload?.fullname);
+              comment.fullname = action.payload?.fullname;
+              comment.avatar = action.payload?.avatar;
+            }
+          });
+        });
       });
   },
 });

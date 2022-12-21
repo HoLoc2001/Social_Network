@@ -8,6 +8,7 @@ import {
   TextField,
   Typography,
 } from "@mui/material";
+import MoreVertIcon from "@mui/icons-material/MoreVert";
 import React from "react";
 import SendIcon from "@mui/icons-material/Send";
 import { useEffect } from "react";
@@ -130,6 +131,20 @@ const Comment = ({ post, avatar, userId }) => {
                       <Typography variant="i">{comment.fullname}</Typography>
                     </Link>
                     <Typography variant="body2">{comment.content}</Typography>
+                  </div>
+                  <div className="mui-dropdown mui-dropdown--left">
+                    <IconButton
+                      aria-label="settings"
+                      data-mui-toggle="dropdown"
+                    >
+                      <MoreVertIcon />
+                    </IconButton>
+                    <ul className="mui-dropdown__menu">
+                      <li>
+                        <Link>Sửa</Link>
+                        <Link>Xóa</Link>
+                      </li>
+                    </ul>
                   </div>
                 </div>
               );

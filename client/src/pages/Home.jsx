@@ -12,6 +12,7 @@ import {
   getTotalComment,
   getTotalLikePost,
   getUpdatePost,
+  updateUserSocket,
 } from "../components/Posts/postsSlice";
 
 const host = "http://localhost:5000";
@@ -72,10 +73,7 @@ const Home = () => {
     );
 
     socketRef.current?.on("notification-updateUser", async (data) => {
-      console.log(data);
-      // if ("" + user.id !== userId) {
-      //   await dispatch(getPostSocket({ postId, userId }));
-      // }
+      await dispatch(updateUserSocket(data));
     });
   }, []);
 

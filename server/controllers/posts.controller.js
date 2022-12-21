@@ -197,3 +197,15 @@ export const getPostSocket = async (req, res) => {
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
+
+export const deleteComment = async (req, res) => {
+  try {
+    const { commentId } = req.body;
+    const userId = req.userId;
+    const [row] = await pool.execute("call delete_comment(?)", [commentId]);
+    res.json({ success: true });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};

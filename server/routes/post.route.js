@@ -2,6 +2,7 @@ import express from "express";
 import {
   addCommentPost,
   addPost,
+  deleteComment,
   deletePost,
   getCommentPost,
   getListPostSearch,
@@ -46,5 +47,7 @@ router.post("/getUpdatePost", verifyToken, getUpdatePost);
 router.patch("/updateLikePost", verifyToken, updateLikePost);
 
 router.post("/deletePost", verifyToken, deletePost);
+
+router.delete("/deleteComment", verifyToken, deleteComment);
 
 export default router;
