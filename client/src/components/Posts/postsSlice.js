@@ -186,6 +186,21 @@ export const deletePost = createAsyncThunk(
   }
 );
 
+export const deleteComment = createAsyncThunk(
+  "posts/deleteComment",
+  async ({ commentId, postId }) => {
+    try {
+      const res = await axiosPrivate.post("deleteComment", {
+        commentId,
+        postId,
+      });
+      return res.data.data[0];
+    } catch (error) {
+      console.log(error);
+    }
+  }
+);
+
 export const getPostSocket = createAsyncThunk(
   "posts/getPostSocket",
   async (data, { getState }) => {
@@ -483,6 +498,28 @@ export const postsSlice = createSlice({
               comment.avatar = action.payload?.avatar;
             }
           });
+        });
+      })
+      .addCase(deleteComment.fulfilled, (state, action) => {
+        state.posts.forEach((e) => {
+          if (e.id === action.payload?.postId) {
+            return (e.totalComment = action.payload?.totalComment);
+          }
+        });
+        state.myPosts.forEach((e) => {
+          if (e.id === action.payload?.postId) {
+            return (e.totalComment = action.payload?.totalComment);
+          }
+        });
+        state.otherPosts.forEach((e) => {
+          if (e.id === action.payload?.postId) {
+            return (e.totalComment = action.payload?.totalComment);
+          }
+        });
+        state.listPostSearch.forEach((e) => {
+          if (e.id === action.payload?.postId) {
+            return (e.totalComment = action.payload?.totalComment);
+          }
         });
       });
   },

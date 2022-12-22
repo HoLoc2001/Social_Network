@@ -15,10 +15,10 @@ const Notification = () => {
   useEffect(() => {
     socketRef.current = socketIOClient.connect(host);
     // socketRef.current?.emit("chat message", "dasd");
-    console.log(user);
-    socketRef.current?.on("notification", (data) => {
-      console.log(data);
-    });
+    // console.log(user);
+    // socketRef.current?.on("notification", (data) => {
+    //   console.log(data);
+    // });
 
     // socketRef.current?.on("notification-addPost", (data) => {
     //   console.log(data);

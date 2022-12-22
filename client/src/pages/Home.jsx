@@ -7,6 +7,7 @@ import RightBar from "../layouts/RightBar";
 import { useAppDispatch, useAppSelector } from "../redux/store";
 import socketIOClient from "socket.io-client";
 import {
+  deleteComment,
   getCommentPost,
   getPostSocket,
   getTotalComment,
@@ -32,15 +33,26 @@ const Home = () => {
 
   useEffect(() => {
     socketRef.current = socketIOClient.connect(host);
-    socketRef.current?.on("notification", (data) => {
-      console.log(data);
-    });
+    // socketRef.current?.on("notification", (data) => {
+    //   console.log(data);
+    // });
 
     socketRef.current?.on(
       "notification-CommentPost",
       async ({ postId, userId }) => {
         if ("" + user.id !== userId) {
           await dispatch(getTotalComment(postId));
+          await dispatch(getCommentPost(postId));
+        }
+      }
+    );
+
+    socketRef.current?.on(
+      "notification-DeleteCommentPost",
+      async ({ postId, userId, commentId }) => {
+        if ("" + user.id !== userId) {
+          await dispatch(getTotalComment(postId));
+          await dispatch(getCommentPost(postId));
         }
       }
     );

@@ -200,10 +200,14 @@ export const getPostSocket = async (req, res) => {
 
 export const deleteComment = async (req, res) => {
   try {
-    const { commentId } = req.body;
+    const { commentId, postId } = req.body;
     const userId = req.userId;
-    const [row] = await pool.execute("call delete_comment(?)", [commentId]);
-    res.json({ success: true });
+    const [row] = await pool.execute("call delete_comment_post(?,?)", [
+      commentId,
+      postId,
+    ]);
+    _io.emit("notification-DeleteCommentPost", { postId, userId, commentId });
+    res.json({ success: true, data: row[0] });
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false, message: "Internal server error" });

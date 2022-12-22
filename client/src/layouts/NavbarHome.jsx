@@ -13,6 +13,7 @@ import {
   DialogContentText,
   DialogActions,
   Button,
+  TextField,
 } from "@mui/material";
 import React, { useState } from "react";
 import SettingsIcon from "@mui/icons-material/Settings";
@@ -25,6 +26,7 @@ const Navbar = () => {
   const dispatch = useAppDispatch();
 
   const [openSignOut, setOpenSignOut] = useState(false);
+  const [openChangePass, setOpenChangePass] = useState(false);
 
   const handleSignOut = () => {
     localStorage.clear();
@@ -86,6 +88,14 @@ const Navbar = () => {
                   <ul className="mui-dropdown__menu mui-dropdown__menu--right">
                     <li style={{ textAlign: "center" }}>
                       <Button
+                        onClick={() => setOpenChangePass(true)}
+                        sx={{ color: "black" }}
+                      >
+                        <Typography>Đổi mật khẩu</Typography>
+                      </Button>
+                    </li>
+                    <li style={{ textAlign: "center" }}>
+                      <Button
                         onClick={() => setOpenSignOut(true)}
                         sx={{ color: "black" }}
                       >
@@ -100,6 +110,41 @@ const Navbar = () => {
         </Container>
       </AppBar>
       <Toolbar />
+      <Dialog
+        open={openChangePass}
+        onClose={() => !openChangePass}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">Social</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Đổi mật khẩu
+          </DialogContentText>
+        </DialogContent>
+        <TextField
+          id="fullname"
+          label="Họ và tên"
+          variant="outlined"
+          name="fullname"
+          // value={fullname}
+          // onChange={onChangeFullname}
+          sx={{ marginBottom: "30px" }}
+        />
+        <TextField
+          id="fullname"
+          label="Họ và tên"
+          variant="outlined"
+          name="fullname"
+          // value={fullname}
+          // onChange={onChangeFullname}
+          sx={{ marginBottom: "30px" }}
+        />
+        <DialogActions>
+          <Button onClick={() => setOpenChangePass(false)}>Hủy bỏ</Button>
+          <Button onClick={handleSignOut}>Đổi mật khẩu</Button>
+        </DialogActions>
+      </Dialog>
       <Dialog
         open={openSignOut}
         onClose={() => !openSignOut}

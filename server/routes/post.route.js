@@ -48,6 +48,6 @@ router.patch("/updateLikePost", verifyToken, updateLikePost);
 
 router.post("/deletePost", verifyToken, deletePost);
 
-router.delete("/deleteComment", verifyToken, deleteComment);
+router.post("/deleteComment", verifyToken, deleteComment);
 
 export default router;
