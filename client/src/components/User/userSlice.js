@@ -43,6 +43,28 @@ export const checkEmail = createAsyncThunk("user/checkEmail", async (email) => {
   }
 });
 
+export const checkPass = createAsyncThunk("user/checkPass", async (pass) => {
+  try {
+    const res = await axiosPrivate.post("checkPass", {
+      pass,
+    });
+    return res.data;
+  } catch (error) {
+    return error.response.data;
+  }
+});
+
+export const updatePass = createAsyncThunk("user/updatePass", async (pass) => {
+  try {
+    const res = await axiosPrivate.post("updatePass", {
+      pass,
+    });
+    return res.data;
+  } catch (error) {
+    return error.response.data;
+  }
+});
+
 export const getInfo = createAsyncThunk("user/getInfo", async () => {
   try {
     const res = await axiosPrivate.get("user");
@@ -177,6 +199,7 @@ export const userSlice = createSlice({
     },
     validateEmail: false,
     isAuthenticated: null,
+    isPassValue: null,
   },
   extraReducers: (builder) => {
     builder
@@ -194,6 +217,10 @@ export const userSlice = createSlice({
       .addCase(checkEmail.fulfilled, (state, action) => {
         state.validateEmail = action.payload?.success;
       })
+      .addCase(checkPass.fulfilled, (state, action) => {
+        state.isPassValue = action.payload?.success;
+      })
+      .addCase(updatePass.fulfilled, (state, action) => {})
       .addCase(getInfo.fulfilled, (state, action) => {
         state.user = action.payload?.user[0];
       })

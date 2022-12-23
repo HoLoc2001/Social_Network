@@ -10,11 +10,7 @@ import {
 } from "@mui/material";
 import { Link, Navigate } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import {
-  checkEmail,
-  signup,
-  tokenSelector,
-} from "../components/User/userSlice";
+import { checkEmail, signup } from "../components/User/userSlice";
 import { useAppSelector } from "../redux/store";
 
 const SignUp = () => {

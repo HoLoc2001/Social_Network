@@ -183,3 +183,41 @@ export const checkEmail = async (req, res) => {
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
+
+export const checkPass = async (req, res) => {
+  try {
+    const { pass } = req.body;
+    const userId = req.userId;
+    if (!pass)
+      return res
+        .status(400)
+        .json({ success: false, message: "Missing password" });
+
+    const [row] = await pool.query("call get_pass_by_userId(?)", [userId]);
+    const passwordValid = await argon2.verify(row[0][0].password, pass);
+    if (!passwordValid)
+      return res
+        .status(400)
+        .json({ success: false, message: "Incorrect password" });
+
+    return res.status(200).json({ success: true });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+export const updatePass = async (req, res) => {
+  try {
+    const { pass } = req.body;
+    const userId = req.userId;
+
+    const hashPass = await argon2.hash(pass);
+    await pool.query("call update_password(?,?)", [userId, hashPass]);
+
+    return res.status(200).json({ success: true });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};

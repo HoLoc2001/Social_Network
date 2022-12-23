@@ -14,19 +14,31 @@ import {
   DialogActions,
   Button,
   TextField,
+  Alert,
+  Snackbar,
 } from "@mui/material";
 import React, { useState } from "react";
 import SettingsIcon from "@mui/icons-material/Settings";
 import SearchIcon from "@mui/icons-material/Search";
-import { useAppDispatch } from "../redux/store";
+import { useAppDispatch, useAppSelector } from "../redux/store";
 import { Link } from "react-router-dom";
 import Notification from "../components/Notification";
+import { Stack } from "@mui/system";
+import { checkPass, updatePass } from "../components/User/userSlice";
 
 const Navbar = () => {
   const dispatch = useAppDispatch();
+  const isPassValue = useAppSelector((state) => state.user.isPassValue);
 
   const [openSignOut, setOpenSignOut] = useState(false);
   const [openChangePass, setOpenChangePass] = useState(false);
+  const [error, setError] = useState(false);
+  const [changePass, setChangePass] = useState({
+    oldPass: "",
+    newPass: "",
+    replayNewPass: "",
+  });
+  const [contentError, setContentError] = useState("");
 
   const handleSignOut = () => {
     localStorage.clear();
@@ -35,6 +47,43 @@ const Navbar = () => {
 
   const handleClickInfo = () => {
     // dispatch(getInfo());
+  };
+
+  const onChangePass = (e) => {
+    setChangePass({
+      ...changePass,
+      [e.target.name]: e.target.value,
+    });
+  };
+
+  const handleChangePass = async () => {
+    if (
+      !changePass.oldPass ||
+      !changePass.newPass ||
+      !changePass.replayNewPass
+    ) {
+      setContentError("Vui lòng nhập đầy đủ thông tin");
+      setError(true);
+      return;
+    }
+    if (!(changePass.newPass === changePass.replayNewPass)) {
+      setContentError("Vui lòng nhập lại chính xác mật khẩu mới");
+      setError(true);
+      return;
+    }
+
+    await dispatch(checkPass(changePass.oldPass));
+
+    if (!isPassValue && isPassValue !== null) {
+      setContentError("Vui lòng nhập lại mật khẩu cũ");
+      setError(true);
+      return;
+    }
+
+    await dispatch(updatePass(changePass.newPass));
+    setContentError("Thay đổi mật khẩu thành công");
+    setError(true);
+    setOpenChangePass(false);
   };
 
   return (
@@ -123,26 +172,38 @@ const Navbar = () => {
           </DialogContentText>
         </DialogContent>
         <TextField
-          id="fullname"
-          label="Họ và tên"
+          id="oldPass"
+          name="oldPass"
+          label="Mật khẩu cũ"
           variant="outlined"
-          name="fullname"
-          // value={fullname}
-          // onChange={onChangeFullname}
-          sx={{ marginBottom: "30px" }}
+          type="password"
+          value={changePass.oldPass}
+          onChange={onChangePass}
+          sx={{ margin: "30px", width: "400px" }}
         />
         <TextField
-          id="fullname"
-          label="Họ và tên"
+          id="newPass"
+          name="newPass"
+          label="Mật khẩu mới"
           variant="outlined"
-          name="fullname"
-          // value={fullname}
-          // onChange={onChangeFullname}
-          sx={{ marginBottom: "30px" }}
+          type="password"
+          value={changePass.newPass}
+          onChange={onChangePass}
+          sx={{ margin: "30px", width: "400px" }}
+        />
+        <TextField
+          id="replayNewPass"
+          name="replayNewPass"
+          label="Nhập lại mật khẩu mới"
+          variant="outlined"
+          type="password"
+          value={changePass.replayNewPass}
+          onChange={onChangePass}
+          sx={{ margin: "30px", width: "400px" }}
         />
         <DialogActions>
           <Button onClick={() => setOpenChangePass(false)}>Hủy bỏ</Button>
-          <Button onClick={handleSignOut}>Đổi mật khẩu</Button>
+          <Button onClick={handleChangePass}>Đổi mật khẩu</Button>
         </DialogActions>
       </Dialog>
       <Dialog
@@ -162,6 +223,22 @@ const Navbar = () => {
           <Button onClick={handleSignOut}>Đăng xuất</Button>
         </DialogActions>
       </Dialog>
+      <Stack sx={{ width: "60%" }} spacing={2}>
+        <Snackbar
+          open={error}
+          autoHideDuration={4000}
+          onClose={() => setError(false)}
+        >
+          <Alert severity="warning">{contentError}</Alert>
+        </Snackbar>
+        {/* <Snackbar
+          open={errMissInput}
+          autoHideDuration={4000}
+          onClose={() => setErrMissInput(false)}
+        >
+          <Alert severity="warning">Vui lòng nhập đầy đủ!!!</Alert>
+        </Snackbar> */}
+      </Stack>
     </>
   );
 };

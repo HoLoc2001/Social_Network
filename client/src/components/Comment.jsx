@@ -101,7 +101,7 @@ const Comment = ({ post, avatar, userId }) => {
             />
             <TextField
               sx={{ width: "100%" }}
-              id="input-with-sx"
+              // id="input-with-sx"
               variant="standard"
               value={comment}
               onChange={onChangeComment}
