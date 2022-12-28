@@ -23,12 +23,14 @@ import {
   addCommentPost,
   deleteComment,
   getCommentPost,
+  updateComment,
 } from "./Posts/postsSlice";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 
 const Comment = ({ post, avatar, userId }) => {
   const [openDeleteComment, setOpenDeleteComment] = useState(false);
+  const [openUpdateComment, setOpenUpdateComment] = useState(false);
   const [commentId, setCommentId] = useState("");
 
   let atProfile = window.location.href.slice(-7) === "profile";
@@ -55,7 +57,7 @@ const Comment = ({ post, avatar, userId }) => {
   const handleSendComment = async () => {
     if (comment) {
       await dispatch(addCommentPost({ postId, content: comment }));
-      await dispatch(getCommentPost(postId));
+      // await dispatch(getCommentPost(postId));
       setComment("");
     }
   };
@@ -63,7 +65,7 @@ const Comment = ({ post, avatar, userId }) => {
   const keyPress = async (e) => {
     if (e.key === "Enter" && comment) {
       await dispatch(addCommentPost({ postId, content: comment }));
-      await dispatch(getCommentPost(postId));
+      // await dispatch(getCommentPost(postId));
       setComment("");
     }
   };
@@ -77,9 +79,23 @@ const Comment = ({ post, avatar, userId }) => {
     setOpenDeleteComment(false);
   };
 
+  const handleUpdateCommentPost = async () => {
+    if (comment) {
+      await dispatch(updateComment({ commentId, postId, content: comment }));
+    }
+    setComment("");
+    setOpenUpdateComment(false);
+  };
+
   const handleDeleteComment = (commentId) => {
     setCommentId(commentId);
     setOpenDeleteComment(true);
+  };
+
+  const handleUpdateComment = (commentId, comment) => {
+    setCommentId(commentId);
+    setComment(comment);
+    setOpenUpdateComment(true);
   };
 
   return (
@@ -180,7 +196,10 @@ const Comment = ({ post, avatar, userId }) => {
                             <li>
                               <Link
                                 onClick={() =>
-                                  handleDeleteComment(comment.commentId)
+                                  handleUpdateComment(
+                                    comment.commentId,
+                                    comment.content
+                                  )
                                 }
                               >
                                 Sửa
@@ -225,6 +244,41 @@ const Comment = ({ post, avatar, userId }) => {
         <DialogActions>
           <Button onClick={() => setOpenDeleteComment(false)}>Hủy bỏ</Button>
           <Button onClick={() => handleDeleteCommentPost()}>Xóa</Button>
+        </DialogActions>
+      </Dialog>
+      <Dialog
+        open={openUpdateComment}
+        onClose={() => !openUpdateComment}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">Social</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Bạn muốn sửa bài đăng này?
+          </DialogContentText>
+          <TextField
+            id="comment"
+            name="comment"
+            label="Sửa bình luận"
+            variant="outlined"
+            type="text"
+            value={comment}
+            onChange={onChangeComment}
+            sx={{ margin: "30px", width: "400px" }}
+            focused
+          />
+        </DialogContent>
+        <DialogActions>
+          <Button
+            onClick={() => {
+              setOpenUpdateComment(false);
+              setComment("");
+            }}
+          >
+            Hủy bỏ
+          </Button>
+          <Button onClick={() => handleUpdateCommentPost()}>Sửa</Button>
         </DialogActions>
       </Dialog>
     </>

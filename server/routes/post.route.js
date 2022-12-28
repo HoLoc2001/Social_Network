@@ -13,6 +13,7 @@ import {
   getTotalComment,
   getTotalLikePost,
   getUpdatePost,
+  updateComment,
   updateLikePost,
   updatePost,
 } from "../controllers/posts.controller.js";
@@ -41,6 +42,8 @@ router.post("/addCommentPost", verifyToken, addCommentPost);
 router.post("/addPost", verifyToken, addPost);
 
 router.patch("/updatePost", verifyToken, updatePost);
+
+router.patch("/updateComment", verifyToken, updateComment);
 
 router.post("/getUpdatePost", verifyToken, getUpdatePost);
 

@@ -201,6 +201,22 @@ export const deleteComment = createAsyncThunk(
   }
 );
 
+export const updateComment = createAsyncThunk(
+  "posts/updateComment",
+  async ({ commentId, content, postId }) => {
+    try {
+      const res = await axiosPrivate.patch("updateComment", {
+        commentId,
+        content,
+        postId,
+      });
+      return res;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+);
+
 export const getPostSocket = createAsyncThunk(
   "posts/getPostSocket",
   async (data, { getState }) => {
@@ -500,6 +516,7 @@ export const postsSlice = createSlice({
           });
         });
       })
+      .addCase(updateComment.fulfilled, (state, action) => {})
       .addCase(deleteComment.fulfilled, (state, action) => {
         state.posts.forEach((e) => {
           if (e.id === action.payload?.postId) {

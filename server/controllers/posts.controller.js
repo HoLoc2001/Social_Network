@@ -213,3 +213,21 @@ export const deleteComment = async (req, res) => {
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
+
+export const updateComment = async (req, res) => {
+  try {
+    const { commentId, content, postId } = req.body;
+    const userId = req.userId;
+    await pool.execute("call update_comment(?,?,?)", [
+      userId,
+      commentId,
+      content,
+    ]);
+    _io.emit("notification-UpdateCommentPost", { postId });
+    s;
+    res.json({ success: true });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};

@@ -58,6 +58,13 @@ const Home = () => {
     );
 
     socketRef.current?.on(
+      "notification-UpdateCommentPost",
+      async ({ postId }) => {
+        await dispatch(getCommentPost(postId));
+      }
+    );
+
+    socketRef.current?.on(
       "notification-LikePost",
       async ({ postId, userId }) => {
         if ("" + user.id !== userId) {
