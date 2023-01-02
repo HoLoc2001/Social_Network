@@ -128,7 +128,7 @@ const Navbar = () => {
                     <SearchIcon />
                   </IconButton>
                 </Link>
-                <Notification />
+                {/* <Notification /> */}
 
                 <div className="mui-dropdown">
                   <IconButton aria-label="settings" data-mui-toggle="dropdown">

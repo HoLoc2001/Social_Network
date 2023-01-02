@@ -5,6 +5,7 @@ import {
   checkEmail,
   checkPass,
   refreshToken,
+  sendMailPass,
   sighIn,
   sighUp,
   updatePass,
@@ -24,5 +25,7 @@ router.post("/checkEmail", checkEmail);
 router.post("/checkPass", verifyToken, checkPass);
 
 router.post("/updatePass", verifyToken, updatePass);
+
+router.post("/sendMailPass", sendMailPass);
 
 export default router;

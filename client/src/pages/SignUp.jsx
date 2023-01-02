@@ -9,7 +9,7 @@ import {
   Typography,
 } from "@mui/material";
 import { Link, Navigate } from "react-router-dom";
-import { useDispatch, useSelector } from "react-redux";
+import { useDispatch } from "react-redux";
 import { checkEmail, signup } from "../components/User/userSlice";
 import { useAppSelector } from "../redux/store";
 
@@ -32,7 +32,6 @@ const SignUp = () => {
 
   function validateEmailRegex(str) {
     const isEmail = /^[a-z0-9.]{1,64}@[a-z0-9.]{1,64}$/i.test(str);
-    console.log(isEmail, str);
     return isEmail;
   }
 
@@ -58,7 +57,7 @@ const SignUp = () => {
   };
 
   const handleSignup = async () => {
-    if (!email || !fullname || !birthday || !password) {
+    if (!email || !fullname || !birthday || !password || errRelayPass) {
       setErrMissInput(true);
     } else {
       await dispatch(signup(signupForm));
@@ -106,11 +105,14 @@ const SignUp = () => {
             value={email}
             onChange={onChangeSignupForm}
             onBlur={handleValidateEmail}
-            error={validateEmail || validateEmailRegex(email)}
+            error={
+              (validateEmail || !validateEmailRegex(email)) &&
+              !!signupForm.email
+            }
             helperText={
               validateEmail
                 ? "Email đã được sử dụng"
-                : validateEmailRegex(email) === false
+                : validateEmailRegex(email) || !signupForm.email
                 ? ""
                 : "Email không đúng định dạng"
             }
@@ -151,7 +153,7 @@ const SignUp = () => {
             autoComplete="current-password"
             onBlur={onValidatePassword}
             error={errRelayPass}
-            helperText={errRelayPass ? "Mat khau khong dung" : ""}
+            helperText={errRelayPass ? "Mật khẩu không đúng" : ""}
           />
           <Button variant="contained" onClick={handleSignup}>
             Đăng ký
@@ -173,13 +175,6 @@ const SignUp = () => {
         >
           <Alert severity="warning">Vui lòng nhập đầy đủ!!!</Alert>
         </Snackbar>
-        {/* <Snackbar
-          open={errMissInput}
-          autoHideDuration={4000}
-          onClose={() => setErrMissInput(false)}
-        >
-          <Alert severity="warning">Vui lòng nhập đầy đủ!!!</Alert>
-        </Snackbar> */}
       </Stack>
     </>
   );

@@ -3,6 +3,11 @@ import {
   Alert,
   Box,
   Button,
+  Dialog,
+  DialogActions,
+  DialogContent,
+  DialogContentText,
+  DialogTitle,
   Snackbar,
   Stack,
   TextField,
@@ -10,14 +15,23 @@ import {
 } from "@mui/material";
 import { Link, Navigate } from "react-router-dom";
 import { useState } from "react";
-import { signin, tokenSelector } from "../components/User/userSlice";
-import { useAppDispatch } from "../redux/store";
+import { sendMailPass, signin } from "../components/User/userSlice";
+import { useAppDispatch, useAppSelector } from "../redux/store";
 
 const SignIn = () => {
   const dispatch = useAppDispatch();
+  const isSuccessAuth = useAppSelector((state) => state.user.isAuthenticated);
+  const isForgetPass = useAppSelector((state) => state.user.isForgetPass);
 
+  const [loadingBtnForgetPass, setLoadingBtnForgetPass] = useState({
+    content: "Xác nhận",
+    loading: false,
+  });
   const [errMissInput, setErrMissInput] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [openForgetPass, setOpenForgetPass] = useState(false);
+  const [forgetPass, setForgetPass] = useState(false);
+  const [validateEmail, setValidateEmail] = useState("");
+  const [errSignIn, setErrSignIn] = useState(false);
   const [signinForm, setSigninForm] = useState({
     email: "",
     password: "",
@@ -32,12 +46,19 @@ const SignIn = () => {
     });
   };
 
+  const onChangeForgetPass = (e) => {
+    return setValidateEmail(e.target.value);
+  };
+
   const handleClickSignin = async () => {
     if (!email || !password) {
       return setErrMissInput(true);
     }
     await dispatch(signin(signinForm));
-    setIsAuthenticated(true);
+    console.log(isSuccessAuth);
+    if (!isSuccessAuth) {
+      setErrSignIn(true);
+    }
   };
 
   const keyPress = async (e) => {
@@ -46,11 +67,56 @@ const SignIn = () => {
         return setErrMissInput(true);
       }
       await dispatch(signin(signinForm));
-      setIsAuthenticated(true);
+      if (!isSuccessAuth) {
+        setErrSignIn(true);
+      }
     }
   };
 
-  return isAuthenticated ? (
+  function validateEmailRegex(str) {
+    const isEmail = /^[a-z0-9.]{1,64}@[a-z0-9.]{1,64}$/i.test(str);
+    return isEmail;
+  }
+
+  const handleForgetPass = async () => {
+    if (validateEmailRegex(validateEmail)) {
+      setLoadingBtnForgetPass({
+        content: "Đang gửi...",
+        loading: true,
+      });
+      await dispatch(sendMailPass(validateEmail));
+
+      setForgetPass(isForgetPass);
+      setOpenForgetPass(false);
+      setValidateEmail("");
+      setLoadingBtnForgetPass({
+        content: "Xác nhận",
+        loading: false,
+      });
+    }
+  };
+
+  const keyPressForgetPass = async (e) => {
+    if (e.key === "Enter") {
+      if (validateEmailRegex(validateEmail)) {
+        setLoadingBtnForgetPass({
+          content: "Đang gửi...",
+          loading: true,
+        });
+        await dispatch(sendMailPass(validateEmail));
+
+        setForgetPass(isForgetPass);
+        setOpenForgetPass(false);
+        setValidateEmail("");
+        setLoadingBtnForgetPass({
+          content: "Xác nhận",
+          loading: false,
+        });
+      }
+    }
+  };
+
+  return isSuccessAuth ? (
     <Navigate to="/" replace />
   ) : (
     <>
@@ -102,7 +168,9 @@ const SignIn = () => {
           <Button variant="contained" onClick={handleClickSignin}>
             Đăng nhập
           </Button>
-          <Button variant="contained">Quên mật khẩu</Button>
+          <Button variant="contained" onClick={() => setOpenForgetPass(true)}>
+            Quên mật khẩu
+          </Button>
         </Stack>
 
         <Typography>
@@ -118,9 +186,68 @@ const SignIn = () => {
           autoHideDuration={4000}
           onClose={() => setErrMissInput(false)}
         >
-          <Alert severity="warning">Vui long nhap email va mat khau</Alert>
+          <Alert severity="warning">Vui lòng nhập email và mật khẩu</Alert>
+        </Snackbar>
+        <Snackbar
+          open={errSignIn}
+          autoHideDuration={4000}
+          onClose={() => setErrSignIn(false)}
+        >
+          <Alert severity="warning">Email hoặc mật khẩu không chính xác</Alert>
+        </Snackbar>
+        <Snackbar
+          open={forgetPass}
+          // autoHideDuration={20000}
+          onClose={() => setForgetPass(false)}
+        >
+          <Alert severity="success">
+            Mật khẩu mới đã được gửi vào email của bạn
+          </Alert>
         </Snackbar>
       </Stack>
+      <Dialog
+        open={openForgetPass}
+        onClose={() => !openForgetPass}
+        aria-labelledby="alert-dialog-title"
+        aria-describedby="alert-dialog-description"
+      >
+        <DialogTitle id="alert-dialog-title">Social</DialogTitle>
+        <DialogContent>
+          <DialogContentText id="alert-dialog-description">
+            Quên mật khẩu
+          </DialogContentText>
+        </DialogContent>
+        <TextField
+          name="oldPass"
+          label="Email"
+          variant="outlined"
+          type="email"
+          value={validateEmail}
+          onChange={onChangeForgetPass}
+          onKeyDown={keyPressForgetPass}
+          sx={{ margin: "30px", width: "400px" }}
+          error={!validateEmailRegex(validateEmail) && !!validateEmail}
+          helperText={
+            validateEmailRegex(validateEmail) || !validateEmail
+              ? ""
+              : "Email không đúng định dạng"
+          }
+        />
+        <DialogActions>
+          <Button
+            disabled={loadingBtnForgetPass.loading}
+            onClick={() => setOpenForgetPass(false)}
+          >
+            Hủy bỏ
+          </Button>
+          <Button
+            onClick={handleForgetPass}
+            disabled={loadingBtnForgetPass.loading}
+          >
+            {loadingBtnForgetPass.content}
+          </Button>
+        </DialogActions>
+      </Dialog>
     </>
   );
 };

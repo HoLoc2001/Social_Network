@@ -1,15 +1,23 @@
-import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
+import {
+  createAsyncThunk,
+  createSlice,
+  isRejectedWithValue,
+} from "@reduxjs/toolkit";
 import { useState } from "react";
 import { axiosPublic, axiosPrivate } from "../../utils";
 
-export const signin = createAsyncThunk("user/signin", async (signinForm) => {
-  try {
-    const res = await axiosPublic.post("signin", signinForm);
-    return res.data;
-  } catch (error) {
-    console.log(error);
+export const signin = createAsyncThunk(
+  "user/signin",
+  async (signinForm, thunkAPI) => {
+    try {
+      const res = await axiosPublic.post("signin", signinForm);
+      return res.data;
+    } catch (error) {
+      console.log(error);
+      return thunkAPI.rejectWithValue(error.response);
+    }
   }
-});
+);
 
 export const signup = createAsyncThunk("user/signup", async (signupForm) => {
   try {
@@ -19,6 +27,19 @@ export const signup = createAsyncThunk("user/signup", async (signupForm) => {
     console.log(error);
   }
 });
+
+export const sendMailPass = createAsyncThunk(
+  "user/sendMailPass",
+  async (email) => {
+    try {
+      console.log(email);
+      const res = await axiosPublic.post("sendMailPass", { email });
+      return res.data;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+);
 
 export const refreshToken = createAsyncThunk(
   "user/refreshToken",
@@ -200,13 +221,21 @@ export const userSlice = createSlice({
     validateEmail: false,
     isAuthenticated: null,
     isPassValue: null,
+    isForgetPass: null,
   },
   extraReducers: (builder) => {
     builder
       .addCase(signin.fulfilled, (state, action) => {
-        localStorage.setItem("AT", action.payload.token.accessToken || "");
-        localStorage.setItem("RT", action.payload.token.refreshToken || "");
-        state.isAuthenticated = true;
+        localStorage.setItem("AT", action.payload?.token?.accessToken || "");
+        localStorage.setItem("RT", action.payload?.token?.refreshToken || "");
+        state.isAuthenticated = action.payload.success;
+      })
+      .addCase(signin.rejected, (state, action) => {
+        console.log(action.payload);
+        state.isAuthenticated = action.payload.data.success;
+      })
+      .addCase(sendMailPass.fulfilled, (state, action) => {
+        state.isForgetPass = action.payload.success;
       })
       .addCase(signup.fulfilled, (state, action) => {
         state.token = action.payload?.token;
