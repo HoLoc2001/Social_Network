@@ -13,7 +13,6 @@ export const signin = createAsyncThunk(
       const res = await axiosPublic.post("signin", signinForm);
       return res.data;
     } catch (error) {
-      console.log(error);
       return thunkAPI.rejectWithValue(error.response);
     }
   }
@@ -231,7 +230,6 @@ export const userSlice = createSlice({
         state.isAuthenticated = action.payload.success;
       })
       .addCase(signin.rejected, (state, action) => {
-        console.log(action.payload);
         state.isAuthenticated = action.payload.data.success;
       })
       .addCase(sendMailPass.fulfilled, (state, action) => {
