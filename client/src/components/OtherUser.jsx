@@ -97,7 +97,9 @@ const OtherUser = () => {
     await dispatch(getCommentPost(postId));
   };
 
-  return (
+  return otherUser === false ? (
+    <Navigate to="./error" replace />
+  ) : (
     <div
       style={{
         margin: "40px 0 0 30%",

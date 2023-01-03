@@ -24,7 +24,6 @@ function App() {
             <Route path="/profile" element={<User />} />
             <Route path="/editProfile" element={<EditProfile />} />
             <Route path="/search" element={<Search />} />
-
             <Route path="/:id" element={<OtherUser />} />
           </Route>
         </Route>

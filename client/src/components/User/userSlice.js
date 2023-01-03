@@ -254,7 +254,7 @@ export const userSlice = createSlice({
         state.user = action.payload?.user[0];
       })
       .addCase(getOtherInfo.fulfilled, (state, action) => {
-        state.otherUser = action.payload?.user[0];
+        state.otherUser = action.payload?.user[0] || false;
       })
       .addCase(refreshToken.fulfilled, (state, action) => {
         state.token = action.payload;
