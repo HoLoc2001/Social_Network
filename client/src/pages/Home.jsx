@@ -16,7 +16,7 @@ import {
   updateUserSocket,
 } from "../components/Posts/postsSlice";
 
-const host = "http://localhost:5000";
+const host = "https://server-social-network-jvbg.onrender.com"; // "http://localhost:5000";
 
 const Home = () => {
   const dispatch = useAppDispatch();
