@@ -1,4 +1,4 @@
 # Social_Network
 
-  FE: ReactJs, MaterialUI, Axios, ...
-  BE: ExpressJs, Axios, Mysql, ...
+<div>FE: ReactJs, MaterialUI, Axios, ...</div>
+<div>BE: ExpressJs, Axios, Mysql, ...</div>
