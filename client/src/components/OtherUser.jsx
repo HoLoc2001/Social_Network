@@ -12,7 +12,6 @@ import {
   Modal,
   Typography,
 } from "@mui/material";
-import MoreVertIcon from "@mui/icons-material/MoreVert";
 import CommentIcon from "@mui/icons-material/Comment";
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import React from "react";
@@ -22,17 +21,15 @@ import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../redux/store";
 import { useState } from "react";
 import {
-  addPost,
   getCommentPost,
-  getMyPosts,
   getOtherPosts,
   updateLikeMyPost,
   updateLikePost,
-} from "../components/Posts/postsSlice";
-import Comment from "../components/Comment";
+} from "../redux/postsSlice";
+import Comment from "../components/Posts/Comment";
 import { json, Link, Navigate, useParams } from "react-router-dom";
 import InfiniteScroll from "../components/InfiniteScroll";
-import { addFollower, getListLike, getOtherInfo } from "./User/userSlice";
+import { addFollower, getListLike, getOtherInfo } from "../redux/userSlice";
 moment.locale("vi");
 
 const OtherUser = () => {

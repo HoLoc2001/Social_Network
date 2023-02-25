@@ -4,7 +4,7 @@ import {
   isRejectedWithValue,
 } from "@reduxjs/toolkit";
 import { useState } from "react";
-import { axiosPublic, axiosPrivate } from "../../utils";
+import { axiosPublic, axiosPrivate } from "../utils";
 
 export const signin = createAsyncThunk(
   "user/signin",

@@ -3,7 +3,7 @@ import RefreshIcon from "@mui/icons-material/Refresh";
 import React from "react";
 import { useEffect } from "react";
 import { Link } from "react-router-dom";
-import { getListFollower, getNotFollower } from "../components/User/userSlice";
+import { getListFollower, getNotFollower } from "../redux/userSlice";
 import { useAppDispatch, useAppSelector } from "../redux/store";
 
 const RightBar = () => {

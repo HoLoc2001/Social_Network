@@ -1,6 +1,6 @@
-import { pool } from "../connectDB.js";
+const pool = require("../helpers/connectDB.js");
 
-export const getPosts = async (req, res) => {
+const getPosts = async (req, res) => {
   const { page } = req.body;
   const userId = req.userId;
   try {
@@ -11,7 +11,7 @@ export const getPosts = async (req, res) => {
   }
 };
 
-export const addPost = async (req, res) => {
+const addPost = async (req, res) => {
   const { title, image } = req.body;
   const userId = req.userId;
   try {
@@ -31,7 +31,7 @@ export const addPost = async (req, res) => {
   }
 };
 
-export const updatePost = async (req, res) => {
+const updatePost = async (req, res) => {
   try {
     const userId = req.userId;
     const { postId, title, img } = req.body;
@@ -48,7 +48,7 @@ export const updatePost = async (req, res) => {
   }
 };
 
-export const getMyPosts = async (req, res) => {
+const getMyPosts = async (req, res) => {
   try {
     const userId = req.userId;
     const { page } = req.body;
@@ -63,7 +63,7 @@ export const getMyPosts = async (req, res) => {
   }
 };
 
-export const getOtherPosts = async (req, res) => {
+const getOtherPosts = async (req, res) => {
   try {
     const { page, userId } = req.body;
     const [posts] = await pool.execute("call get_my_post(?, ?)", [
@@ -77,7 +77,7 @@ export const getOtherPosts = async (req, res) => {
   }
 };
 
-export const updateLikePost = async (req, res) => {
+const updateLikePost = async (req, res) => {
   try {
     const { postId } = req.body;
     const userId = req.userId;
@@ -92,7 +92,7 @@ export const updateLikePost = async (req, res) => {
   }
 };
 
-export const getCommentPost = async (req, res) => {
+const getCommentPost = async (req, res) => {
   try {
     const { postId } = req.body;
     console.log(postId);
@@ -104,7 +104,7 @@ export const getCommentPost = async (req, res) => {
   }
 };
 
-export const addCommentPost = async (req, res) => {
+const addCommentPost = async (req, res) => {
   try {
     const { postId, content } = req.body;
     const userId = req.userId;
@@ -121,7 +121,7 @@ export const addCommentPost = async (req, res) => {
   }
 };
 
-export const getListPostSearch = async (req, res) => {
+const getListPostSearch = async (req, res) => {
   try {
     const { data } = req.body;
     const [row] = await pool.execute("call get_search_post(?, ?)", [
@@ -136,7 +136,7 @@ export const getListPostSearch = async (req, res) => {
   }
 };
 
-export const deletePost = async (req, res) => {
+const deletePost = async (req, res) => {
   try {
     const { postId } = req.body;
     const [row] = await pool.execute("call delete_post(?, ?)", [
@@ -150,7 +150,7 @@ export const deletePost = async (req, res) => {
   }
 };
 
-export const getTotalComment = async (req, res) => {
+const getTotalComment = async (req, res) => {
   try {
     const { postId } = req.body;
     const [row] = await pool.execute("call get_total_comments(?)", [postId]);
@@ -161,7 +161,7 @@ export const getTotalComment = async (req, res) => {
   }
 };
 
-export const getTotalLikePost = async (req, res) => {
+const getTotalLikePost = async (req, res) => {
   try {
     const { postId } = req.body;
     const [row] = await pool.execute("call get_total_like(?)", [postId]);
@@ -172,7 +172,7 @@ export const getTotalLikePost = async (req, res) => {
   }
 };
 
-export const getUpdatePost = async (req, res) => {
+const getUpdatePost = async (req, res) => {
   try {
     const { postId } = req.body;
     const [row] = await pool.execute("call get_update_like(?)", [postId]);
@@ -183,7 +183,7 @@ export const getUpdatePost = async (req, res) => {
   }
 };
 
-export const getPostSocket = async (req, res) => {
+const getPostSocket = async (req, res) => {
   try {
     const { postId } = req.body;
     const userId = req.userId;
@@ -198,7 +198,7 @@ export const getPostSocket = async (req, res) => {
   }
 };
 
-export const deleteComment = async (req, res) => {
+const deleteComment = async (req, res) => {
   try {
     const { commentId, postId } = req.body;
     const userId = req.userId;
@@ -214,7 +214,7 @@ export const deleteComment = async (req, res) => {
   }
 };
 
-export const updateComment = async (req, res) => {
+const updateComment = async (req, res) => {
   try {
     const { commentId, content, postId } = req.body;
     const userId = req.userId;
@@ -230,4 +230,23 @@ export const updateComment = async (req, res) => {
     console.log(error);
     res.status(500).json({ success: false, message: "Internal server error" });
   }
+};
+
+module.exports = {
+  getPosts,
+  addPost,
+  updatePost,
+  getMyPosts,
+  getOtherPosts,
+  updateLikePost,
+  getCommentPost,
+  addCommentPost,
+  getListPostSearch,
+  deletePost,
+  getTotalComment,
+  getTotalLikePost,
+  getUpdatePost,
+  getPostSocket,
+  deleteComment,
+  updateComment,
 };

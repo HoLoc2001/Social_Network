@@ -1,6 +1,6 @@
 import React, { useEffect, useRef } from "react";
 import { Outlet } from "react-router-dom";
-import { getInfo } from "../components/User/userSlice";
+import { getInfo } from "../redux/userSlice";
 import LeftBar from "../layouts/LeftBar";
 import NavbarHome from "../layouts/NavbarHome";
 import RightBar from "../layouts/RightBar";
@@ -14,7 +14,7 @@ import {
   getTotalLikePost,
   getUpdatePost,
   updateUserSocket,
-} from "../components/Posts/postsSlice";
+} from "../redux/postsSlice";
 
 const host = "https://server-social-network-jvbg.onrender.com"; // "http://localhost:5000";
 

@@ -1,5 +1,5 @@
 import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
-import { axiosPrivate } from "../../utils";
+import { axiosPrivate } from "../utils";
 
 export const getPosts = createAsyncThunk(
   "posts/getPosts",
@@ -80,7 +80,6 @@ export const getCommentPost = createAsyncThunk(
 export const getCommentPostSocket = createAsyncThunk(
   "posts/getCommentPost",
   async (postId, { getState }) => {
-    const { posts } = getState().posts;
     const res = await axiosPrivate.post("getTotalComment", { postId });
     console.log(res.data);
     return res.data;
@@ -114,7 +113,6 @@ export const updateMyPost = createAsyncThunk(
   "posts/updatePost",
   async (dataUpdate, { getState }) => {
     try {
-      const { myPosts } = getState().posts;
       const { postId, title, img } = dataUpdate;
       const res = await axiosPrivate.patch("updatePost", {
         postId,

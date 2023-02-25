@@ -15,7 +15,7 @@ import {
 } from "@mui/material";
 import { Link, Navigate } from "react-router-dom";
 import { useState } from "react";
-import { sendMailPass, signin } from "../components/User/userSlice";
+import { sendMailPass, signin } from "../redux/userSlice";
 import { useAppDispatch, useAppSelector } from "../redux/store";
 
 const SignIn = () => {
@@ -121,8 +121,6 @@ const SignIn = () => {
   ) : (
     <>
       <Box
-        noValidate
-        // autoComplete="off"
         sx={{
           width: "50%",
           height: "500px",

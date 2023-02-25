@@ -18,13 +18,13 @@ import MoreVertIcon from "@mui/icons-material/MoreVert";
 import React from "react";
 import SendIcon from "@mui/icons-material/Send";
 import { useEffect } from "react";
-import { useAppDispatch } from "../redux/store";
+import { useAppDispatch } from "../../redux/store";
 import {
   addCommentPost,
   deleteComment,
   getCommentPost,
   updateComment,
-} from "./Posts/postsSlice";
+} from "../../redux/postsSlice";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 

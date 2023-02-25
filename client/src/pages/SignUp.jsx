@@ -1,24 +1,18 @@
 import React, { useState } from "react";
-import {
-  Alert,
-  Box,
-  Button,
-  Snackbar,
-  Stack,
-  TextField,
-  Typography,
-} from "@mui/material";
+import { Box, Button, Stack, TextField, Typography } from "@mui/material";
 import { Link, Navigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { checkEmail, signup } from "../components/User/userSlice";
+import { checkEmail, signup } from "../redux/userSlice";
 import { useAppSelector } from "../redux/store";
+import { signUpValidate } from "../utils/validation";
+import Alert from "../components/AlertErr";
 
 const SignUp = () => {
   const token = useAppSelector((state) => state.user.token);
   const dispatch = useDispatch();
   const validateEmail = useAppSelector((state) => state.user.validateEmail);
 
-  const [signupForm, setSignupForm] = useState({
+  const [signUpForm, setSignUpForm] = useState({
     email: "",
     fullname: "",
     password: "",
@@ -28,16 +22,11 @@ const SignUp = () => {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [errMissInput, setErrMissInput] = useState(false);
 
-  const { email, fullname, password, birthday } = signupForm;
+  const { email, fullname, password, birthday } = signUpForm;
 
-  function validateEmailRegex(str) {
-    const isEmail = /^[a-z0-9.]{1,64}@[a-z0-9.]{1,64}$/i.test(str);
-    return isEmail;
-  }
-
-  const onChangeSignupForm = (e) => {
-    return setSignupForm({
-      ...signupForm,
+  const onChangeSignUpForm = (e) => {
+    return setSignUpForm({
+      ...signUpForm,
       [e.target.name]: e.target.value,
     });
   };
@@ -56,11 +45,19 @@ const SignUp = () => {
     }
   };
 
-  const handleSignup = async () => {
-    if (!email || !fullname || !birthday || !password || errRelayPass) {
+  const handleSignUp = async () => {
+    let error = false;
+    // const { error } = signUpValidate({
+    //   email,
+    //   password,
+    //   repeat_password: password,
+    // });
+    console.log(error);
+
+    if (error) {
       setErrMissInput(true);
     } else {
-      await dispatch(signup(signupForm));
+      await dispatch(signup(signUpForm));
       setIsAuthenticated(true);
     }
   };
@@ -103,19 +100,10 @@ const SignUp = () => {
             variant="outlined"
             name="email"
             value={email}
-            onChange={onChangeSignupForm}
+            onChange={onChangeSignUpForm}
             onBlur={handleValidateEmail}
-            error={
-              (validateEmail || !validateEmailRegex(email)) &&
-              !!signupForm.email
-            }
-            helperText={
-              validateEmail
-                ? "Email đã được sử dụng"
-                : validateEmailRegex(email) || !signupForm.email
-                ? ""
-                : "Email không đúng định dạng"
-            }
+            error={validateEmail}
+            helperText={validateEmail ? "Email đã được sử dụng" : ""}
           />
           <TextField
             id="fullname"
@@ -123,7 +111,7 @@ const SignUp = () => {
             variant="outlined"
             name="fullname"
             value={fullname}
-            onChange={onChangeSignupForm}
+            onChange={onChangeSignUpForm}
           />
           <TextField
             id="date"
@@ -134,7 +122,7 @@ const SignUp = () => {
             }}
             name="birthday"
             value={birthday}
-            onChange={onChangeSignupForm}
+            onChange={onChangeSignUpForm}
           />
           <TextField
             id="password"
@@ -143,7 +131,7 @@ const SignUp = () => {
             autoComplete="current-password"
             name="password"
             value={password}
-            onChange={onChangeSignupForm}
+            onChange={onChangeSignUpForm}
           />
           <TextField
             id="replayPassword"
@@ -155,7 +143,7 @@ const SignUp = () => {
             error={errRelayPass}
             helperText={errRelayPass ? "Mật khẩu không đúng" : ""}
           />
-          <Button variant="contained" onClick={handleSignup}>
+          <Button variant="contained" onClick={handleSignUp}>
             Đăng ký
           </Button>
         </Stack>
@@ -167,15 +155,7 @@ const SignUp = () => {
           </Link>
         </Typography>
       </Box>
-      <Stack sx={{ width: "60%" }} spacing={2}>
-        <Snackbar
-          open={errMissInput}
-          autoHideDuration={4000}
-          onClose={() => setErrMissInput(false)}
-        >
-          <Alert severity="warning">Vui lòng nhập đầy đủ!!!</Alert>
-        </Snackbar>
-      </Stack>
+      <Alert err={errMissInput} setErr={setErrMissInput} severity="error" />
     </>
   );
 };

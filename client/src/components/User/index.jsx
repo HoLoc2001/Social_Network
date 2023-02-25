@@ -36,12 +36,12 @@ import {
   getMyPosts,
   updateLikePost,
   updateMyPost,
-} from "../Posts/postsSlice";
+} from "../../redux/postsSlice";
 import { Box } from "@mui/system";
-import Comment from "../Comment";
+import Comment from "../Posts/Comment";
 import { Link } from "react-router-dom";
 import InfiniteScroll from "../InfiniteScroll";
-import { getListLike, getListFollowing } from "./userSlice";
+import { getListLike, getListFollowing } from "../../redux/userSlice";
 moment.locale("vi");
 
 const User = () => {

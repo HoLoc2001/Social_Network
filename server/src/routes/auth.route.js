@@ -1,7 +1,7 @@
-import express from "express";
-import jwt from "jsonwebtoken";
-import verifyToken from "../middleware/verifyToken.js";
-import {
+const express = require("express");
+const jwt = require("jsonwebtoken");
+const verifyToken = require("../middleware/verifyToken.js");
+const {
   checkEmail,
   checkPass,
   refreshToken,
@@ -9,8 +9,8 @@ import {
   sighIn,
   sighUp,
   updatePass,
-} from "../controllers/auth.controller.js";
-import { pool } from "../connectDB.js";
+} = require("../controllers/auth.controller.js");
+const { pool } = require("../helpers/connectDB.js");
 
 const router = express.Router();
 
@@ -28,4 +28,4 @@ router.post("/updatePass", verifyToken, updatePass);
 
 router.post("/sendMailPass", sendMailPass);
 
-export default router;
+module.exports = router;

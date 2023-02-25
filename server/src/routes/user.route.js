@@ -1,5 +1,5 @@
-import express from "express";
-import {
+const express = require("express");
+const {
   addFollower,
   getInfo,
   getListFollower,
@@ -9,8 +9,8 @@ import {
   getNotFollower,
   getOtherInfo,
   updateUser,
-} from "../controllers/user.controller.js";
-import verifyToken from "../middleware/verifyToken.js";
+} = require("../controllers/user.controller.js");
+const verifyToken = require("../middleware/verifyToken.js");
 
 const router = express.Router();
 
@@ -32,4 +32,4 @@ router.post("/getNotFollower", verifyToken, getNotFollower);
 
 router.post("/addFollower", verifyToken, addFollower);
 
-export default router;
+module.exports = router;

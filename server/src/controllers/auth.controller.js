@@ -1,8 +1,8 @@
-import jwt from "jsonwebtoken";
-import argon2 from "argon2";
-import nodemailer from "nodemailer";
-import { OAuth2Client } from "google-auth-library";
-import { pool } from "../connectDB.js";
+const jwt = require("jsonwebtoken");
+const argon2 = require("argon2");
+const nodemailer = require("nodemailer");
+const { OAuth2Client } = require("google-auth-library");
+const pool = require("../helpers/connectDB.js");
 
 const myOAuth2Client = new OAuth2Client(
   process.env.GOOGLE_MAILER_CLIENT_ID,
@@ -13,7 +13,7 @@ myOAuth2Client.setCredentials({
   refresh_token: process.env.GOOGLE_MAILER_REFRESH_TOKEN,
 });
 
-export const refreshToken = async (req, res) => {
+const refreshToken = async (req, res) => {
   try {
     const { refreshToken } = req.body;
     if (!refreshToken) {
@@ -66,7 +66,8 @@ export const refreshToken = async (req, res) => {
   }
 };
 
-export const sighUp = async (req, res) => {
+const sighUp = async (req, res) => {
+  console.log(req.body);
   const { email, password, fullname, birthday } = req.body;
   // Simple validation
   if (!email || !password)
@@ -123,7 +124,7 @@ export const sighUp = async (req, res) => {
   }
 };
 
-export const sighIn = async (req, res) => {
+const sighIn = async (req, res) => {
   const { email, password } = req.body;
 
   // Simple validation
@@ -173,12 +174,11 @@ export const sighIn = async (req, res) => {
       token: { accessToken, refreshToken },
     });
   } catch (error) {
-    console.log(error);
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
-export const checkEmail = async (req, res) => {
+const checkEmail = async (req, res) => {
   const { email } = req.body;
   if (!email)
     return res.status(400).json({ success: false, message: "Missing email" });
@@ -194,7 +194,7 @@ export const checkEmail = async (req, res) => {
   }
 };
 
-export const checkPass = async (req, res) => {
+const checkPass = async (req, res) => {
   try {
     const { pass } = req.body;
     const userId = req.userId;
@@ -217,7 +217,7 @@ export const checkPass = async (req, res) => {
   }
 };
 
-export const updatePass = async (req, res) => {
+const updatePass = async (req, res) => {
   try {
     const { pass } = req.body;
     const userId = req.userId;
@@ -232,7 +232,7 @@ export const updatePass = async (req, res) => {
   }
 };
 
-export const sendMailPass = async (req, res) => {
+const sendMailPass = async (req, res) => {
   try {
     const { email } = req.body;
     if (!email) throw new Error("Please provide email!");
@@ -271,4 +271,14 @@ export const sendMailPass = async (req, res) => {
     console.log(error);
     res.status(500).json({ success: false, errors: error.message });
   }
+};
+
+module.exports = {
+  refreshToken,
+  sighUp,
+  sighIn,
+  checkEmail,
+  checkPass,
+  updatePass,
+  sendMailPass,
 };

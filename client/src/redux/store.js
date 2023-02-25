@@ -1,8 +1,8 @@
 import { configureStore } from "@reduxjs/toolkit";
 import { useSelector, useDispatch } from "react-redux";
 
-import { postsSlice } from "../components/Posts/postsSlice";
-import { userSlice } from "../components/User/userSlice";
+import { postsSlice } from "./postsSlice";
+import { userSlice } from "./userSlice";
 
 export const store = configureStore({
   reducer: {

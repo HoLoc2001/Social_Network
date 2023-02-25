@@ -1,6 +1,6 @@
-import { pool } from "../connectDB.js";
+const pool = require("../helpers/connectDB.js");
 
-export const getInfo = async (req, res) => {
+const getInfo = async (req, res) => {
   try {
     const [rows] = await pool.execute("call get_user(?)", [req.userId]);
     const user = rows[0];
@@ -16,7 +16,7 @@ export const getInfo = async (req, res) => {
   }
 };
 
-export const getOtherInfo = async (req, res) => {
+const getOtherInfo = async (req, res) => {
   try {
     const { userId } = req.body;
     const [rows] = await pool.execute("call get_user(?)", [userId]);
@@ -33,7 +33,7 @@ export const getOtherInfo = async (req, res) => {
   }
 };
 
-export const updateInfo = async (req, res) => {
+const updateInfo = async (req, res) => {
   try {
     const [rows] = await pool.execute("call get_user(?)", [req.userId]);
     const user = rows[0];
@@ -49,7 +49,7 @@ export const updateInfo = async (req, res) => {
   }
 };
 
-export const updateUser = async (req, res) => {
+const updateUser = async (req, res) => {
   try {
     const { avatar, fullname } = req.body;
     const [row] = await pool.execute("call updateUser(?, ?, ?)", [
@@ -66,7 +66,7 @@ export const updateUser = async (req, res) => {
   }
 };
 
-export const getListFollower = async (req, res) => {
+const getListFollower = async (req, res) => {
   try {
     const userId = req.userId;
     const [row] = await pool.execute("call get_list_follower(?)", [userId]);
@@ -78,7 +78,7 @@ export const getListFollower = async (req, res) => {
   }
 };
 
-export const getNotFollower = async (req, res) => {
+const getNotFollower = async (req, res) => {
   try {
     const userId = req.userId;
     const [row] = await pool.execute("call get_not_follower(?)", [userId]);
@@ -90,7 +90,7 @@ export const getNotFollower = async (req, res) => {
   }
 };
 
-export const addFollower = async (req, res) => {
+const addFollower = async (req, res) => {
   try {
     const { user } = req.body;
     const userId = req.userId;
@@ -107,7 +107,7 @@ export const addFollower = async (req, res) => {
   }
 };
 
-export const getListUserSearch = async (req, res) => {
+const getListUserSearch = async (req, res) => {
   try {
     const { data } = req.body;
     const [row] = await pool.execute("call get_search_name(?)", [data]);
@@ -119,7 +119,7 @@ export const getListUserSearch = async (req, res) => {
   }
 };
 
-export const getListLike = async (req, res) => {
+const getListLike = async (req, res) => {
   try {
     const { postId } = req.body;
     const [row] = await pool.execute("call get_list_like(?)", [postId]);
@@ -131,7 +131,7 @@ export const getListLike = async (req, res) => {
   }
 };
 
-// export const getListFollower = async (req, res) => {
+//  const getListFollower = async (req, res) => {
 //   try {
 //     const { userId } = req.body;
 //     const [row] = await pool.execute("call get_list_follower(?)", [userId]);
@@ -143,7 +143,7 @@ export const getListLike = async (req, res) => {
 //   }
 // };
 
-export const getListFollowing = async (req, res) => {
+const getListFollowing = async (req, res) => {
   try {
     const { userId } = req.body;
     const [row] = await pool.execute("call get_list_following(?)", [userId]);
@@ -153,4 +153,18 @@ export const getListFollowing = async (req, res) => {
     console.log(error);
     res.status(500).json({ success: false, message: "Internal server error" });
   }
+};
+
+module.exports = {
+  getInfo,
+  getOtherInfo,
+  updateInfo,
+  updateUser,
+  getListFollower,
+  getNotFollower,
+  addFollower,
+  getListUserSearch,
+  getListLike,
+  getListFollower,
+  getListFollowing,
 };

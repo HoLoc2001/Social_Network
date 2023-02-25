@@ -1,7 +1,7 @@
 import axios from "axios";
 import jwt_decode from "jwt-decode";
 
-const APIurl = "https://server-social-network-jvbg.onrender.com/api/"; // "http://localhost:5000/api/";
+const APIurl = "http://localhost:5000/api/"; //"https://server-social-network-jvbg.onrender.com/api/"; // "http://localhost:5000/api/";
 
 export const axiosPublic = axios.create({
   baseURL: APIurl,

@@ -5,8 +5,6 @@ import {
   IconButton,
   Toolbar,
   Typography,
-  Paper,
-  InputBase,
   Dialog,
   DialogTitle,
   DialogContent,
@@ -22,9 +20,8 @@ import SettingsIcon from "@mui/icons-material/Settings";
 import SearchIcon from "@mui/icons-material/Search";
 import { useAppDispatch, useAppSelector } from "../redux/store";
 import { Link } from "react-router-dom";
-import Notification from "../components/Notification";
 import { Stack } from "@mui/system";
-import { checkPass, updatePass } from "../components/User/userSlice";
+import { checkPass, updatePass } from "../redux/userSlice";
 
 const Navbar = () => {
   const dispatch = useAppDispatch();
@@ -43,10 +40,6 @@ const Navbar = () => {
   const handleSignOut = () => {
     localStorage.clear();
     window.location.href = "/";
-  };
-
-  const handleClickInfo = () => {
-    // dispatch(getInfo());
   };
 
   const onChangePass = (e) => {

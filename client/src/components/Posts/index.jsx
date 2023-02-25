@@ -22,13 +22,13 @@ import {
   getPosts,
   postsSelector,
   updateLikePost,
-} from "./postsSlice";
+} from "../../redux/postsSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/store";
-import Comment from "../Comment";
+import Comment from "./Comment";
 import { useState } from "react";
 import InfiniteScroll from "../InfiniteScroll";
 import { Link } from "react-router-dom";
-import { getListLike } from "../User/userSlice";
+import { getListLike } from "../../redux/userSlice";
 moment.locale("vi");
 
 const Posts = () => {

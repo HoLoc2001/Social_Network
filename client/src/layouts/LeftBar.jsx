@@ -2,10 +2,7 @@ import { Avatar, Box, Button } from "@mui/material";
 import HomeIcon from "@mui/icons-material/Home";
 import React, { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
-import { getInfo, getListFollower } from "../components/User/userSlice";
 import { useAppDispatch, useAppSelector } from "../redux/store";
-import { getPosts } from "../components/Posts/postsSlice";
-import { borderLeft } from "@mui/system";
 
 const LeftBar = () => {
   const user = useAppSelector((state) => state.user.user);

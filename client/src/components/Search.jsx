@@ -21,14 +21,14 @@ import React from "react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../redux/store";
-import { getListLike, getListUserSearch } from "./User/userSlice";
+import { getListLike, getListUserSearch } from "../redux/userSlice";
 import moment from "moment";
-import Comment from "./Comment";
+import Comment from "./Posts/Comment";
 import {
   getCommentPost,
   getListPostSearch,
   updateLikePost,
-} from "./Posts/postsSlice";
+} from "../redux/postsSlice";
 moment.locale("vi");
 
 const Filters = () => {
@@ -119,22 +119,22 @@ const Filters = () => {
         <Box sx={{ position: "fixed", width: "650px" }}>
           <ul className="mui-tabs__bar">
             <li className="mui--is-active">
-              <a
+              <p
                 data-mui-toggle="tab"
                 data-mui-controls="pane-default-1"
                 style={{ cursor: "pointer" }}
               >
                 Mọi người
-              </a>
+              </p>
             </li>
             <li>
-              <a
+              <p
                 data-mui-toggle="tab"
                 data-mui-controls="pane-default-2"
                 style={{ cursor: "pointer" }}
               >
                 Bài viết
-              </a>
+              </p>
             </li>
           </ul>
           <Box sx={{ width: "100%", height: "550px", overflowY: "scroll" }}>

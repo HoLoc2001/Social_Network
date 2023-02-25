@@ -4,7 +4,7 @@ function getKeyByValue(object, value) {
   return Object.keys(object).find((key) => object[key] === value);
 }
 
-export const connectSocket = (socket) => {
+const connectSocket = (socket) => {
   socket.on("disconnect", () => {
     delete currentUser[getKeyByValue(currentUser, socket.id)];
     console.log(`User disconnect id is ${socket.id}`);
@@ -25,7 +25,7 @@ export const connectSocket = (socket) => {
   });
 };
 
-export const notificationAddPost = ({ listUser, data }) => {
+const notificationAddPost = ({ listUser, data }) => {
   listUser.forEach((element) => {
     if (currentUser[element]) {
       _io.to(currentUser[element]).emit("notification-addPost", { data });
@@ -33,6 +33,12 @@ export const notificationAddPost = ({ listUser, data }) => {
   });
 };
 
-export const notificationLikePost = ({ data }) => {
+const notificationLikePost = ({ data }) => {
   _io.emit("notification-addPost", { data });
+};
+
+module.exports = {
+  connectSocket,
+  notificationAddPost,
+  notificationLikePost,
 };
