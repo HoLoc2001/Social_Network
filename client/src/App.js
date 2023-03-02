@@ -11,18 +11,21 @@ import User from "./components/User";
 import OtherUser from "./components/OtherUser";
 import EditProfile from "./components/EditProfile";
 import Search from "./components/Search";
+import Image from "./components/image";
 
 function App() {
   return (
     <BrowserRouter>
       <CssBaseline />
       <Routes>
+        <Route path="/image" element={<Image />} />
         <Route path="/" element={<Protected />}>
           <Route path="/" element={<Home />}>
             <Route path="/" element={<Posts />} />
             <Route path="/profile" element={<User />} />
             <Route path="/editProfile" element={<EditProfile />} />
             <Route path="/search" element={<Search />} />
+
             <Route path="/:id" element={<OtherUser />} />
           </Route>
         </Route>

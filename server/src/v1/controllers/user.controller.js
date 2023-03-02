@@ -1,9 +1,14 @@
-const pool = require("../helpers/connectDB.js");
+const pool = require("../../db/connectDB");
+const { poolPg } = require("../../db/connection_postgres");
+const userServices = require("../services/user.service");
 
 const getInfo = async (req, res) => {
   try {
-    const [rows] = await pool.execute("call get_user(?)", [req.userId]);
-    const user = rows[0];
+    const user = await userServices.getUser(req.userId);
+    poolPg
+      .query("SELECT count(*) FROM users")
+      .then((res) => console.log(res.rows[0]))
+      .catch((err) => console.error("Error executing query", err.stack));
     if (!user.length) {
       return res
         .status(400)
@@ -131,18 +136,6 @@ const getListLike = async (req, res) => {
   }
 };
 
-//  const getListFollower = async (req, res) => {
-//   try {
-//     const { userId } = req.body;
-//     const [row] = await pool.execute("call get_list_follower(?)", [userId]);
-
-//     res.json({ success: true, data: row[0] });
-//   } catch (error) {
-//     console.log(error);
-//     res.status(500).json({ success: false, message: "Internal server error" });
-//   }
-// };
-
 const getListFollowing = async (req, res) => {
   try {
     const { userId } = req.body;
@@ -160,7 +153,6 @@ module.exports = {
   getOtherInfo,
   updateInfo,
   updateUser,
-  getListFollower,
   getNotFollower,
   addFollower,
   getListUserSearch,

@@ -1,17 +1,9 @@
 const jwt = require("jsonwebtoken");
 const argon2 = require("argon2");
+const pool = require("../../db/connectDB");
+// const transport = require("../configs/mail.js");
 const nodemailer = require("nodemailer");
 const { OAuth2Client } = require("google-auth-library");
-const pool = require("../helpers/connectDB.js");
-
-const myOAuth2Client = new OAuth2Client(
-  process.env.GOOGLE_MAILER_CLIENT_ID,
-  process.env.GOOGLE_MAILER_CLIENT_SECRET
-);
-
-myOAuth2Client.setCredentials({
-  refresh_token: process.env.GOOGLE_MAILER_REFRESH_TOKEN,
-});
 
 const refreshToken = async (req, res) => {
   try {
@@ -236,7 +228,18 @@ const sendMailPass = async (req, res) => {
   try {
     const { email } = req.body;
     if (!email) throw new Error("Please provide email!");
+
+    const myOAuth2Client = new OAuth2Client(
+      process.env.GOOGLE_MAILER_CLIENT_ID,
+      process.env.GOOGLE_MAILER_CLIENT_SECRET
+    );
+
+    myOAuth2Client.setCredentials({
+      refresh_token: process.env.GOOGLE_MAILER_REFRESH_TOKEN,
+    });
+
     const myAccessTokenObject = await myOAuth2Client.getAccessToken();
+
     const myAccessToken = myAccessTokenObject?.token;
     const transport = nodemailer.createTransport({
       service: "gmail",

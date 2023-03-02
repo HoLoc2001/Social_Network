@@ -10,7 +10,6 @@ const {
   sighUp,
   updatePass,
 } = require("../controllers/auth.controller.js");
-const { pool } = require("../helpers/connectDB.js");
 
 const router = express.Router();
 

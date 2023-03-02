@@ -1,4 +1,4 @@
-const pool = require("../helpers/connectDB.js");
+const pool = require("../../db/connectDB");
 
 const getPosts = async (req, res) => {
   const { page } = req.body;
