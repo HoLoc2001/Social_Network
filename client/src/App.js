@@ -12,6 +12,7 @@ import OtherUser from "./components/OtherUser";
 import EditProfile from "./components/EditProfile";
 import Search from "./components/Search";
 import Image from "./components/image";
+import ShowImg from "./components/ShowImg";
 
 function App() {
   return (
@@ -19,6 +20,7 @@ function App() {
       <CssBaseline />
       <Routes>
         <Route path="/image" element={<Image />} />
+        <Route path="/src" element={<ShowImg />} />
         <Route path="/" element={<Protected />}>
           <Route path="/" element={<Home />}>
             <Route path="/" element={<Posts />} />

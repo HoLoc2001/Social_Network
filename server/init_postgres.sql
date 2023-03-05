@@ -9,8 +9,8 @@ CREATE TABLE users(
     first_name VARCHAR(50) NOT NULL,
     last_name VARCHAR(50) NOT NULL,
     gender CHAR(1) CHECK(gender in ('F','M')),
-    birthday DATE,
-    city VARCHAR(50) NOT NULL,
+    birthday DATE NOT NULL,
+    city VARCHAR(50),
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
     PRIMARY KEY (user_id)
 );
@@ -19,7 +19,7 @@ CREATE TABLE posts(
     post_id UUID DEFAULT gen_random_uuid(),
     user_id UUID NOT NULL REFERENCES users(user_id),
     post_content TEXT,
-    media TEXT [],
+    images TEXT [],
     total_like INTEGER DEFAULT 0,
     total_comment INTEGER DEFAULT 0,
     is_deleted BOOLEAN DEFAULT FALSE,
@@ -51,8 +51,15 @@ CREATE TABLE follower(
     PRIMARY KEY (user_id, follower_id)
 );
 
+CREATE TABLE refresh_tokens(
+    refresh_token TEXT NOT NULL,
+    user_id UUID NOT NULL REFERENCES users(user_id),
+    PRIMARY KEY (user_id)
+);
+
 CREATE UNIQUE INDEX idx_email ON users (email);
-CREATE INDEX idx_post ON posts (post_id);
+CREATE UNIQUE INDEX idx_post ON posts (post_id);
 CREATE INDEX idx_post_comment ON post_comments (post_id);
 CREATE INDEX idx_follower ON follower (user_id, follower_id);
 CREATE INDEX idx_post_like ON post_like (post_id);
+CREATE INDEX idx_refresh_token ON refresh_tokens (refresh_token, user_id);

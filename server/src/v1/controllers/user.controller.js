@@ -4,12 +4,10 @@ const userServices = require("../services/user.service");
 
 const getInfo = async (req, res) => {
   try {
-    const user = await userServices.getUser(req.userId);
-    poolPg
-      .query("SELECT count(*) FROM users")
-      .then((res) => console.log(res.rows[0]))
-      .catch((err) => console.error("Error executing query", err.stack));
-    if (!user.length) {
+    const user = await userServices.getInfoUser({
+      userId: "0044378e-43df-483b-acb7-75e1646cd138" || req.userId,
+    });
+    if (!user.user_id) {
       return res
         .status(400)
         .json({ success: false, message: "User not found" });

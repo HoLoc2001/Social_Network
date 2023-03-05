@@ -59,6 +59,7 @@ const Navbar = () => {
       setError(true);
       return;
     }
+
     if (!(changePass.newPass === changePass.replayNewPass)) {
       setContentError("Vui lòng nhập lại chính xác mật khẩu mới");
       setError(true);

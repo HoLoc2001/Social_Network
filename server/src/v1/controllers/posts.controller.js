@@ -1,4 +1,5 @@
 const pool = require("../../db/connectDB");
+const postService = require("../services/post.service");
 
 const getPosts = async (req, res) => {
   const { page } = req.body;
@@ -12,22 +13,29 @@ const getPosts = async (req, res) => {
 };
 
 const addPost = async (req, res) => {
-  const { title, image } = req.body;
+  const { content, image } = req.body;
   const userId = req.userId;
+  const images = req.files || req.file;
   try {
-    const [row] = await pool.execute("call add_post(?, ?, ?)", [
-      userId,
-      title,
-      image,
-    ]);
+    // const [row] = await pool.execute("call add_post(?, ?, ?)", [
+    //   userId,
+    //   title,
+    //   image,
+    // ]);
+    const post = await postService.addPostService({ userId, content, images });
+
     _io.emit("notification-addPost", {
-      postId: row[0][0].id,
+      postId: post,
       userId,
     });
 
-    res.status(201).json({ msg: "Thanh cong!", post: row[0] });
+    res.status(201).json({ msg: "Correct", post });
   } catch (error) {
-    res.json(error);
+    console.log(error.message);
+    return {
+      code: 500,
+      message: "Server Error",
+    };
   }
 };
 
@@ -50,16 +58,23 @@ const updatePost = async (req, res) => {
 
 const getMyPosts = async (req, res) => {
   try {
-    const userId = req.userId;
+    const userId = "0044378e-43df-483b-acb7-75e1646cd138" || req.userId;
     const { page } = req.body;
-    const [posts] = await pool.execute("call get_my_post(?, ?)", [
-      userId,
-      page,
-    ]);
+    const posts = await postService.getMyPostsService({ userId, page });
+    console.log(posts);
+    // const [posts] = await pool.execute("call get_my_post(?, ?)", [
+    //   userId,
+    //   page,
+    // ]);
 
-    res.status(200).json({ myPosts: posts[0] });
+    // res.status(200).json({ myPosts: posts[0] });
+    res.status(200).json({ myPosts: posts });
   } catch (error) {
-    res.json(error);
+    console.log(error.message);
+    return {
+      code: 500,
+      message: "Server Error",
+    };
   }
 };
 

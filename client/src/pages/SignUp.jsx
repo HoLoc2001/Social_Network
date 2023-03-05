@@ -46,15 +46,14 @@ const SignUp = () => {
   };
 
   const handleSignUp = async () => {
-    let error = false;
-    // const { error } = signUpValidate({
-    //   email,
-    //   password,
-    //   repeat_password: password,
-    // });
-    console.log(error);
+    const { error } = signUpValidate({
+      email,
+      password,
+      repeat_password: password,
+    });
 
     if (error) {
+      console.log(error);
       setErrMissInput(true);
     } else {
       await dispatch(signup(signUpForm));

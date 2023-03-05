@@ -19,10 +19,10 @@ const LeftBar = () => {
 
   return (
     <>
-      <Box position="fixed" width="20%" height="100%" sx={{ p: "20px" }}>
+      <Box position="fixed" width="15%" height="100%" sx={{ p: "20px" }}>
         <div
           style={{
-            // display: "flex",
+            display: "box",
             alignItems: "center",
           }}
         >
@@ -38,9 +38,7 @@ const LeftBar = () => {
               }}
             >
               <HomeIcon fontSize="large" />
-              <span style={{ fontSize: "20px", paddingLeft: "10px" }}>
-                Trang chủ
-              </span>
+              <p style={{ fontSize: "20px", paddingLeft: "10px" }}>Trang chủ</p>
             </Button>
           </Link>
           <Link to={`/profile`} style={{ textDecoration: "none" }}>
@@ -51,9 +49,9 @@ const LeftBar = () => {
                 ...(!atHome ? { borderLeft: "5px solid #20B2AA" } : {}),
               }}
             >
-              <Avatar src={user.avatar} alt="Avatar"></Avatar>
+              <Avatar src={user?.avatar} alt="Avatar"></Avatar>
               <span style={{ fontSize: "20px", paddingLeft: "10px" }}>
-                {user.fullname}
+                {user?.fullname}qwdqwdqwdqwdaw
               </span>
             </Button>
           </Link>

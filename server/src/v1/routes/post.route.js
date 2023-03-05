@@ -1,56 +1,49 @@
 const express = require("express");
-const {
-  addCommentPost,
-  addPost,
-  deleteComment,
-  deletePost,
-  getCommentPost,
-  getListPostSearch,
-  getMyPosts,
-  getOtherPosts,
-  getPosts,
-  getPostSocket,
-  getTotalComment,
-  getTotalLikePost,
-  getUpdatePost,
-  updateComment,
-  updateLikePost,
-  updatePost,
-} = require("../controllers/posts.controller.js");
+const postController = require("../controllers/posts.controller.js");
 const verifyToken = require("../middleware/verifyToken.js");
+const fileUploader = require("../configs/cloudinary");
 
 const router = express.Router();
 
-router.post("/getPosts", verifyToken, getPosts);
+router.post("/getPosts", verifyToken, postController.getPosts);
 
-router.post("/getMyPosts", verifyToken, getMyPosts);
+router.post("/getMyPosts", verifyToken, postController.getMyPosts);
 
-router.post("/getOtherPosts", verifyToken, getOtherPosts);
+router.post("/getOtherPosts", verifyToken, postController.getOtherPosts);
 
-router.post("/getCommentPost", verifyToken, getCommentPost);
+router.post("/getCommentPost", verifyToken, postController.getCommentPost);
 
-router.post("/getTotalComment", verifyToken, getTotalComment);
+router.post("/getTotalComment", verifyToken, postController.getTotalComment);
 
-router.post("/getTotalLikePost", verifyToken, getTotalLikePost);
+router.post("/getTotalLikePost", verifyToken, postController.getTotalLikePost);
 
-router.post("/getListPostSearch", verifyToken, getListPostSearch);
+router.post(
+  "/getListPostSearch",
+  verifyToken,
+  postController.getListPostSearch
+);
 
-router.post("/getPostSocket", verifyToken, getPostSocket);
+router.post("/getPostSocket", verifyToken, postController.getPostSocket);
 
-router.post("/addCommentPost", verifyToken, addCommentPost);
+router.post("/addCommentPost", verifyToken, postController.addCommentPost);
 
-router.post("/addPost", verifyToken, addPost);
+router.post(
+  "/addPost",
+  verifyToken,
+  fileUploader.array("file"),
+  postController.addPost
+);
 
-router.patch("/updatePost", verifyToken, updatePost);
+router.patch("/updatePost", verifyToken, postController.updatePost);
 
-router.patch("/updateComment", verifyToken, updateComment);
+router.patch("/updateComment", verifyToken, postController.updateComment);
 
-router.post("/getUpdatePost", verifyToken, getUpdatePost);
+router.post("/getUpdatePost", verifyToken, postController.getUpdatePost);
 
-router.patch("/updateLikePost", verifyToken, updateLikePost);
+router.patch("/updateLikePost", verifyToken, postController.updateLikePost);
 
-router.post("/deletePost", verifyToken, deletePost);
+router.post("/deletePost", verifyToken, postController.deletePost);
 
-router.post("/deleteComment", verifyToken, deleteComment);
+router.post("/deleteComment", verifyToken, postController.deleteComment);
 
 module.exports = router;

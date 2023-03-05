@@ -1,13 +1,13 @@
-const express = require("express");
+const { Router } = require("express");
 const uploadCloud = require("../configs/cloudinary");
 const postRoute = require("./post.route");
 const userRoute = require("./user.route");
 const authRoute = require("./auth.route");
 
-const router = express.Router();
+const router = Router();
 
-app.use("/v1/uploads", uploadCloud);
-app.use("/v1", postRoute, authRoute);
-app.use("/v1/user", userRoute);
+router.apply("/v1/uploads", uploadCloud);
+router.apply("/v1", postRoute, authRoute);
+router.apply("/v1/user", userRoute);
 
 module.exports = router;

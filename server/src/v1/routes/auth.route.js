@@ -1,30 +1,21 @@
 const express = require("express");
-const jwt = require("jsonwebtoken");
 const verifyToken = require("../middleware/verifyToken.js");
-const {
-  checkEmail,
-  checkPass,
-  refreshToken,
-  sendMailPass,
-  sighIn,
-  sighUp,
-  updatePass,
-} = require("../controllers/auth.controller.js");
+const authController = require("../controllers/auth.controller.js");
 
 const router = express.Router();
 
-router.post("/refreshToken", refreshToken);
+router.post("/refreshToken", authController.refreshToken);
 
-router.post("/signup", sighUp);
+router.post("/signup", authController.sighUp);
 
-router.post("/signin", sighIn);
+router.post("/signin", authController.sighIn);
 
-router.post("/checkEmail", checkEmail);
+router.post("/checkEmail", authController.checkEmail);
 
-router.post("/checkPass", verifyToken, checkPass);
+router.post("/checkPass", verifyToken, authController.checkPass);
 
-router.post("/updatePass", verifyToken, updatePass);
+router.post("/updatePass", verifyToken, authController.updatePass);
 
-router.post("/sendMailPass", sendMailPass);
+router.post("/sendMailPass", authController.sendMailPass);
 
 module.exports = router;

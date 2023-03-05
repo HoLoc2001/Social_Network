@@ -4,18 +4,24 @@ const pool = require("../../db/connectDB");
 // const transport = require("../configs/mail.js");
 const nodemailer = require("nodemailer");
 const { OAuth2Client } = require("google-auth-library");
+const signToken = require("../utils/signToken");
+const authService = require("../services/auth.service");
+const validation = require("../utils/validations/validation");
 
 const refreshToken = async (req, res) => {
   try {
     const { refreshToken } = req.body;
+    const userId = req.userId;
     if (!refreshToken) {
       res.sendStatus(401);
     }
 
-    const [row] = await pool.query("call get_refresh_token(?)", [refreshToken]);
-    if (!row[0]) {
+    const token = await authService.getRefreshToken({ refreshToken, userId });
+
+    if (!token) {
       res.sendStatus(403);
     }
+
     jwt.verify(
       refreshToken,
       process.env.REFRESH_TOKEN_SECRET,
@@ -26,28 +32,11 @@ const refreshToken = async (req, res) => {
 
         await pool.query("call delete_refresh_token(?)", [refreshToken]);
 
-        const accessToken = jwt.sign(
-          { userId: data.userId },
-          process.env.ACCESS_TOKEN_SECRET,
-          {
-            expiresIn: "1h",
-          }
-        );
-        const newRefreshToken = jwt.sign(
-          { userId: data.userId },
-          process.env.REFRESH_TOKEN_SECRET,
-          {
-            expiresIn: "30d",
-          }
-        );
+        const accessToken = signToken.signAccessToken(data.userId);
 
-        await pool.query(
-          "call add_refresh_token(?)",
-          [newRefreshToken],
-          function (err, rows, fields) {
-            console.log(err);
-          }
-        );
+        const newRefreshToken = signToken.signRefreshToken(data.userId);
+
+        authService.updateRefreshToken(userId, newRefreshToken);
 
         res.json({ accessToken, refreshToken: newRefreshToken });
       }
@@ -59,51 +48,47 @@ const refreshToken = async (req, res) => {
 };
 
 const sighUp = async (req, res) => {
-  console.log(req.body);
-  const { email, password, fullname, birthday } = req.body;
-  // Simple validation
-  if (!email || !password)
-    return res
-      .status(400)
-      .json({ success: false, message: "Missing fullname and/or password" });
-
   try {
-    const [user] = await pool.execute("call get_user_by_email(?)", [email]);
+    const { email, password, firstName, lastName, birthday, city, gender } =
+      req.body;
 
-    if (user[0].length)
+    const { error } = validation.signUpValidate({
+      email,
+      password,
+      firstName,
+      lastName,
+      birthday,
+      city,
+      gender,
+    });
+
+    if (error)
+      return res.status(400).json({ success: false, message: "Missing data" });
+
+    const user = await authService.getEmailUser(email);
+
+    if (user.rowCount)
       return res
         .status(400)
-        .json({ success: false, message: "fullname already taken" });
+        .json({ success: false, message: "email already taken" });
 
-    //All good
     const hashedPassword = await argon2.hash(password);
 
-    const [userId] = await pool.execute("call add_user(?, ?, ?, ?)", [
+    const userId = await authService.addUser(
       email,
       hashedPassword,
-      fullname,
+      firstName,
+      lastName,
       birthday,
-    ]);
-
-    const id = userId[0][0].id;
-    //Return Token
-    const accessToken = jwt.sign(
-      { userId: id },
-      process.env.ACCESS_TOKEN_SECRET,
-      {
-        expiresIn: "1h",
-      }
+      city,
+      gender
     );
 
-    const refreshToken = jwt.sign(
-      { userId: id },
-      process.env.REFRESH_TOKEN_SECRET,
-      {
-        expiresIn: "60d",
-      }
-    );
+    const accessToken = signToken.signAccessToken(userId);
 
-    await pool.execute("call add_refresh_token(?)", [refreshToken]);
+    const refreshToken = signToken.signRefreshToken(userId);
+
+    await authService.addRefreshToken(userId, refreshToken);
 
     res.json({
       success: true,
@@ -143,20 +128,8 @@ const sighIn = async (req, res) => {
         .json({ success: false, message: "Incorrect fullname or password" });
 
     //Return Token
-    const accessToken = jwt.sign(
-      { userId: id },
-      process.env.ACCESS_TOKEN_SECRET,
-      {
-        expiresIn: "1h",
-      }
-    );
-    const refreshToken = jwt.sign(
-      { userId: id },
-      process.env.REFRESH_TOKEN_SECRET,
-      {
-        expiresIn: "60d",
-      }
-    );
+    const accessToken = signToken.signAccessToken(id);
+    const refreshToken = signToken.signRefreshToken(id);
 
     await pool.execute("call add_refresh_token(?)", [refreshToken]);
 

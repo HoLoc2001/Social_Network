@@ -93,14 +93,14 @@ const Posts = () => {
             <CardHeader
               avatar={
                 <Link
-                  to={post.userId === user.id ? "/profile" : `/${post.userId}`}
+                  to={post.userId === user?.id ? "/profile" : `/${post.userId}`}
                 >
-                  <Avatar src={post.avatar} aria-label="recipe" />
+                  <Avatar src={post?.avatar} aria-label="recipe" />
                 </Link>
               }
               title={
                 <Link
-                  to={post.userId === user.id ? "/profile" : `/${post.userId}`}
+                  to={post.userId === user?.id ? "/profile" : `/${post.userId}`}
                   style={{ color: "black" }}
                 >
                   {post.fullname}
@@ -170,7 +170,7 @@ const Posts = () => {
                 <Typography variant="body2">{post.totalComment}</Typography>
               </div>
             </CardActions>
-            <Comment post={post} avatar={user.avatar} userId={user.id} />
+            <Comment post={post} avatar={user?.avatar} userId={user?.id} />
           </Card>
         ))}
       </InfiniteScroll>
