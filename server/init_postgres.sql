@@ -21,6 +21,7 @@ CREATE TABLE posts(
     post_content TEXT,
     images TEXT [],
     total_like INTEGER DEFAULT 0,
+    list_like TEXT [],
     total_comment INTEGER DEFAULT 0,
     is_deleted BOOLEAN DEFAULT FALSE,
     created_at TIMESTAMPTZ NOT NULL DEFAULT NOW(),
@@ -54,7 +55,7 @@ CREATE TABLE follower(
 CREATE TABLE refresh_tokens(
     refresh_token TEXT NOT NULL,
     user_id UUID NOT NULL REFERENCES users(user_id),
-    PRIMARY KEY (user_id)
+    PRIMARY KEY (refresh_token, user_id)
 );
 
 CREATE UNIQUE INDEX idx_email ON users (email);

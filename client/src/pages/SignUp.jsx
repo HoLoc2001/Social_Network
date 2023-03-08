@@ -1,8 +1,19 @@
 import React, { useState } from "react";
-import { Box, Button, Stack, TextField, Typography } from "@mui/material";
+import {
+  Box,
+  Button,
+  FormControl,
+  FormControlLabel,
+  FormLabel,
+  Radio,
+  RadioGroup,
+  Stack,
+  TextField,
+  Typography,
+} from "@mui/material";
 import { Link, Navigate } from "react-router-dom";
 import { useDispatch } from "react-redux";
-import { checkEmail, signup } from "../redux/userSlice";
+import { checkEmail, signUp } from "../redux/userSlice";
 import { useAppSelector } from "../redux/store";
 import { signUpValidate } from "../utils/validation";
 import Alert from "../components/AlertErr";
@@ -14,15 +25,27 @@ const SignUp = () => {
 
   const [signUpForm, setSignUpForm] = useState({
     email: "",
-    fullname: "",
+    firstName: "",
+    lastName: "",
     password: "",
+    gender: "M",
+    city: "Can tho",
+    repeat_password: "",
     birthday: "",
   });
-  const [errRelayPass, setErrRelayPass] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [errMissInput, setErrMissInput] = useState(false);
 
-  const { email, fullname, password, birthday } = signUpForm;
+  const {
+    email,
+    firstName,
+    lastName,
+    birthday,
+    gender,
+    city,
+    password,
+    repeat_password,
+  } = signUpForm;
 
   const onChangeSignUpForm = (e) => {
     return setSignUpForm({
@@ -37,17 +60,13 @@ const SignUp = () => {
     }
   };
 
-  const onValidatePassword = (e) => {
-    if (e.target.value === password) {
-      setErrRelayPass(false);
-    } else {
-      setErrRelayPass(true);
-    }
-  };
-
   const handleSignUp = async () => {
     const { error } = signUpValidate({
       email,
+      firstName,
+      lastName,
+      birthday,
+      gender,
       password,
       repeat_password: password,
     });
@@ -56,7 +75,7 @@ const SignUp = () => {
       console.log(error);
       setErrMissInput(true);
     } else {
-      await dispatch(signup(signUpForm));
+      await dispatch(signUp(signUpForm));
       setIsAuthenticated(true);
     }
   };
@@ -73,7 +92,7 @@ const SignUp = () => {
       <Box
         sx={{
           width: "50%",
-          height: "650px",
+          height: "100%",
           backgroundColor: "#E7E9EB",
           margin: "60px auto",
           borderRadius: "10px",
@@ -105,15 +124,27 @@ const SignUp = () => {
             helperText={validateEmail ? "Email đã được sử dụng" : ""}
           />
           <TextField
-            id="fullname"
-            label="Họ và tên"
+            label="Họ"
             variant="outlined"
-            name="fullname"
-            value={fullname}
+            name="firstName"
+            value={firstName}
             onChange={onChangeSignUpForm}
           />
           <TextField
-            id="date"
+            label="Tên"
+            variant="outlined"
+            name="lastName"
+            value={lastName}
+            onChange={onChangeSignUpForm}
+          />
+          <FormControl>
+            <FormLabel sx={{ textAlign: "left" }}>Gender</FormLabel>
+            <RadioGroup row>
+              <FormControlLabel value="M" control={<Radio />} label="Male" />
+              <FormControlLabel value="F" control={<Radio />} label="Female" />
+            </RadioGroup>
+          </FormControl>
+          <TextField
             label="Ngày sinh"
             type="date"
             InputLabelProps={{
@@ -124,23 +155,20 @@ const SignUp = () => {
             onChange={onChangeSignUpForm}
           />
           <TextField
-            id="password"
+            name="password"
             label="Mật khẩu"
             type="password"
             autoComplete="current-password"
-            name="password"
             value={password}
             onChange={onChangeSignUpForm}
           />
           <TextField
-            id="replayPassword"
+            name="repeat_password"
             label="Nhập lại mật khẩu"
             type="password"
-            name="replayPassword"
             autoComplete="current-password"
-            onBlur={onValidatePassword}
-            error={errRelayPass}
-            helperText={errRelayPass ? "Mật khẩu không đúng" : ""}
+            value={repeat_password}
+            onChange={onChangeSignUpForm}
           />
           <Button variant="contained" onClick={handleSignUp}>
             Đăng ký
@@ -154,7 +182,12 @@ const SignUp = () => {
           </Link>
         </Typography>
       </Box>
-      <Alert err={errMissInput} setErr={setErrMissInput} severity="error" />
+      <Alert
+        err={errMissInput}
+        setErr={setErrMissInput}
+        severity="error"
+        content=""
+      />
     </>
   );
 };

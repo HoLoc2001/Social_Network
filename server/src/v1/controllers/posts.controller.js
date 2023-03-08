@@ -13,16 +13,16 @@ const getPosts = async (req, res) => {
 };
 
 const addPost = async (req, res) => {
-  const { content, image } = req.body;
+  const { content } = req.body;
   const userId = req.userId;
-  const images = req.files || req.file;
+  const images = req.file || req.files;
   try {
     // const [row] = await pool.execute("call add_post(?, ?, ?)", [
     //   userId,
     //   title,
     //   image,
     // ]);
-    const post = await postService.addPostService({ userId, content, images });
+    const post = await postService.addPost(userId, content, images);
 
     _io.emit("notification-addPost", {
       postId: post,
@@ -41,16 +41,12 @@ const addPost = async (req, res) => {
 
 const updatePost = async (req, res) => {
   try {
+    const { content, postId } = req.body;
     const userId = req.userId;
-    const { postId, title, img } = req.body;
-    const [row] = await pool.execute("call update_post(?, ?, ?, ?)", [
-      postId,
-      userId,
-      title,
-      img,
-    ]);
+    const images = req.file || req.files;
+    const post = await postService.updatePost(postId, userId, content, images);
     _io.emit("notification-UpdatePost", { postId });
-    res.status(200).json({ post: row[0] });
+    res.status(200).json({ post });
   } catch (error) {
     res.json(error);
   }
@@ -60,7 +56,7 @@ const getMyPosts = async (req, res) => {
   try {
     const userId = "0044378e-43df-483b-acb7-75e1646cd138" || req.userId;
     const { page } = req.body;
-    const posts = await postService.getMyPostsService({ userId, page });
+    const posts = await postService.getUserPosts(userId, page);
     console.log(posts);
     // const [posts] = await pool.execute("call get_my_post(?, ?)", [
     //   userId,
@@ -81,12 +77,9 @@ const getMyPosts = async (req, res) => {
 const getOtherPosts = async (req, res) => {
   try {
     const { page, userId } = req.body;
-    const [posts] = await pool.execute("call get_my_post(?, ?)", [
-      userId,
-      page,
-    ]);
+    const posts = await await postService.getUserPosts(userId, page);
 
-    res.status(200).json({ otherPosts: posts[0] });
+    res.status(200).json({ otherPosts: posts });
   } catch (error) {
     res.json(error);
   }
@@ -96,12 +89,16 @@ const updateLikePost = async (req, res) => {
   try {
     const { postId } = req.body;
     const userId = req.userId;
-    const [row] = await pool.execute("call update_like_post(?, ?)", [
-      postId,
-      userId,
-    ]);
+    const isLike = await postService.getUserIsLike(postId, userId);
+    let totalLikes;
+    if (isLike.rowCount) {
+      totalLikes = await postService.updateDecrLikePost(postId, userId);
+    } else {
+      totalLikes = await postService.updateIncrLikePost(postId, userId);
+    }
+
     _io.emit("notification-LikePost", { postId });
-    res.status(200).json({ data: row[0] });
+    res.status(200).json({ totalLikes, isLike: !isLike.rowCount });
   } catch (error) {
     res.json(error);
   }
@@ -248,20 +245,20 @@ const updateComment = async (req, res) => {
 };
 
 module.exports = {
-  getPosts,
   addPost,
-  updatePost,
+  addCommentPost,
+  getPosts,
   getMyPosts,
   getOtherPosts,
-  updateLikePost,
   getCommentPost,
-  addCommentPost,
   getListPostSearch,
-  deletePost,
   getTotalComment,
   getTotalLikePost,
   getUpdatePost,
   getPostSocket,
-  deleteComment,
+  updatePost,
+  updateLikePost,
   updateComment,
+  deletePost,
+  deleteComment,
 };

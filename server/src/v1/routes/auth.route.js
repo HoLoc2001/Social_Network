@@ -12,9 +12,7 @@ router.post("/signin", authController.sighIn);
 
 router.post("/checkEmail", authController.checkEmail);
 
-router.post("/checkPass", verifyToken, authController.checkPass);
-
-router.post("/updatePass", verifyToken, authController.updatePass);
+router.put("/updatePass", verifyToken, authController.updatePassword);
 
 router.post("/sendMailPass", authController.sendMailPass);
 

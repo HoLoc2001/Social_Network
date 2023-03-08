@@ -1,12 +1,10 @@
 const jwt = require("jsonwebtoken");
 const argon2 = require("argon2");
-const pool = require("../../db/connectDB");
-// const transport = require("../configs/mail.js");
 const nodemailer = require("nodemailer");
-const { OAuth2Client } = require("google-auth-library");
+const { OAuth2Client, auth } = require("google-auth-library");
 const signToken = require("../utils/signToken");
 const authService = require("../services/auth.service");
-const validation = require("../utils/validations/validation");
+const validation = require("../utils/validation");
 
 const refreshToken = async (req, res) => {
   try {
@@ -30,7 +28,7 @@ const refreshToken = async (req, res) => {
           res.sendStatus(403);
         }
 
-        await pool.query("call delete_refresh_token(?)", [refreshToken]);
+        await authService.updateRefreshToken(userId, refreshToken);
 
         const accessToken = signToken.signAccessToken(data.userId);
 
@@ -62,8 +60,7 @@ const sighUp = async (req, res) => {
       gender,
     });
 
-    if (error)
-      return res.status(400).json({ success: false, message: "Missing data" });
+    if (error) return res.status(400).json({ message: error.message });
 
     const user = await authService.getEmailUser(email);
 
@@ -74,7 +71,7 @@ const sighUp = async (req, res) => {
 
     const hashedPassword = await argon2.hash(password);
 
-    const userId = await authService.addUser(
+    const { user_id } = await authService.addUser(
       email,
       hashedPassword,
       firstName,
@@ -84,54 +81,49 @@ const sighUp = async (req, res) => {
       gender
     );
 
-    const accessToken = signToken.signAccessToken(userId);
+    const accessToken = signToken.signAccessToken(user_id);
 
-    const refreshToken = signToken.signRefreshToken(userId);
+    const refreshToken = signToken.signRefreshToken(user_id);
 
-    await authService.addRefreshToken(userId, refreshToken);
+    await authService.addRefreshToken(user_id, refreshToken);
 
     res.json({
-      success: true,
       message: "User create successfully",
       token: { accessToken, refreshToken },
     });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ success: false, message: "Internal server error" });
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
 const sighIn = async (req, res) => {
-  const { email, password } = req.body;
-
-  // Simple validation
-  if (!email || !password)
-    return res
-      .status(400)
-      .json({ success: false, message: "Missing fullname and/or password" });
-
   try {
-    const [user] = await pool.execute(
-      "select id, password from users where email = ?",
-      [email]
-    );
-    if (!user[0]?.id)
+    const { email, password } = req.body;
+
+    const { error } = validation.signInValidate({ email, password });
+
+    if (error)
+      return res.status(400).json({ success: false, message: error.message });
+
+    const user = await authService.signIn(email);
+
+    if (!user.user_id)
       return res
         .status(400)
-        .json({ success: false, message: "Incorrect fullname or pass" });
+        .json({ success: false, message: "Incorrect email or pass" });
 
-    const id = user[0].id;
-    const passwordValid = await argon2.verify(user[0].password, password);
+    const passwordValid = await argon2.verify(user.password, password);
     if (!passwordValid)
       return res
         .status(400)
-        .json({ success: false, message: "Incorrect fullname or password" });
+        .json({ success: false, message: "Incorrect email or password" });
 
     //Return Token
-    const accessToken = signToken.signAccessToken(id);
-    const refreshToken = signToken.signRefreshToken(id);
+    const accessToken = signToken.signAccessToken(user.user_id);
+    const refreshToken = signToken.signRefreshToken(user.user_id);
 
-    await pool.execute("call add_refresh_token(?)", [refreshToken]);
+    await authService.addRefreshToken(user.user_id, refreshToken);
 
     res.json({
       success: true,
@@ -139,56 +131,44 @@ const sighIn = async (req, res) => {
       token: { accessToken, refreshToken },
     });
   } catch (error) {
-    res.status(500).json({ success: false, message: "Internal server error" });
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
 const checkEmail = async (req, res) => {
-  const { email } = req.body;
-  if (!email)
-    return res.status(400).json({ success: false, message: "Missing email" });
-
   try {
-    const [user] = await pool.execute("call get_user_by_email(?)", [email]);
+    const { email } = req.body;
+    const { error } = validation.emailValidate({ email });
 
-    if (!user[0].length) return res.status(200).json({ success: false });
-    return res.status(200).json({ success: true });
+    if (error) return res.status(400).json({ message: error.message });
+
+    const user = await authService.getEmailUser(email);
+
+    if (user.rowCount) return res.status(200).json({ hasEmail: true });
+    return res.status(200).json({ hasEmail: false });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ success: false, message: "Internal server error" });
+    res.status(500).json({ message: "Internal server error" });
   }
 };
 
-const checkPass = async (req, res) => {
+const updatePassword = async (req, res) => {
   try {
-    const { pass } = req.body;
+    const { password, newPassword } = req.body;
     const userId = req.userId;
-    if (!pass)
-      return res
-        .status(400)
-        .json({ success: false, message: "Missing password" });
 
-    const [row] = await pool.query("call get_pass_by_userId(?)", [userId]);
-    const passwordValid = await argon2.verify(row[0][0].password, pass);
+    const { error } = validation.passwordValidate({ password, newPassword });
+    if (error) return res.status(400).json({ message: error.message });
+
+    const user = await authService.getPassword(userId);
+    const passwordValid = await argon2.verify(user.password, password);
     if (!passwordValid)
       return res
         .status(400)
         .json({ success: false, message: "Incorrect password" });
+    const hashNewPassword = await argon2.hash(newPassword);
 
-    return res.status(200).json({ success: true });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ success: false, message: "Internal server error" });
-  }
-};
-
-const updatePass = async (req, res) => {
-  try {
-    const { pass } = req.body;
-    const userId = req.userId;
-
-    const hashPass = await argon2.hash(pass);
-    await pool.query("call update_password(?,?)", [userId, hashPass]);
+    await authService.updatePassword(userId, hashNewPassword);
 
     return res.status(200).json({ success: true });
   } catch (error) {
@@ -200,19 +180,16 @@ const updatePass = async (req, res) => {
 const sendMailPass = async (req, res) => {
   try {
     const { email } = req.body;
-    if (!email) throw new Error("Please provide email!");
-
+    const { error } = validation.emailValidate({ email });
+    if (error) throw new Error(error.message);
     const myOAuth2Client = new OAuth2Client(
       process.env.GOOGLE_MAILER_CLIENT_ID,
       process.env.GOOGLE_MAILER_CLIENT_SECRET
     );
-
     myOAuth2Client.setCredentials({
       refresh_token: process.env.GOOGLE_MAILER_REFRESH_TOKEN,
     });
-
     const myAccessTokenObject = await myOAuth2Client.getAccessToken();
-
     const myAccessToken = myAccessTokenObject?.token;
     const transport = nodemailer.createTransport({
       service: "gmail",
@@ -225,18 +202,15 @@ const sendMailPass = async (req, res) => {
         accessToken: myAccessToken,
       },
     });
-
-    const [row] = await pool.query("call get_id(?)", [email]);
-    const userId = row[0][0].id;
-    let newPass = Math.random().toString(36).slice(-8);
-    const hashPass = await argon2.hash(newPass);
-    await pool.query("call update_password(?,?)", [userId, hashPass]);
-
+    const user = await authService.getEmailUser(email);
+    let newPassword = Math.random().toString(36).slice(-8);
+    const hashPassword = await argon2.hash(newPassword);
+    await authService.updatePassword(user.user_id, hashPassword);
     // mailOption là những thông tin gửi từ phía client lên thông qua API
     const mailOptions = {
       to: email, // Gửi đến ai?
       subject: "Social Network gửi mật khẩu", // Tiêu đề email
-      html: `Mật khẩu mới của bạn là: ${newPass}`, // Nội dung email
+      html: `Mật khẩu mới của bạn là: ${newPassword}`, // Nội dung email
     };
     // Gọi hành động gửi email
     await transport.sendMail(mailOptions);
@@ -254,7 +228,6 @@ module.exports = {
   sighUp,
   sighIn,
   checkEmail,
-  checkPass,
-  updatePass,
+  updatePassword,
   sendMailPass,
 };

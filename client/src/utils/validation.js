@@ -5,7 +5,11 @@ export const signUpValidate = (data) => {
     email: Joi.string()
       .email({ tlds: { allow: false } })
       .required(),
-    password: Joi.string().required(),
+    firstName: Joi.string().max(50).required(),
+    lastName: Joi.string().max(50).required(),
+    birthday: Joi.date().required(),
+    gender: Joi.string().valid("M", "F").required(),
+    password: Joi.string().min(8).max(12).required(),
     repeat_password: Joi.ref("password"),
   });
 

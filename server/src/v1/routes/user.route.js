@@ -8,7 +8,7 @@ router.get("/", verifyToken, userController.getInfo);
 
 router.post("/getOtherInfo", verifyToken, userController.getOtherInfo);
 
-router.patch("/updateUser", verifyToken, userController.updateUser);
+router.patch("/updateUser", verifyToken, userController.updateInfoUser);
 
 router.post("/getListFollower", verifyToken, userController.getListFollower);
 

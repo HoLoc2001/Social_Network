@@ -2,7 +2,7 @@ import { Alert, Snackbar } from "@mui/material";
 import { Stack } from "@mui/system";
 import React from "react";
 
-const AlertErr = ({ err, setErr, severity }) => {
+const AlertErr = ({ err, setErr, severity, content }) => {
   return (
     <Stack sx={{ width: "60%" }} spacing={2}>
       <Snackbar
@@ -10,7 +10,9 @@ const AlertErr = ({ err, setErr, severity }) => {
         autoHideDuration={4000}
         onClose={() => setErr(false)}
       >
-        <Alert severity={severity}>Vui lòng nhập đầy đủ!!!</Alert>
+        <Alert severity={severity}>
+          {content || "Vui lòng nhập đầy đủ!!!"}
+        </Alert>
       </Snackbar>
     </Stack>
   );

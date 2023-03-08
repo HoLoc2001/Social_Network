@@ -2,14 +2,20 @@
 
 const { Pool } = require("pg");
 
+process.env.TZ = "Asia/Ho_Chi_Minh";
+
 const poolPg = new Pool({
-  host: "localhost",
-  port: 5432,
-  user: "postgres",
-  password: "pass",
-  database: "social",
+  host: process.env.DB_PG_HOST,
+  database: process.env.DB_PG_NAME,
+  port: process.env.DB_PG_PORT,
+  user: process.env.DB_PG_USERNAME,
+  password: process.env.DB_PG_PASSWORD,
   max: 20,
 });
+
+poolPg
+  .query("SET TIME ZONE +7")
+  .catch((err) => console.error("Error executing query", err.stack));
 
 class Database {
   constructor() {

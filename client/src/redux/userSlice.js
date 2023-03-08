@@ -1,9 +1,4 @@
-import {
-  createAsyncThunk,
-  createSlice,
-  isRejectedWithValue,
-} from "@reduxjs/toolkit";
-import { useState } from "react";
+import { createAsyncThunk, createSlice } from "@reduxjs/toolkit";
 import { axiosPublic, axiosPrivate } from "../utils";
 
 export const signin = createAsyncThunk(
@@ -18,9 +13,9 @@ export const signin = createAsyncThunk(
   }
 );
 
-export const signup = createAsyncThunk("user/signup", async (signupForm) => {
+export const signUp = createAsyncThunk("user/signup", async (signupForm) => {
   try {
-    const res = await axiosPublic.post("signup", signupForm);
+    const res = await axiosPublic.post("auth/signup", signupForm);
     return res.data;
   } catch (error) {
     console.log(error);
@@ -54,7 +49,7 @@ export const refreshToken = createAsyncThunk(
 
 export const checkEmail = createAsyncThunk("user/checkEmail", async (email) => {
   try {
-    const res = await axiosPublic.post("checkEmail", {
+    const res = await axiosPublic.post("auth/checkEmail", {
       email,
     });
     return res.data;
@@ -235,7 +230,7 @@ export const userSlice = createSlice({
       .addCase(sendMailPass.fulfilled, (state, action) => {
         state.isForgetPass = action.payload.success;
       })
-      .addCase(signup.fulfilled, (state, action) => {
+      .addCase(signUp.fulfilled, (state, action) => {
         state.token = action.payload?.token;
         if (state.token.accessToken) {
           state.isAuthenticated = true;

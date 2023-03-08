@@ -1,12 +1,11 @@
 const pool = require("../../db/connectDB");
-const { poolPg } = require("../../db/connection_postgres");
 const userServices = require("../services/user.service");
 
 const getInfo = async (req, res) => {
   try {
-    const user = await userServices.getInfoUser({
-      userId: "0044378e-43df-483b-acb7-75e1646cd138" || req.userId,
-    });
+    const user = await userServices.getInfoUser(
+      "0044378e-43df-483b-acb7-75e1646cd138" || req.userId
+    );
     if (!user.user_id) {
       return res
         .status(400)
@@ -22,9 +21,10 @@ const getInfo = async (req, res) => {
 const getOtherInfo = async (req, res) => {
   try {
     const { userId } = req.body;
-    const [rows] = await pool.execute("call get_user(?)", [userId]);
-    const user = rows[0];
-    if (!user.length) {
+    const user = await userServices.getInfoUser(
+      "0044378e-43df-483b-acb7-75e1646cd138" || userId
+    );
+    if (!user.user_id) {
       return res
         .status(400)
         .json({ success: false, message: "User not found" });
@@ -52,7 +52,7 @@ const updateInfo = async (req, res) => {
   }
 };
 
-const updateUser = async (req, res) => {
+const updateInfoUser = async (req, res) => {
   try {
     const { avatar, fullname } = req.body;
     const [row] = await pool.execute("call updateUser(?, ?, ?)", [
@@ -150,7 +150,7 @@ module.exports = {
   getInfo,
   getOtherInfo,
   updateInfo,
-  updateUser,
+  updateInfoUser,
   getNotFollower,
   addFollower,
   getListUserSearch,
