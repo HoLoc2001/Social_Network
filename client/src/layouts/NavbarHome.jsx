@@ -84,7 +84,7 @@ const Navbar = () => {
     <>
       <AppBar
         position="fixed"
-        sx={{ color: "black", backgroundColor: "#20B2AA" }}
+        sx={{ color: "black", backgroundColor: "#20B2AA", height: "56px" }}
       >
         <Container maxWidth="xl">
           <Toolbar disableGutters>

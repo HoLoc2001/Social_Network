@@ -4,7 +4,7 @@ const uploadImg = (req, res, next) => {
     return;
   }
 
-  res.json({ secure_url: req.files });
+  res.json({ urlImages: req.files });
 };
 
 module.exports = uploadImg;

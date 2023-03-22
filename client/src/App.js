@@ -9,7 +9,7 @@ import Posts from "./components/Posts";
 // import Socket from "./layouts/Socket";
 import User from "./components/User";
 import OtherUser from "./components/OtherUser";
-import EditProfile from "./components/EditProfile";
+import EditProfile from "./components/User/EditProfile";
 import Search from "./components/Search";
 import Image from "./components/image";
 import ShowImg from "./components/ShowImg";
@@ -27,7 +27,6 @@ function App() {
             <Route path="/profile" element={<User />} />
             <Route path="/editProfile" element={<EditProfile />} />
             <Route path="/search" element={<Search />} />
-
             <Route path="/:id" element={<OtherUser />} />
           </Route>
         </Route>

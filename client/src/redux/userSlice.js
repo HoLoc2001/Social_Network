@@ -5,7 +5,7 @@ export const signin = createAsyncThunk(
   "user/signin",
   async (signinForm, thunkAPI) => {
     try {
-      const res = await axiosPublic.post("signin", signinForm);
+      const res = await axiosPublic.post("auth/signin", signinForm);
       return res.data;
     } catch (error) {
       return thunkAPI.rejectWithValue(error.response);
@@ -94,6 +94,7 @@ export const getOtherInfo = createAsyncThunk(
   async (userId) => {
     try {
       const res = await axiosPrivate.post("user/getOtherInfo", { userId });
+      console.log(res.data);
       return res.data;
     } catch (error) {
       console.log(error);
@@ -119,6 +120,7 @@ export const getListFollower = createAsyncThunk(
   async () => {
     try {
       const res = await axiosPrivate.post("user/getListFollower");
+      console.log(res.data);
       return res.data;
     } catch (error) {
       console.log(error);
@@ -195,14 +197,7 @@ export const getListLike = createAsyncThunk(
 export const userSlice = createSlice({
   name: "user",
   initialState: {
-    user: {
-      id: "",
-      email: "",
-      fullname: "",
-      birthday: null,
-      avatar: null,
-      createdAt: null,
-    },
+    user: {},
     listUserSearch: [],
     otherUser: [],
     listFollower: [],
@@ -244,10 +239,10 @@ export const userSlice = createSlice({
       })
       .addCase(updatePass.fulfilled, (state, action) => {})
       .addCase(getInfo.fulfilled, (state, action) => {
-        state.user = action.payload?.user[0];
+        state.user = action.payload?.user;
       })
       .addCase(getOtherInfo.fulfilled, (state, action) => {
-        state.otherUser = action.payload?.user[0] || false;
+        state.otherUser = action.payload?.user || false;
       })
       .addCase(refreshToken.fulfilled, (state, action) => {
         state.token = action.payload;
@@ -256,13 +251,13 @@ export const userSlice = createSlice({
         state.user = action.payload?.user[0];
       })
       .addCase(getListFollower.fulfilled, (state, action) => {
-        state.listFollower = action?.payload?.data;
+        state.listFollower = action?.payload?.listFollower;
       })
       .addCase(getListFollowing.fulfilled, (state, action) => {
         state.listFollowing = action?.payload?.data;
       })
       .addCase(getNotFollower.fulfilled, (state, action) => {
-        state.notFollower = action?.payload?.data;
+        state.notFollower = action?.payload?.listNotFollower;
       })
       .addCase(addFollower.fulfilled, (state, action) => {
         state.listFollower = action?.payload.data;

@@ -5,7 +5,7 @@ export const getPosts = createAsyncThunk(
   "posts/getPosts",
   async (page, { getState }) => {
     const { posts } = getState().posts;
-    const res = await axiosPrivate.post(`getPosts`, { page });
+    const res = await axiosPrivate.post(`post/getPosts`, { page });
     const data = [...posts, ...res.data.posts];
     return data;
   }
@@ -13,24 +13,29 @@ export const getPosts = createAsyncThunk(
 
 export const addPost = createAsyncThunk(
   "posts/addPost",
-  async (data, { getState }) => {
+  async ({ content, urlImages }, { getState }) => {
     const { myPosts } = getState().posts;
-    const res = await axiosPrivate.post(`addPost`, {
-      title: data.title,
-      image: data.imgPost,
-    });
+    const res = await axiosPrivate.post(`post/addPost`, { content, urlImages });
     const resData = [...res.data.post, ...myPosts];
     return resData;
+  }
+);
+
+export const addImgCloudinary = createAsyncThunk(
+  "posts/addImgCloudinary",
+  async ({ images }) => {
+    const res = await axiosPrivate.post(`uploads/cloudinary-upload`, images);
+    return res.data;
   }
 );
 
 export const updateLikePost = createAsyncThunk(
   "posts/updateLikePost",
   async (postId) => {
-    const res = await axiosPrivate.patch(`updateLikePost`, {
+    const res = await axiosPrivate.patch(`post/updateLikePost`, {
       postId: postId,
     });
-    return res.data.data[0];
+    return { ...res.data, postId };
   }
 );
 
@@ -48,7 +53,7 @@ export const getMyPosts = createAsyncThunk(
   "posts/getMyPosts",
   async (page, { getState }) => {
     const { myPosts } = getState().posts;
-    const res = await axiosPrivate.post(`getMyPosts`, { page });
+    const res = await axiosPrivate.post(`post/getMyPosts`, { page });
     const data = [...myPosts, ...res.data.myPosts];
     return data;
   }
@@ -59,7 +64,7 @@ export const getOtherPosts = createAsyncThunk(
   async (data, { getState }) => {
     const { otherPosts } = getState().posts;
     const { page, userId } = data;
-    const res = await axiosPrivate.post(`getOtherPosts`, { page, userId });
+    const res = await axiosPrivate.post(`post/getOtherPosts`, { page, userId });
     if (page === 0) {
       const dataPosts = [...res.data.otherPosts];
       return dataPosts;
@@ -81,7 +86,6 @@ export const getCommentPostSocket = createAsyncThunk(
   "posts/getCommentPost",
   async (postId, { getState }) => {
     const res = await axiosPrivate.post("getTotalComment", { postId });
-    console.log(res.data);
     return res.data;
   }
 );
@@ -109,15 +113,14 @@ export const getListPostSearch = createAsyncThunk(
   }
 );
 
-export const updateMyPost = createAsyncThunk(
+export const updatePost = createAsyncThunk(
   "posts/updatePost",
-  async (dataUpdate, { getState }) => {
+  async ({ postId, content, urlImages }, { getState }) => {
     try {
-      const { postId, title, img } = dataUpdate;
-      const res = await axiosPrivate.patch("updatePost", {
+      const res = await axiosPrivate.patch("post/updatePost", {
         postId,
-        title,
-        img,
+        content,
+        urlImages,
       });
       return res.data.post[0];
     } catch (error) {
@@ -252,6 +255,7 @@ export const postsSlice = createSlice({
     otherPosts: [],
     myPosts: [],
     listPostSearch: [],
+    urlImages: [],
   },
   extraReducers: (builder) => {
     builder
@@ -269,34 +273,34 @@ export const postsSlice = createSlice({
       })
       .addCase(updateLikePost.fulfilled, (state, action) => {
         state.posts.forEach((e) => {
-          if (e.id === action.payload?.id) {
+          if (e.post_id === action.payload?.postId) {
             return (
-              (e.totalLike = action.payload?.totalLike),
-              (e.isLike = action.payload?.isLike)
+              (e.total_like = action.payload?.totalLikes),
+              (e.islike = action.payload?.isLike)
             );
           }
         });
         state.myPosts.forEach((e) => {
-          if (e.id === action.payload?.id) {
+          if (e.post_id === action.payload?.postId) {
             return (
-              (e.totalLike = action.payload?.totalLike),
-              (e.isLike = action.payload?.isLike)
+              (e.total_like = action.payload?.totalLikes),
+              (e.islike = action.payload?.isLike)
             );
           }
         });
         state.otherPosts.forEach((e) => {
-          if (e.id === action.payload?.id) {
+          if (e.post_id === action.payload?.postId) {
             return (
-              (e.totalLike = action.payload?.totalLike),
-              (e.isLike = action.payload?.isLike)
+              (e.total_like = action.payload?.totalLikes),
+              (e.islike = action.payload?.isLike)
             );
           }
         });
         state.listPostSearch.forEach((e) => {
-          if (e.id === action.payload?.id) {
+          if (e.post_id === action.payload?.postId) {
             return (
-              (e.totalLike = action.payload?.totalLike),
-              (e.isLike = action.payload?.isLike)
+              (e.total_like = action.payload?.totalLikes),
+              (e.islike = action.payload?.isLike)
             );
           }
         });
@@ -370,8 +374,7 @@ export const postsSlice = createSlice({
       .addCase(getListPostSearch.fulfilled, (state, action) => {
         state.listPostSearch = action?.payload?.data;
       })
-      .addCase(updateMyPost.fulfilled, (state, action) => {
-        console.log(action.payload?.img);
+      .addCase(updatePost.fulfilled, (state, action) => {
         state.myPosts.forEach((e) => {
           if (e.id === action.payload?.id) {
             return (
@@ -466,38 +469,6 @@ export const postsSlice = createSlice({
         if (action.payload.hasFollow) {
           state.posts.push(action.payload.post);
         }
-        // state.myPosts.forEach((e) => {
-        //   if (e.id === action.payload?.postId) {
-        //     return (
-        //       (e.title = action.payload?.data[0].title),
-        //       (e.image = action.payload?.data[0].image)
-        //     );
-        //   }
-        // });
-        // state.posts.forEach((e) => {
-        //   if (e.id === action.payload?.postId) {
-        //     return (
-        //       (e.title = action.payload?.data[0].title),
-        //       (e.image = action.payload?.data[0].image)
-        //     );
-        //   }
-        // });
-        // state.otherPosts.forEach((e) => {
-        //   if (e.id === action.payload?.postId) {
-        //     return (
-        //       (e.title = action.payload?.data[0].title),
-        //       (e.image = action.payload?.data[0].image)
-        //     );
-        //   }
-        // });
-        // state.listPostSearch.forEach((e) => {
-        //   if (e.id === action.payload?.postId) {
-        //     return (
-        //       (e.title = action.payload?.data[0].title),
-        //       (e.image = action.payload?.data[0].image)
-        //     );
-        //   }
-        // });
       })
       .addCase(updateUserSocket.fulfilled, (state, action) => {
         state.myPosts.forEach((e) => {
@@ -507,7 +478,6 @@ export const postsSlice = createSlice({
           }
           e.comments?.forEach((comment) => {
             if (comment.userId === action.payload?.id) {
-              console.log(action.payload?.fullname);
               comment.fullname = action.payload?.fullname;
               comment.avatar = action.payload?.avatar;
             }
@@ -515,6 +485,7 @@ export const postsSlice = createSlice({
         });
       })
       .addCase(updateComment.fulfilled, (state, action) => {})
+
       .addCase(deleteComment.fulfilled, (state, action) => {
         state.posts.forEach((e) => {
           if (e.id === action.payload?.postId) {
@@ -536,6 +507,9 @@ export const postsSlice = createSlice({
             return (e.totalComment = action.payload?.totalComment);
           }
         });
+      })
+      .addCase(addImgCloudinary.fulfilled, (state, action) => {
+        state.urlImages = action.payload;
       });
   },
 });

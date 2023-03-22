@@ -14,7 +14,7 @@ const poolPg = new Pool({
 });
 
 poolPg
-  .query("SET TIME ZONE +7")
+  .query("SET TIME ZONE +7;")
   .catch((err) => console.error("Error executing query", err.stack));
 
 class Database {
@@ -26,8 +26,9 @@ class Database {
     poolPg.connect((err, client, release) => {
       if (err) {
         console.log(err);
+      } else {
+        console.log(`Connected to the database postgres`);
       }
-      console.log(`Connected to the database postgres`);
     });
   }
 

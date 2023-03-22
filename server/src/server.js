@@ -6,7 +6,6 @@ const { Server } = require("socket.io");
 const { createServer } = require("http");
 const createError = require("http-errors");
 const { connectSocket } = require("./v1/services/socket.service.js");
-// const router = require("./v1/routes/index.route");
 const uploadCloud = require("./v1/routes/cloudinary_upload.route");
 const postRoute = require("./v1/routes/post.route");
 const authRoute = require("./v1/routes/auth.route");
@@ -23,7 +22,6 @@ global._io = socketIo;
 socketIo.on("connection", connectSocket);
 
 app.use(require("./v1/middleware/index"));
-// app.use("/api", require("./v1/routes/index.route"));
 app.use("/v1/api/uploads", uploadCloud);
 app.use("/v1/api/post", postRoute);
 app.use("/v1/api/auth", authRoute);

@@ -1,10 +1,10 @@
 import { Button, TextField } from "@mui/material";
 import { Box } from "@mui/system";
 import React, { useState } from "react";
-import { getBase64 } from "../utils";
-import { useAppDispatch, useAppSelector } from "../redux/store";
+import { getBase64 } from "../../utils";
+import { useAppDispatch, useAppSelector } from "../../redux/store";
 import { useEffect } from "react";
-import { getInfo, updateUser } from "../redux/userSlice";
+import { getInfo, updateUser } from "../../redux/userSlice";
 import { Link } from "react-router-dom";
 
 const EditProfile = () => {

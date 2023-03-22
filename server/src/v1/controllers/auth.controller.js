@@ -111,7 +111,7 @@ const sighIn = async (req, res) => {
     if (!user.user_id)
       return res
         .status(400)
-        .json({ success: false, message: "Incorrect email or pass" });
+        .json({ success: false, message: "Incorrect email or password" });
 
     const passwordValid = await argon2.verify(user.password, password);
     if (!passwordValid)
@@ -119,7 +119,7 @@ const sighIn = async (req, res) => {
         .status(400)
         .json({ success: false, message: "Incorrect email or password" });
 
-    //Return Token
+    //Return Tokens
     const accessToken = signToken.signAccessToken(user.user_id);
     const refreshToken = signToken.signRefreshToken(user.user_id);
 

@@ -14,7 +14,7 @@ axiosPrivate.interceptors.request.use(
   async (config) => {
     const accessToken = localStorage["AT"];
     let currentDate = new Date();
-    if (accessToken) {
+    if (!!accessToken && accessToken !== "undefined") {
       const decodedToken = jwt_decode(accessToken);
       if (decodedToken.exp * 1000 < currentDate.getTime()) {
         const res = await axiosPublic.post("refreshToken", {
@@ -30,6 +30,9 @@ axiosPrivate.interceptors.request.use(
           config.headers["Authorization"] = `Bearer ${localStorage["AT"]}`;
         }
       }
+    } else {
+      localStorage.removeItem("AT");
+      localStorage.removeItem("RT");
     }
 
     return config;

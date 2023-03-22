@@ -51,7 +51,7 @@ const LeftBar = () => {
             >
               <Avatar src={user?.avatar} alt="Avatar"></Avatar>
               <span style={{ fontSize: "20px", paddingLeft: "10px" }}>
-                {user?.fullname}qwdqwdqwdqwdaw
+                {user.fullname}
               </span>
             </Button>
           </Link>

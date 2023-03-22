@@ -30,11 +30,21 @@ import Comment from "../components/Posts/Comment";
 import { json, Link, Navigate, useParams } from "react-router-dom";
 import InfiniteScroll from "../components/InfiniteScroll";
 import { addFollower, getListLike, getOtherInfo } from "../redux/userSlice";
+import GridImg from "./Posts/GridImg";
+import LikePost from "./Posts/LikePost";
 moment.locale("vi");
 
 const OtherUser = () => {
   const dispatch = useAppDispatch();
   const params = useParams();
+
+  useEffect(() => {
+    (async () => {
+      window.scrollTo(0, 0);
+
+      await dispatch(getOtherInfo(params.id));
+    })();
+  }, [params.id]);
 
   const otherUser = useAppSelector((state) => state.user.otherUser);
   const user = useAppSelector((state) => state.user.user);
@@ -43,8 +53,21 @@ const OtherUser = () => {
   const listFollower = useAppSelector((state) => state.user.listFollower);
   const [page, setPage] = useState(0);
   const [hasPost, setHasPost] = useState(false);
-
   const [open, setOpen] = useState(false);
+
+  useEffect(() => {
+    (async () => {
+      // setPage(0);
+      await dispatch(getOtherPosts({ page, userId: params.id }));
+      setHasPost(() => {
+        if (otherPosts.length % 5 === 0 && otherPosts.length >= page) {
+          return true;
+        }
+        return false;
+      });
+    })();
+  }, [page, params.id]);
+
   const handleOpen = async (postId, totalLike) => {
     if (totalLike) {
       await dispatch(getListLike(postId));
@@ -56,27 +79,6 @@ const OtherUser = () => {
   let hasFollower = listFollower.find((e) => {
     return "" + e.id === params.id;
   });
-
-  useEffect(() => {
-    (async () => {
-      window.scrollTo(0, 0);
-
-      await dispatch(getOtherInfo(params.id));
-    })();
-  }, [params.id]);
-
-  useEffect(() => {
-    (async () => {
-      setPage(0);
-      await dispatch(getOtherPosts({ page, userId: params.id }));
-      setHasPost(() => {
-        if (otherPosts.length % 5 === 0) {
-          return true;
-        }
-        return false;
-      });
-    })();
-  }, [page, params.id]);
 
   if ("" + user.id === params.id) {
     return <Navigate to="/profile" />;
@@ -158,7 +160,7 @@ const OtherUser = () => {
         hasMore={otherPosts.length && hasPost}
       >
         {otherPosts.map((post) => (
-          <Card key={post.id} sx={{ width: "60%", marginBottom: "20px" }}>
+          <Card key={post.post_id} sx={{ width: "60%", marginBottom: "20px" }}>
             <CardHeader
               avatar={
                 <Avatar
@@ -184,22 +186,19 @@ const OtherUser = () => {
             />
             <Divider />
 
-            {post.title ? (
+            {post.post_content ? (
               <CardContent>
-                <Typography variant="body2">{post.title}</Typography>
+                <Typography variant="body2">{post.post_content}</Typography>
               </CardContent>
             ) : (
               ""
             )}
 
-            {post.image ? (
-              <CardMedia
-                component="img"
-                height="500px"
-                sx={{
-                  background: `no-repeat center/cover url(${post.image})`,
-                }}
-              />
+            {post.images ? (
+              <GridImg
+                count={post.images.length}
+                images={post.images}
+              ></GridImg>
             ) : (
               ""
             )}
@@ -213,7 +212,7 @@ const OtherUser = () => {
                   width: "50%",
                 }}
               >
-                <IconButton onClick={() => handleClickFavorite(post.id)}>
+                {/* <IconButton onClick={() => handleClickFavorite(post.id)}>
                   <FavoriteIcon
                     sx={{
                       color: post.isLike ? "red" : "gray",
@@ -227,7 +226,12 @@ const OtherUser = () => {
                   onClick={() => handleOpen(post.id, post.totalLike)}
                 >
                   {post.totalLike}
-                </Typography>
+                </Typography> */}
+                <LikePost
+                  post_id={post.post_id}
+                  total_like={post?.total_like}
+                  islike={post.islike}
+                />
               </div>
               <div
                 style={{

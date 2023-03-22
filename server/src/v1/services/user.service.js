@@ -1,10 +1,9 @@
-const pool = require("../../db/connectDB.js");
 const { poolPg } = require("../../db/connection_postgres.js");
 
 const getInfoUser = async (userId) => {
   try {
     const { rows } = await poolPg.query(
-      "SELECT user_id, avatar, first_name, last_name, birthday, gender, city FROM users WHERE user_id = $1",
+      "SELECT user_id, avatar, CONCAT(first_name, ' ', last_name) AS fullname, birthday, gender, city FROM users WHERE user_id = $1",
       [userId]
     );
     // const [rows] = await pool.execute("call get_user(?)", [userId]);
@@ -41,7 +40,41 @@ const updateUser = async (
   }
 };
 
+const getListFollowers = async (userId) => {
+  try {
+    const { rows } = await poolPg.query(
+      "SELECT follower.user_id, avatar, CONCAT(first_name, ' ', last_name) AS fullname FROM users INNER JOIN follower ON users.user_id = follower.user_id WHERE follower.follower_id = $1",
+      [userId]
+    );
+
+    return rows;
+  } catch (error) {
+    return {
+      code: 500,
+      message: error.message,
+    };
+  }
+};
+
+const getListNotFollowers = async (userId) => {
+  try {
+    const { rows } = await poolPg.query(
+      "SELECT user_id, avatar, CONCAT(first_name, ' ', last_name) AS fullname FROM users WHERE user_id != $1 AND user_id NOT IN (SELECT follower.user_id FROM follower WHERE follower.follower_id = $1) LIMIT 2",
+      [userId]
+    );
+
+    return rows;
+  } catch (error) {
+    return {
+      code: 500,
+      message: error.message,
+    };
+  }
+};
+
 module.exports = {
   getInfoUser,
+  getListFollowers,
+  getListNotFollowers,
   updateUser,
 };

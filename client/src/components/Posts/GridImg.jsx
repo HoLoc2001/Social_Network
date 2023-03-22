@@ -1,10 +1,10 @@
 import { ImageGrid } from "react-fb-image-video-grid";
 
-const Image = ({ count, images }) => {
+const GridImg = ({ count, images }) => {
   const pic = (c, i) => {
     return (
       <img
-        style={{ objectFit: "cover" }}
+        style={{ objectFit: "contain" }}
         src={c}
         alt={i}
         key={Math.random(i)}
@@ -27,4 +27,4 @@ const Image = ({ count, images }) => {
   );
 };
 
-export default Image;
+export default GridImg;

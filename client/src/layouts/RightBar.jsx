@@ -44,16 +44,19 @@ const RightBar = () => {
           </Button>
         </div>
         <div style={{ height: "100%" }}>
-          {notFollower.map((follower) => (
+          {notFollower?.map((follower) => (
             <div
-              key={follower.id}
+              key={follower.user_id}
               style={{
                 display: "flex",
                 paddingBottom: "10px",
                 alignItems: "center",
               }}
             >
-              <Link to={`/${follower.id}`} style={{ textDecoration: "none" }}>
+              <Link
+                to={`/${follower.user_id}`}
+                style={{ textDecoration: "none" }}
+              >
                 <Button
                   size="small"
                   style={{
@@ -75,16 +78,19 @@ const RightBar = () => {
       </div>
       <h4>Đang theo dõi</h4>
       <div style={{ height: "70%", overflowY: "scroll" }}>
-        {listFollower.map((follower) => (
+        {listFollower?.map((follower) => (
           <div
-            key={follower.id}
+            key={follower.user_id}
             style={{
               display: "flex",
               paddingBottom: "10px",
               alignItems: "center",
             }}
           >
-            <Link to={`/${follower.id}`} style={{ textDecoration: "none" }}>
+            <Link
+              to={`/${follower.user_id}`}
+              style={{ textDecoration: "none" }}
+            >
               <Button
                 size="small"
                 style={{

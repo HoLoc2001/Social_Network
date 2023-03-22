@@ -16,7 +16,7 @@ import {
   updateUserSocket,
 } from "../redux/postsSlice";
 
-const host = "https://server-social-network-jvbg.onrender.com"; // "http://localhost:5000";
+const host = "http://localhost:5000"; // "http://localhost:5000";https://server-social-network-jvbg.onrender.com
 
 const Home = () => {
   const dispatch = useAppDispatch();
@@ -68,7 +68,7 @@ const Home = () => {
       "notification-LikePost",
       async ({ postId, userId }) => {
         if ("" + user.id !== userId) {
-          await dispatch(getTotalLikePost(postId));
+          // await dispatch(getTotalLikePost(postId));
         }
       }
     );

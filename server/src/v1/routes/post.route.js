@@ -23,16 +23,11 @@ router.post(
   postController.getListPostSearch
 );
 
+router.post("/addPost", verifyToken, postController.addPost);
+
 router.post("/getPostSocket", verifyToken, postController.getPostSocket);
 
 router.post("/addCommentPost", verifyToken, postController.addCommentPost);
-
-router.post(
-  "/addPost",
-  verifyToken,
-  fileUploader.array("file"),
-  postController.addPost
-);
 
 router.patch("/updatePost", verifyToken, postController.updatePost);
 

@@ -20,15 +20,16 @@ import FavoriteIcon from "@mui/icons-material/Favorite";
 import {
   getCommentPost,
   getPosts,
-  postsSelector,
   updateLikePost,
 } from "../../redux/postsSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/store";
+import GridImg from "./GridImg";
 import Comment from "./Comment";
 import { useState } from "react";
 import InfiniteScroll from "../InfiniteScroll";
 import { Link } from "react-router-dom";
 import { getListLike } from "../../redux/userSlice";
+import LikePost from "./LikePost";
 moment.locale("vi");
 
 const Posts = () => {
@@ -57,18 +58,18 @@ const Posts = () => {
     (async () => {
       await dispatch(getPosts(page));
       setHasPost(() => {
-        if (posts.length % 5 === 0) {
+        if (posts.length % 5 === 0 && posts.length >= page) {
           return true;
         }
         return false;
       });
     })();
   }, [page]);
-
   const handleClickFavorite = async (postId) => {
-    await dispatch(updateLikePost(postId));
+    const {
+      payload: { isLike, totalLikes },
+    } = await dispatch(updateLikePost(postId));
   };
-
   const handleClickComment = async (postId) => {
     await dispatch(getCommentPost(postId));
   };
@@ -87,45 +88,56 @@ const Posts = () => {
       >
         {posts.map((post) => (
           <Card
-            key={post.id}
+            key={post.post_id}
             sx={{ width: "60%", marginBottom: "20px", borderRadius: "10px" }}
           >
             <CardHeader
               avatar={
                 <Link
-                  to={post.userId === user?.id ? "/profile" : `/${post.userId}`}
+                  to={
+                    post.user_id === user?.user_id
+                      ? "/profile"
+                      : `/${post.user_id}`
+                  }
+                  onClick={() =>
+                    window.scroll({ top: 0, left: 0, behavior: "smooth" })
+                  }
                 >
                   <Avatar src={post?.avatar} aria-label="recipe" />
                 </Link>
               }
               title={
                 <Link
-                  to={post.userId === user?.id ? "/profile" : `/${post.userId}`}
+                  to={
+                    post.userId === user?.user_id
+                      ? "/profile"
+                      : `/${post.user_id}`
+                  }
                   style={{ color: "black" }}
+                  onClick={() =>
+                    window.scroll({ top: 0, left: 0, behavior: "smooth" })
+                  }
                 >
                   {post.fullname}
                 </Link>
               }
-              subheader={moment(post.createdAt).format("llll")}
+              subheader={moment(post.created_at).format("llll")}
             />
 
             <Divider />
 
-            {post.title ? (
+            {post.post_content ? (
               <CardContent>
-                <Typography variant="body2">{post.title}</Typography>
+                <Typography variant="body2">{post.post_content}</Typography>
               </CardContent>
             ) : (
               ""
             )}
-            {post.image ? (
-              <CardMedia
-                component="img"
-                height="500px"
-                sx={{
-                  background: `no-repeat center/cover url(${post.image})`,
-                }}
-              />
+            {post.images ? (
+              <GridImg
+                count={post.images.length}
+                images={post.images}
+              ></GridImg>
             ) : (
               ""
             )}
@@ -139,10 +151,10 @@ const Posts = () => {
                   width: "50%",
                 }}
               >
-                <IconButton onClick={() => handleClickFavorite(post.id)}>
+                {/* <IconButton onClick={() => handleClickFavorite(post.post_id)}>
                   <FavoriteIcon
                     sx={{
-                      color: post.isLike ? "red" : "gray",
+                      color: post.islike ? "red" : "gray",
                       cursor: "pointer",
                     }}
                   />
@@ -150,10 +162,18 @@ const Posts = () => {
                 <Typography
                   sx={{ cursor: "pointer" }}
                   variant="body2"
-                  onClick={() => handleOpen(post.id, post.totalLike)}
+                  onClick={() => handleOpen(post.id, post.total_like)}
                 >
-                  {post.totalLike}
-                </Typography>
+                  {post.total_like}
+                </Typography> */}
+
+                <LikePost
+                  user_id={user.user_id}
+                  post_id={post.post_id}
+                  total_like={post?.total_like}
+                  list_like={post?.list_like}
+                  islike={post.islike}
+                />
               </div>
               <div
                 style={{
@@ -167,14 +187,14 @@ const Posts = () => {
                   <CommentIcon sx={{ color: "gray" }} />
                 </IconButton>
 
-                <Typography variant="body2">{post.totalComment}</Typography>
+                <Typography variant="body2">{post.total_comment}</Typography>
               </div>
             </CardActions>
             <Comment post={post} avatar={user?.avatar} userId={user?.id} />
           </Card>
         ))}
       </InfiniteScroll>
-      <Modal
+      {/* <Modal
         open={open}
         onClose={handleClose}
         aria-labelledby="modal-modal-title"
@@ -224,7 +244,7 @@ const Posts = () => {
             </div>
           ))}
         </Box>
-      </Modal>
+      </Modal> */}
     </div>
   );
 };
