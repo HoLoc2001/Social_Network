@@ -9,17 +9,16 @@ const validation = require("../utils/validation");
 const refreshToken = async (req, res) => {
   try {
     const { refreshToken } = req.body;
-    const userId = req.userId;
     if (!refreshToken) {
       res.sendStatus(401);
     }
-
-    const token = await authService.getRefreshToken({ refreshToken, userId });
+    const token = await authService.getRefreshToken({ refreshToken });
 
     if (!token) {
       res.sendStatus(403);
     }
 
+    let accessToken, newRefreshToken;
     jwt.verify(
       refreshToken,
       process.env.REFRESH_TOKEN_SECRET,
@@ -28,19 +27,19 @@ const refreshToken = async (req, res) => {
           res.sendStatus(403);
         }
 
-        await authService.updateRefreshToken(userId, refreshToken);
+        accessToken = await signToken.signAccessToken(data.userId);
 
-        const accessToken = signToken.signAccessToken(data.userId);
+        newRefreshToken = await signToken.signRefreshToken(data.userId);
 
-        const newRefreshToken = signToken.signRefreshToken(data.userId);
-
-        authService.updateRefreshToken(userId, newRefreshToken);
-
-        res.json({ accessToken, refreshToken: newRefreshToken });
+        await authService.updateRefreshToken(data.userId, newRefreshToken);
+        res.json({
+          accessToken,
+          refreshToken: newRefreshToken,
+        });
       }
     );
   } catch (error) {
-    console.log(error);
+    console.log(error.message);
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 };

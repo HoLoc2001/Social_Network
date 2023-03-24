@@ -36,7 +36,6 @@ const Posts = () => {
   const dispatch = useAppDispatch();
   const posts = useAppSelector((state) => state.posts.posts);
   const user = useAppSelector((state) => state.user.user);
-  const listLike = useAppSelector((state) => state.user.listLike);
   const [page, setPage] = useState(posts.length);
   const [hasPost, setHasPost] = useState(() => {
     if (posts.length % 5 === 0 && posts.length !== 0) {
@@ -44,15 +43,6 @@ const Posts = () => {
     }
     return false;
   });
-
-  const [open, setOpen] = useState(false);
-  const handleOpen = async (postId, totalLike) => {
-    if (totalLike) {
-      await dispatch(getListLike(postId));
-      setOpen(true);
-    }
-  };
-  const handleClose = () => setOpen(false);
 
   useEffect(() => {
     (async () => {
@@ -65,11 +55,7 @@ const Posts = () => {
       });
     })();
   }, [page]);
-  const handleClickFavorite = async (postId) => {
-    const {
-      payload: { isLike, totalLikes },
-    } = await dispatch(updateLikePost(postId));
-  };
+
   const handleClickComment = async (postId) => {
     await dispatch(getCommentPost(postId));
   };
@@ -109,7 +95,7 @@ const Posts = () => {
               title={
                 <Link
                   to={
-                    post.userId === user?.user_id
+                    post.user_id === user?.user_id
                       ? "/profile"
                       : `/${post.user_id}`
                   }
@@ -151,26 +137,10 @@ const Posts = () => {
                   width: "50%",
                 }}
               >
-                {/* <IconButton onClick={() => handleClickFavorite(post.post_id)}>
-                  <FavoriteIcon
-                    sx={{
-                      color: post.islike ? "red" : "gray",
-                      cursor: "pointer",
-                    }}
-                  />
-                </IconButton>
-                <Typography
-                  sx={{ cursor: "pointer" }}
-                  variant="body2"
-                  onClick={() => handleOpen(post.id, post.total_like)}
-                >
-                  {post.total_like}
-                </Typography> */}
-
                 <LikePost
                   user_id={user.user_id}
                   post_id={post.post_id}
-                  total_like={post?.total_like}
+                  total_like={post?.total_like || 0}
                   list_like={post?.list_like}
                   islike={post.islike}
                 />
@@ -183,14 +153,14 @@ const Posts = () => {
                   width: "50%",
                 }}
               >
-                <IconButton onClick={() => handleClickComment(post.id)}>
+                <IconButton onClick={() => handleClickComment(post.post_id)}>
                   <CommentIcon sx={{ color: "gray" }} />
                 </IconButton>
 
                 <Typography variant="body2">{post.total_comment}</Typography>
               </div>
             </CardActions>
-            <Comment post={post} avatar={user?.avatar} userId={user?.id} />
+            <Comment post={post} avatar={user?.avatar} userId={user?.user_id} />
           </Card>
         ))}
       </InfiniteScroll>

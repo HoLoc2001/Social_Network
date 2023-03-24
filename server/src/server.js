@@ -11,6 +11,7 @@ const postRoute = require("./v1/routes/post.route");
 const authRoute = require("./v1/routes/auth.route");
 const userRoute = require("./v1/routes/user.route");
 require("./db/connection_postgres").instancePG;
+require("./db/connection_redis");
 require("./db/connectDB");
 
 const PORT = process.env.PORT;

@@ -102,18 +102,24 @@ export const getOtherInfo = createAsyncThunk(
   }
 );
 
-export const updateUser = createAsyncThunk("user/updateUser", async (data) => {
-  try {
-    const { avatar, fullname } = data;
-    const res = await axiosPrivate.patch("user/updateUser", {
-      avatar,
-      fullname,
-    });
-    return res.data;
-  } catch (error) {
-    console.log(error);
+export const updateInfoUser = createAsyncThunk(
+  "user/updateInfoUser",
+  async (data) => {
+    try {
+      const { avatar, firstName, lastName, birthday, gender } = data;
+      const res = await axiosPrivate.patch("user/updateInfoUser", {
+        avatar,
+        firstName,
+        lastName,
+        birthday,
+        gender,
+      });
+      return res.data;
+    } catch (error) {
+      console.log(error);
+    }
   }
-});
+);
 
 export const getListFollower = createAsyncThunk(
   "user/getListFollower",
@@ -154,15 +160,35 @@ export const getNotFollower = createAsyncThunk(
 
 export const addFollower = createAsyncThunk(
   "user/addFollower",
-  async (user, { getState }) => {
+  async (userId, { getState }) => {
     try {
       const { listFollower } = getState().user;
-      const res = await axiosPrivate.post("user/addFollower", { user });
+      const res = await axiosPrivate.post("user/addFollower", { userId });
+      // console.log(res);
+      // const data = [...res?.data?.data];
+      return {
+        totalFollowers: res.data.totalFollowers,
+        totalFollowings: res.data.totalFollowings,
+        listFollower: res.data.listFollower,
+      };
+    } catch (error) {
+      console.log(error);
+    }
+  }
+);
+
+export const removeFollower = createAsyncThunk(
+  "user/removeFollower",
+  async (userId, { getState }) => {
+    try {
+      const { listFollower } = getState().user;
+      const res = await axiosPrivate.post("user/removeFollower", { userId });
 
       // const data = [...res?.data?.data];
       return {
-        data: res?.data?.data,
-        totalFollow: res?.data?.totalFollow[0],
+        totalFollowers: res.data.totalFollowers,
+        totalFollowings: res.data.totalFollowings,
+        listFollower: res.data.listFollower,
       };
     } catch (error) {
       console.log(error);
@@ -247,23 +273,29 @@ export const userSlice = createSlice({
       .addCase(refreshToken.fulfilled, (state, action) => {
         state.token = action.payload;
       })
-      .addCase(updateUser.fulfilled, (state, action) => {
-        state.user = action.payload?.user[0];
+      .addCase(updateInfoUser.fulfilled, (state, action) => {
+        state.user = action.payload.InfoUser;
       })
       .addCase(getListFollower.fulfilled, (state, action) => {
         state.listFollower = action?.payload?.listFollower;
       })
       .addCase(getListFollowing.fulfilled, (state, action) => {
-        state.listFollowing = action?.payload?.data;
+        state.listFollowing = action?.payload?.listFollowing;
       })
       .addCase(getNotFollower.fulfilled, (state, action) => {
         state.notFollower = action?.payload?.listNotFollower;
       })
       .addCase(addFollower.fulfilled, (state, action) => {
-        state.listFollower = action?.payload.data;
-        state.user.totalFollowing = action?.payload.totalFollow?.totalFollowing;
-        state.otherUser.totalFollower =
-          action?.payload.totalFollow?.totalFollower;
+        state.otherUser.hasfollower = true;
+        state.listFollower = action?.payload.listFollower;
+        state.user.totalFollowings = action?.payload.totalFollowings;
+        state.otherUser.totalFollowers = action?.payload.totalFollowers;
+      })
+      .addCase(removeFollower.fulfilled, (state, action) => {
+        state.otherUser.hasfollower = false;
+        state.listFollower = action?.payload.listFollower;
+        state.user.totalFollowings = action?.payload.totalFollowings;
+        state.otherUser.totalFollowers = action?.payload.totalFollowers;
       })
       .addCase(getListUserSearch.fulfilled, (state, action) => {
         state.listUserSearch = action?.payload?.data;

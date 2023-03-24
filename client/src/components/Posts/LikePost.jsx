@@ -9,14 +9,13 @@ import {
 import FavoriteIcon from "@mui/icons-material/Favorite";
 import React, { useState } from "react";
 import { updateLikePost } from "../../redux/postsSlice";
-import { getListLike } from "../../redux/userSlice";
+import { getListLike } from "../../redux/postsSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/store";
 import { Link } from "react-router-dom";
 
 const LikePost = ({ user_id, post_id, total_like, list_like, islike }) => {
   const dispatch = useAppDispatch();
-  //   const listLike = useAppSelector((state) => state.user.listLike);
-
+  const listLike = useAppSelector((state) => state.posts.listLike);
   const [open, setOpen] = useState(false);
 
   const handleClickFavorite = async (postId) => {
@@ -69,7 +68,7 @@ const LikePost = ({ user_id, post_id, total_like, list_like, islike }) => {
             borderRadius: "5px",
           }}
         >
-          {list_like?.map((element) => (
+          {listLike?.map((element) => (
             <div
               key={element.user_id}
               style={{

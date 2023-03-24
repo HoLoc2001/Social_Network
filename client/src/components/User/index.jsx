@@ -167,17 +167,6 @@ const User = () => {
     setOpenModal(true);
   };
 
-  const onChangeTitle = (e) => {
-    setTitle(e.target.value);
-  };
-
-  const onChangeUpdateTitle = (e) => {
-    setUpdatePost({
-      ...updatePost,
-      postTitle: e.target.value,
-    });
-  };
-
   const handleClickComment = async (postId) => {
     await dispatch(getCommentPost(postId));
   };
@@ -250,20 +239,20 @@ const User = () => {
               <h5>
                 Người theo dõi:{" "}
                 <span
-                  style={{ cursor: "pointer" }}
+                  style={{ cursor: "pointer", fontWeight: "bold" }}
                   onClick={() => handleOpenFollowing(user.id)}
                 >
-                  {user?.totalFollower}
+                  {user?.totalFollowers}
                 </span>{" "}
                 &emsp;
               </h5>
               <h5>
                 Đang theo dõi:{" "}
                 <span
-                  style={{ cursor: "pointer" }}
+                  style={{ cursor: "pointer", fontWeight: "bold" }}
                   onClick={() => setOpenModalFollower(true)}
                 >
-                  {user?.totalFollowing}
+                  {user?.totalFollowings}
                 </span>
               </h5>
             </div>
@@ -324,7 +313,7 @@ const User = () => {
                     <li>
                       <Button
                         sx={{ width: "150px" }}
-                        onClick={() => handleOpenDelete(post.id)}
+                        onClick={() => handleOpenDelete(post.post_id)}
                       >
                         Xóa
                       </Button>
@@ -372,24 +361,11 @@ const User = () => {
                   width: "50%",
                 }}
               >
-                {/* <IconButton onClick={() => handleClickFavorite(post.id)}>
-                  <FavoriteIcon
-                    sx={{
-                      color: post.isLike ? "red" : "gray",
-                      cursor: "pointer",
-                    }}
-                  />
-                </IconButton>
-                <Typography
-                  sx={{ cursor: "pointer" }}
-                  variant="body2"
-                  onClick={() => handleOpen(post.id, post.totalLike)}
-                >
-                  {post.totalLike}
-                </Typography> */}
                 <LikePost
+                  user_id={user.user_id}
                   post_id={post.post_id}
-                  total_like={post?.total_like}
+                  total_like={post.total_like || 0}
+                  list_like={post?.list_like}
                   islike={post.islike}
                 />
               </div>
@@ -401,13 +377,13 @@ const User = () => {
                   width: "50%",
                 }}
               >
-                <IconButton onClick={() => handleClickComment(post.id)}>
+                <IconButton onClick={() => handleClickComment(post.post_id)}>
                   <CommentIcon sx={{ color: "gray" }} />
                 </IconButton>
-                <Typography variant="body2">{post.totalComment}</Typography>
+                <Typography variant="body2">{post.total_comment}</Typography>
               </div>
             </CardActions>
-            <Comment post={post} avatar={user.avatar} />
+            <Comment post={post} avatar={user.avatar} userId={user.user_id} />
           </Card>
         ))}
       </InfiniteScroll>
@@ -504,102 +480,6 @@ const User = () => {
         </DialogActions>
       </Dialog>
 
-      {/* <Modal
-        // open={openModalUpdate}
-        onClose={handleCloseModal}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-      >
-        <Box
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: "60%",
-            height: "70%",
-            bgcolor: "#AFEEEE",
-            borderRadius: "10px",
-            boxShadow: 24,
-            p: 4,
-          }}
-        >
-          <Typography id="modal-modal-title" variant="h6" component="h2">
-            Bài viết
-          </Typography>
-          <TextareaAutosize
-            maxRows={4}
-            aria-label="maximum height"
-            placeholder="Tiêu đề"
-            value={updatePost?.postTitle}
-            onChange={onChangeUpdateTitle}
-            style={{
-              width: "400px",
-              height: "300px",
-              minWidth: "400px",
-              maxWidth: "400px",
-              maxHeight: "300px",
-              marginBottom: "30px",
-            }}
-          />
-          <Box
-            sx={{
-              width: "300px",
-              height: "300px",
-              border: "1px solid black",
-              borderRadius: "10px",
-              position: "absolute",
-              top: "65px",
-              right: "50px",
-              background: `no-repeat center/cover url(${updatePost?.postImg})`,
-            }}
-          >
-            <Button
-              variant="text"
-              component="label"
-              sx={{
-                width: "100%",
-                height: "100%",
-                display: updatePost?.postImg ? "none" : "inline-flex",
-              }}
-            >
-              <AddAPhotoIcon
-                sx={{
-                  width: "100px",
-                  height: "100px",
-                }}
-              />
-              <input
-                type="file"
-                accept="image/*"
-                hidden
-                onChange={handleUpdateImagePost}
-              />
-            </Button>
-            <button
-              style={{
-                borderRadius: "50%",
-                cursor: "pointer",
-                backgroundColor: "rgba(255, 0, 0, 0.1)",
-                position: "absolute",
-                right: 0,
-              }}
-              onClick={handleCloseUpdateImg}
-              hidden={updatePost?.postImg ? false : true}
-            >
-              x
-            </button>
-          </Box>
-          <Button
-            variant="contained"
-            onClick={handleUpdatePost}
-            sx={{ marginTop: "20px" }}
-          >
-            Sửa bài viết
-          </Button>
-        </Box>
-      </Modal> */}
-
       <Modal
         open={openModalFollower}
         onClose={() => setOpenModalFollower(false)}
@@ -681,7 +561,7 @@ const User = () => {
         >
           {listFollowing?.map((element) => (
             <div
-              key={element.id}
+              key={element.follower_id}
               style={{
                 display: "flex",
                 paddingBottom: "10px",
@@ -689,7 +569,11 @@ const User = () => {
               }}
             >
               <Link
-                to={user.id === element.id ? "/profile" : `/${element.id}`}
+                to={
+                  user.user_id === element.follower_id
+                    ? "/profile"
+                    : `/${element.follower_id}`
+                }
                 style={{ textDecoration: "none" }}
               >
                 <Button

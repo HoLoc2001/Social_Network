@@ -8,20 +8,23 @@ const addRefreshToken = async (userId, refreshToken) => {
   return true;
 };
 
-const getRefreshToken = async ({ userId, refreshToken }) => {
+const getRefreshToken = async ({ refreshToken }) => {
   const { rows } = await poolPg.query(
-    "SELECT refresh_token, user_id FROM refresh_tokens WHERE user_id = $1 AND refresh_token = $2;",
-    [userId, refreshToken]
+    "SELECT refresh_token, user_id FROM refresh_tokens WHERE refresh_token = $1;",
+    [refreshToken]
   );
-  return rows[0];
+  return rows;
 };
 
 const updateRefreshToken = async (userId, refreshToken) => {
-  await poolPg.query(
-    "UPDATE refresh_tokens SET refresh_token = $1 WHERE user_id = $2;",
-    [refreshToken, userId]
-  );
-  return true;
+  try {
+    console.log(userId, refreshToken);
+    await poolPg.query(
+      "UPDATE refresh_tokens SET refresh_token = $1 WHERE user_id = $2;",
+      [refreshToken, userId]
+    );
+    return true;
+  } catch (error) {}
 };
 
 const signIn = async (email) => {

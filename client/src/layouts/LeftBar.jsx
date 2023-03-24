@@ -22,7 +22,7 @@ const LeftBar = () => {
       <Box position="fixed" width="15%" height="100%" sx={{ p: "20px" }}>
         <div
           style={{
-            display: "box",
+            display: "block",
             alignItems: "center",
           }}
         >
@@ -38,7 +38,14 @@ const LeftBar = () => {
               }}
             >
               <HomeIcon fontSize="large" />
-              <p style={{ fontSize: "20px", paddingLeft: "10px" }}>Trang chủ</p>
+              <p
+                style={{
+                  fontSize: "20px",
+                  paddingLeft: "10px",
+                }}
+              >
+                Trang chủ
+              </p>
             </Button>
           </Link>
           <Link to={`/profile`} style={{ textDecoration: "none" }}>

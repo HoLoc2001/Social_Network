@@ -13,23 +13,22 @@ import {
   Typography,
 } from "@mui/material";
 import CommentIcon from "@mui/icons-material/Comment";
-import FavoriteIcon from "@mui/icons-material/Favorite";
 import React from "react";
 import moment from "moment";
 import "moment/locale/vi";
 import { useEffect } from "react";
 import { useAppDispatch, useAppSelector } from "../redux/store";
 import { useState } from "react";
-import {
-  getCommentPost,
-  getOtherPosts,
-  updateLikeMyPost,
-  updateLikePost,
-} from "../redux/postsSlice";
+import { getCommentPost, getOtherPosts } from "../redux/postsSlice";
 import Comment from "../components/Posts/Comment";
 import { json, Link, Navigate, useParams } from "react-router-dom";
 import InfiniteScroll from "../components/InfiniteScroll";
-import { addFollower, getListLike, getOtherInfo } from "../redux/userSlice";
+import {
+  addFollower,
+  getListLike,
+  getOtherInfo,
+  removeFollower,
+} from "../redux/userSlice";
 import GridImg from "./Posts/GridImg";
 import LikePost from "./Posts/LikePost";
 moment.locale("vi");
@@ -40,9 +39,8 @@ const OtherUser = () => {
 
   useEffect(() => {
     (async () => {
-      window.scrollTo(0, 0);
-
       await dispatch(getOtherInfo(params.id));
+      window.scrollTo(0, 0);
     })();
   }, [params.id]);
 
@@ -68,28 +66,18 @@ const OtherUser = () => {
     })();
   }, [page, params.id]);
 
-  const handleOpen = async (postId, totalLike) => {
-    if (totalLike) {
-      await dispatch(getListLike(postId));
-      setOpen(true);
-    }
-  };
   const handleClose = () => setOpen(false);
 
-  let hasFollower = listFollower.find((e) => {
-    return "" + e.id === params.id;
-  });
-
-  if ("" + user.id === params.id) {
+  if (user.user_id === params.id) {
     return <Navigate to="/profile" />;
   }
 
-  const handleClickFavorite = async (postId) => {
-    await dispatch(updateLikePost(postId));
+  const handleAddFollower = async (userId) => {
+    await dispatch(addFollower(userId));
   };
 
-  const handleFollower = async (userId) => {
-    await dispatch(addFollower(userId));
+  const handleRemoveFollower = async (userId) => {
+    await dispatch(removeFollower(userId));
   };
 
   const handleClickComment = async (postId) => {
@@ -127,16 +115,16 @@ const OtherUser = () => {
           }
           subheader={
             <div style={{ display: "flex" }}>
-              <h5>Người theo dõi: {otherUser.totalFollower} &emsp;</h5>
-              <h5>Đang theo dõi: {otherUser.totalFollowing}</h5>
+              <h5>Người theo dõi: {otherUser.totalFollowers} &emsp;</h5>
+              <h5>Đang theo dõi: {otherUser.totalFollowings}</h5>
             </div>
           }
           action={
-            hasFollower ? (
+            otherUser.hasfollower ? (
               <Button
                 variant="contained"
                 sx={{ textTransform: "none", margin: "30px 30px" }}
-                onClick={() => handleFollower(otherUser.id)}
+                onClick={() => handleRemoveFollower(otherUser.user_id)}
               >
                 Hủy theo dõi
               </Button>
@@ -144,7 +132,7 @@ const OtherUser = () => {
               <Button
                 variant="contained"
                 sx={{ textTransform: "none", margin: "30px 30px" }}
-                onClick={() => handleFollower(otherUser.id)}
+                onClick={() => handleAddFollower(otherUser.user_id)}
               >
                 Theo dõi
               </Button>
@@ -182,7 +170,7 @@ const OtherUser = () => {
                   {otherUser.fullname}
                 </Link>
               }
-              subheader={moment(post.createdAt).format("llll")}
+              subheader={moment(post.created_at).format("llll")}
             />
             <Divider />
 
@@ -212,24 +200,11 @@ const OtherUser = () => {
                   width: "50%",
                 }}
               >
-                {/* <IconButton onClick={() => handleClickFavorite(post.id)}>
-                  <FavoriteIcon
-                    sx={{
-                      color: post.isLike ? "red" : "gray",
-                      cursor: "pointer",
-                    }}
-                  />
-                </IconButton>
-                <Typography
-                  sx={{ cursor: "pointer" }}
-                  variant="body2"
-                  onClick={() => handleOpen(post.id, post.totalLike)}
-                >
-                  {post.totalLike}
-                </Typography> */}
                 <LikePost
+                  user_id={user.user_id}
                   post_id={post.post_id}
-                  total_like={post?.total_like}
+                  total_like={post.total_like || 0}
+                  list_like={post?.list_like}
                   islike={post.islike}
                 />
               </div>
@@ -241,13 +216,13 @@ const OtherUser = () => {
                   width: "50%",
                 }}
               >
-                <IconButton onClick={() => handleClickComment(post.id)}>
+                <IconButton onClick={() => handleClickComment(post.post_id)}>
                   <CommentIcon sx={{ color: "gray" }} />
                 </IconButton>
-                <Typography variant="body2">{post.totalComment}</Typography>
+                <Typography variant="body2">{post.total_comment}</Typography>
               </div>
             </CardActions>
-            <Comment post={post} avatar={user.avatar} />
+            <Comment post={post} avatar={user.avatar} userId={user?.user_id} />
           </Card>
         ))}
       </InfiniteScroll>
@@ -272,7 +247,7 @@ const OtherUser = () => {
         >
           {listLike?.map((element) => (
             <div
-              key={element.id}
+              key={element.user_id}
               style={{
                 display: "flex",
                 paddingBottom: "10px",
@@ -280,7 +255,11 @@ const OtherUser = () => {
               }}
             >
               <Link
-                to={user.id === element.id ? "/profile" : `/${element.id}`}
+                to={
+                  user.user_id === element.user_id
+                    ? "/profile"
+                    : `/${element.user_id}`
+                }
                 style={{ textDecoration: "none" }}
               >
                 <Button

@@ -1,7 +1,6 @@
 const express = require("express");
 const postController = require("../controllers/posts.controller.js");
 const verifyToken = require("../middleware/verifyToken.js");
-const fileUploader = require("../configs/cloudinary");
 
 const router = express.Router();
 
@@ -15,8 +14,6 @@ router.post("/getCommentPost", verifyToken, postController.getCommentPost);
 
 router.post("/getTotalComment", verifyToken, postController.getTotalComment);
 
-router.post("/getTotalLikePost", verifyToken, postController.getTotalLikePost);
-
 router.post(
   "/getListPostSearch",
   verifyToken,
@@ -25,15 +22,17 @@ router.post(
 
 router.post("/addPost", verifyToken, postController.addPost);
 
-router.post("/getPostSocket", verifyToken, postController.getPostSocket);
+router.post("/getPost", verifyToken, postController.getPost);
 
 router.post("/addCommentPost", verifyToken, postController.addCommentPost);
+
+router.post("/getCommentPost", verifyToken, postController.getCommentPost);
 
 router.patch("/updatePost", verifyToken, postController.updatePost);
 
 router.patch("/updateComment", verifyToken, postController.updateComment);
 
-router.post("/getUpdatePost", verifyToken, postController.getUpdatePost);
+router.post("/getListLike", verifyToken, postController.getListLikePost);
 
 router.patch("/updateLikePost", verifyToken, postController.updateLikePost);
 

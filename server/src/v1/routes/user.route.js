@@ -8,7 +8,7 @@ router.get("/", verifyToken, userController.getInfo);
 
 router.post("/getOtherInfo", verifyToken, userController.getOtherInfo);
 
-router.patch("/updateUser", verifyToken, userController.updateInfoUser);
+router.patch("/updateInfoUser", verifyToken, userController.updateInfoUser);
 
 router.post("/getListFollower", verifyToken, userController.getListFollower);
 
@@ -25,5 +25,7 @@ router.post("/getListLike", verifyToken, userController.getListLike);
 router.post("/getNotFollower", verifyToken, userController.getNotFollower);
 
 router.post("/addFollower", verifyToken, userController.addFollower);
+
+router.post("/removeFollower", verifyToken, userController.removeFollower);
 
 module.exports = router;

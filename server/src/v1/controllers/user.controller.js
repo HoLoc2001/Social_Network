@@ -3,13 +3,20 @@ const userServices = require("../services/user.service");
 
 const getInfo = async (req, res) => {
   try {
-    const user = await userServices.getInfoUser(req.userId);
+    const userId = req.userId;
+
+    const user = await userServices.getInfoUser(userId);
+    const totalFollowers = await userServices.getTotalFollower(userId);
+    const totalFollowings = await userServices.getTotalFollowing(userId);
     if (!user.user_id) {
       return res
         .status(400)
         .json({ success: false, message: "User not found" });
     }
-    res.json({ success: true, user });
+    res.json({
+      success: true,
+      user: { ...user, totalFollowers, totalFollowings },
+    });
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false, message: "Internal server error" });
@@ -19,13 +26,19 @@ const getInfo = async (req, res) => {
 const getOtherInfo = async (req, res) => {
   try {
     const { userId } = req.body;
-    const user = await userServices.getInfoUser(userId);
+    const ownUserId = req.userId;
+    const user = await userServices.getInfoUser(ownUserId, userId);
+    const totalFollowers = await userServices.getTotalFollower(userId);
+    const totalFollowings = await userServices.getTotalFollowing(userId);
     if (!user.user_id) {
       return res
         .status(400)
         .json({ success: false, message: "User not found" });
     }
-    res.json({ success: true, user });
+    res.json({
+      success: true,
+      user: { ...user, totalFollowers, totalFollowings },
+    });
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false, message: "Internal server error" });
@@ -50,15 +63,19 @@ const updateInfo = async (req, res) => {
 
 const updateInfoUser = async (req, res) => {
   try {
-    const { avatar, fullname } = req.body;
-    const [row] = await pool.execute("call updateUser(?, ?, ?)", [
-      req.userId,
-      fullname,
+    const { avatar, firstName, lastName, birthday, gender } = req.body;
+    const userId = req.userId;
+    const InfoUser = await userServices.updateInfoUser(
+      userId,
       avatar,
-    ]);
-    _io.emit("notification-updateUser", row[0][0]);
+      firstName,
+      lastName,
+      birthday,
+      gender
+    );
+    _io.emit("notification-updateUser", userId);
 
-    res.json({ success: true, user: row[0] });
+    res.json({ success: true, InfoUser });
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false, message: "Internal server error" });
@@ -67,7 +84,7 @@ const updateInfoUser = async (req, res) => {
 
 const getListFollower = async (req, res) => {
   try {
-    const userId = req.userId;
+    const userId = req.body.user_id || req.userId;
     const listFollower = await userServices.getListFollowers(userId);
 
     res.json({ listFollower });
@@ -89,17 +106,47 @@ const getNotFollower = async (req, res) => {
   }
 };
 
-const addFollower = async (req, res) => {
+const updateFollower = async (req, res) => {
   try {
-    const { user } = req.body;
-    const userId = req.userId;
-    const [row] = await pool.execute("call add_follower(?, ?)", [user, userId]);
-    const [rowFollower] = await pool.execute("call get_total_follower(?, ?)", [
-      user,
-      userId,
-    ]);
+    const { userId } = req.body;
+    const ownUserId = req.userId;
+    const hasFollower = await userServices.getUserFollower(ownUserId, userId);
+    if (hasFollower) {
+    }
 
     res.json({ success: true, data: row[0], totalFollow: rowFollower[0] });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+const addFollower = async (req, res) => {
+  try {
+    const { userId } = req.body;
+    const ownUserId = req.userId;
+    await userServices.addFollower(userId, ownUserId);
+    const totalFollowers = await userServices.getTotalFollower(userId);
+    const totalFollowings = await userServices.getTotalFollowing(ownUserId);
+    const listFollower = await userServices.getListFollowers(ownUserId);
+
+    res.json({ totalFollowers, totalFollowings, listFollower });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
+const removeFollower = async (req, res) => {
+  try {
+    const { userId } = req.body;
+    const ownUserId = req.userId;
+    await userServices.removeFollower(userId, ownUserId);
+    const totalFollowers = await userServices.getTotalFollower(userId);
+    const totalFollowings = await userServices.getTotalFollowing(ownUserId);
+    const listFollower = await userServices.getListFollowers(ownUserId);
+
+    res.json({ totalFollowers, totalFollowings, listFollower });
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false, message: "Internal server error" });
@@ -132,10 +179,10 @@ const getListLike = async (req, res) => {
 
 const getListFollowing = async (req, res) => {
   try {
-    const { userId } = req.body;
-    const [row] = await pool.execute("call get_list_following(?)", [userId]);
+    const userId = req.body.user_id || req.userId;
+    const listFollowing = await userServices.getListFollowings(userId);
 
-    res.json({ success: true, data: row[0] });
+    res.json({ listFollowing });
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false, message: "Internal server error" });
@@ -145,12 +192,14 @@ const getListFollowing = async (req, res) => {
 module.exports = {
   getInfo,
   getOtherInfo,
-  updateInfo,
-  updateInfoUser,
   getNotFollower,
-  addFollower,
   getListUserSearch,
   getListLike,
   getListFollower,
   getListFollowing,
+  addFollower,
+  removeFollower,
+  updateFollower,
+  updateInfoUser,
+  updateInfo,
 };

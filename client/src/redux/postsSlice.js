@@ -16,7 +16,8 @@ export const addPost = createAsyncThunk(
   async ({ content, urlImages }, { getState }) => {
     const { myPosts } = getState().posts;
     const res = await axiosPrivate.post(`post/addPost`, { content, urlImages });
-    const resData = [...res.data.post, ...myPosts];
+    const resData = [res.data.post, ...myPosts];
+
     return resData;
   }
 );
@@ -77,7 +78,7 @@ export const getOtherPosts = createAsyncThunk(
 export const getCommentPost = createAsyncThunk(
   "posts/getCommentPost",
   async (postId) => {
-    const res = await axiosPrivate.post("getCommentPost", { postId });
+    const res = await axiosPrivate.post("post/getCommentPost", { postId });
     return res.data;
   }
 );
@@ -93,11 +94,11 @@ export const getCommentPostSocket = createAsyncThunk(
 export const addCommentPost = createAsyncThunk(
   "posts/addCommentPost",
   async (data) => {
-    const res = await axiosPrivate.post("addCommentPost", {
+    const res = await axiosPrivate.post("post/addCommentPost", {
       postId: data.postId,
       content: data.content,
     });
-    return res.data.data[0];
+    return res.data;
   }
 );
 
@@ -106,6 +107,18 @@ export const getListPostSearch = createAsyncThunk(
   async (data) => {
     try {
       const res = await axiosPrivate.post("getListPostSearch", { data });
+      return res.data;
+    } catch (error) {
+      console.log(error);
+    }
+  }
+);
+
+export const getListLike = createAsyncThunk(
+  "posts/getListLike",
+  async (postId) => {
+    try {
+      const res = await axiosPrivate.post("post/getListLike", { postId });
       return res.data;
     } catch (error) {
       console.log(error);
@@ -133,7 +146,7 @@ export const getTotalComment = createAsyncThunk(
   "posts/getTotalComment",
   async (postId) => {
     try {
-      const res = await axiosPrivate.post("getTotalComment", {
+      const res = await axiosPrivate.post("post/getTotalComment", {
         postId,
       });
       return res.data;
@@ -161,10 +174,10 @@ export const getUpdatePost = createAsyncThunk(
   "posts/getUpdatePost",
   async (postId) => {
     try {
-      const res = await axiosPrivate.post("getUpdatePost", {
+      const res = await axiosPrivate.post("post/getPost", {
         postId,
       });
-      return res.data;
+      return res.data.post;
     } catch (error) {
       console.log(error);
     }
@@ -175,12 +188,16 @@ export const deletePost = createAsyncThunk(
   "posts/deletePost",
   async (postId, { getState }) => {
     try {
-      const { myPosts } = getState().posts;
-      const res = await axiosPrivate.post("deletePost", { postId });
-      const data = myPosts.filter((post) => {
-        return post.id !== res.data.data[0].postId;
+      const { myPosts, posts } = getState().posts;
+      const res = await axiosPrivate.post("post/deletePost", { postId });
+      const updatedMyPosts = myPosts.filter((post) => {
+        return post.post_id !== res.data.postId;
       });
-      return data;
+      const updatedPosts = posts.filter((post) => {
+        return post.post_id !== res.data.postId;
+      });
+
+      return { updatedMyPosts, updatedPosts };
     } catch (error) {
       console.log(error);
     }
@@ -191,7 +208,7 @@ export const deleteComment = createAsyncThunk(
   "posts/deleteComment",
   async ({ commentId, postId }) => {
     try {
-      const res = await axiosPrivate.post("deleteComment", {
+      const res = await axiosPrivate.post("post/deleteComment", {
         commentId,
         postId,
       });
@@ -206,28 +223,26 @@ export const updateComment = createAsyncThunk(
   "posts/updateComment",
   async ({ commentId, content, postId }) => {
     try {
-      const res = await axiosPrivate.patch("updateComment", {
+      const res = await axiosPrivate.patch("post/updateComment", {
         commentId,
         content,
         postId,
       });
-      return res;
+      return res.data;
     } catch (error) {
       console.log(error);
     }
   }
 );
 
-export const getPostSocket = createAsyncThunk(
-  "posts/getPostSocket",
-  async (data, { getState }) => {
+export const getPost = createAsyncThunk(
+  "posts/getPost",
+  async ({ postId, userId }, { getState }) => {
     try {
       const { listFollower } = getState().user;
-      const { postId, userId } = data;
-
-      const res = await axiosPrivate.post("getPostSocket", { postId });
-      let hasFollow = listFollower.some((e) => e.id == userId);
-      return { post: res.data.data[0], hasFollow };
+      const res = await axiosPrivate.post("post/getPost", { postId });
+      let hasFollow = listFollower.some((e) => e.user_id == userId);
+      return { post: res.data.post, hasFollow };
     } catch (error) {
       console.log(error);
     }
@@ -256,6 +271,7 @@ export const postsSlice = createSlice({
     myPosts: [],
     listPostSearch: [],
     urlImages: [],
+    listLike: [],
   },
   extraReducers: (builder) => {
     builder
@@ -263,6 +279,7 @@ export const postsSlice = createSlice({
         state.posts = action?.payload;
       })
       .addCase(addPost.fulfilled, (state, action) => {
+        console.log(action?.payload);
         state.myPosts = action?.payload;
       })
       .addCase(getMyPosts.fulfilled, (state, action) => {
@@ -317,55 +334,55 @@ export const postsSlice = createSlice({
       })
       .addCase(getCommentPost.fulfilled, (state, action) => {
         state.posts?.forEach((e) => {
-          if (e.id === action.payload?.data[0].postId) {
-            return (e.comments = action.payload?.data);
+          if (e.post_id === action.payload?.comments[0].post_id) {
+            return (e.comments = action.payload?.comments);
           }
         });
         state.myPosts?.forEach((e) => {
-          if (e.id === action.payload?.data[0]?.postId) {
-            return (e.comments = action.payload?.data);
+          if (e.post_id === action.payload?.comments[0]?.post_id) {
+            return (e.comments = action.payload?.comments);
           }
         });
         state.otherPosts?.forEach((e) => {
-          if (e.id === action.payload?.data[0]?.postId) {
-            return (e.comments = action.payload?.data);
+          if (e.post_id === action.payload?.comments[0]?.post_id) {
+            return (e.comments = action.payload?.comments);
           }
         });
         state.listPostSearch?.forEach((e) => {
-          if (e.id === action.payload?.data[0]?.postId) {
-            return (e.comments = action.payload?.data);
+          if (e.post_id === action.payload?.comments[0]?.post_id) {
+            return (e.comments = action.payload?.comments);
           }
         });
       })
       .addCase(addCommentPost.fulfilled, (state, action) => {
         state.posts.forEach((e) => {
-          if (e.id === action.payload?.postId) {
+          if (e.post_id === action.payload?.postId) {
             return (
-              (e.totalComment = action.payload?.totalComment),
+              (e.total_comment = action.payload?.totalComments),
               (e.comment = action.payload?.content)
             );
           }
         });
         state.myPosts.forEach((e) => {
-          if (e.id === action.payload?.postId) {
+          if (e.post_id === action.payload?.postId) {
             return (
-              (e.totalComment = action.payload?.totalComment),
+              (e.total_comment = action.payload?.totalComments),
               (e.comment = action.payload?.content)
             );
           }
         });
         state.otherPosts.forEach((e) => {
-          if (e.id === action.payload?.postId) {
+          if (e.post_id === action.payload?.postId) {
             return (
-              (e.totalComment = action.payload?.totalComment),
+              (e.total_comment = action.payload?.totalComments),
               (e.comment = action.payload?.content)
             );
           }
         });
         state.listPostSearch.forEach((e) => {
-          if (e.id === action.payload?.postId) {
+          if (e.post_id === action.payload?.postId) {
             return (
-              (e.totalComment = action.payload?.totalComment),
+              (e.total_comment = action.payload?.totalComments),
               (e.comment = action.payload?.content)
             );
           }
@@ -376,36 +393,37 @@ export const postsSlice = createSlice({
       })
       .addCase(updatePost.fulfilled, (state, action) => {
         state.myPosts.forEach((e) => {
-          if (e.id === action.payload?.id) {
+          if (e.post_id === action.payload?.post_id) {
             return (
-              (e.title = action.payload?.title),
-              (e.image = action.payload?.image)
+              (e.post_content = action.payload?.post_content),
+              (e.images = action.payload?.images)
             );
           }
         });
       })
       .addCase(deletePost.fulfilled, (state, action) => {
-        state.myPosts = action?.payload;
+        state.myPosts = action?.payload.updatedMyPosts;
+        state.posts = action?.payload.updatedPosts;
       })
       .addCase(getTotalComment.fulfilled, (state, action) => {
         state.myPosts.forEach((e) => {
-          if (e.id === action.payload?.postId) {
-            return (e.totalComment = action.payload?.data[0].totalComment);
+          if (e.post_id === action.payload?.postId) {
+            return (e.total_comment = action.payload?.totalComments);
           }
         });
         state.posts.forEach((e) => {
-          if (e.id === action.payload?.postId) {
-            return (e.totalComment = action.payload?.data[0].totalComment);
+          if (e.post_id === action.payload?.postId) {
+            return (e.total_comment = action.payload?.totalComments);
           }
         });
         state.otherPosts.forEach((e) => {
-          if (e.id === action.payload?.postId) {
-            return (e.totalComment = action.payload?.data[0].totalComment);
+          if (e.post_id === action.payload?.postId) {
+            return (e.total_comment = action.payload?.totalComments);
           }
         });
         state.listPostSearch.forEach((e) => {
-          if (e.id === action.payload?.postId) {
-            return (e.totalComment = action.payload?.data[0].totalComment);
+          if (e.post_id === action.payload?.postId) {
+            return (e.total_comment = action.payload?.totalComments);
           }
         });
       })
@@ -433,39 +451,39 @@ export const postsSlice = createSlice({
       })
       .addCase(getUpdatePost.fulfilled, (state, action) => {
         state.myPosts.forEach((e) => {
-          if (e.id === action.payload?.postId) {
+          if (e.post_id === action.payload?.post_id) {
             return (
-              (e.title = action.payload?.data[0].title),
-              (e.image = action.payload?.data[0].image)
+              (e.post_content = action.payload?.post_content),
+              (e.images = action.payload?.images)
             );
           }
         });
         state.posts.forEach((e) => {
-          if (e.id === action.payload?.postId) {
+          if (e.post_id === action.payload?.post_id) {
             return (
-              (e.title = action.payload?.data[0].title),
-              (e.image = action.payload?.data[0].image)
+              (e.post_content = action.payload?.post_content),
+              (e.images = action.payload?.images)
             );
           }
         });
         state.otherPosts.forEach((e) => {
-          if (e.id === action.payload?.postId) {
+          if (e.post_id === action.payload?.post_id) {
             return (
-              (e.title = action.payload?.data[0].title),
-              (e.image = action.payload?.data[0].image)
+              (e.post_content = action.payload?.post_content),
+              (e.images = action.payload?.images)
             );
           }
         });
         state.listPostSearch.forEach((e) => {
-          if (e.id === action.payload?.postId) {
+          if (e.post_id === action.payload?.post_id) {
             return (
-              (e.title = action.payload?.data[0].title),
-              (e.image = action.payload?.data[0].image)
+              (e.post_content = action.payload?.post_content),
+              (e.images = action.payload?.images)
             );
           }
         });
       })
-      .addCase(getPostSocket.fulfilled, (state, action) => {
+      .addCase(getPost.fulfilled, (state, action) => {
         if (action.payload.hasFollow) {
           state.posts.push(action.payload.post);
         }
@@ -510,6 +528,10 @@ export const postsSlice = createSlice({
       })
       .addCase(addImgCloudinary.fulfilled, (state, action) => {
         state.urlImages = action.payload;
+      })
+      .addCase(getListLike.fulfilled, (state, action) => {
+        console.log(action.payload);
+        state.listLike = action.payload.listLike;
       });
   },
 });

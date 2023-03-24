@@ -19,7 +19,7 @@ const addPost = async (req, res) => {
     const post = await postService.addPost(userId, content, urlImages);
 
     _io.emit("notification-addPost", {
-      postId: post,
+      postId: post.post_id,
       userId,
     });
 
@@ -44,7 +44,7 @@ const updatePost = async (req, res) => {
       urlImages
     );
 
-    _io.emit("notification-UpdatePost", { postId });
+    _io.emit("notification-UpdatePost", { userId, postId });
     res.status(200).json({ post });
   } catch (error) {
     res.json(error);
@@ -103,8 +103,8 @@ const updateLikePost = async (req, res) => {
 const getCommentPost = async (req, res) => {
   try {
     const { postId } = req.body;
-    const [row] = await pool.execute("call get_comment_post(?)", [postId]);
-    res.status(200).json({ data: row[0] });
+    const comments = await postService.getCommentPost(postId);
+    res.status(200).json({ comments });
   } catch (error) {
     console.log(error);
     res.json(error);
@@ -115,13 +115,11 @@ const addCommentPost = async (req, res) => {
   try {
     const { postId, content } = req.body;
     const userId = req.userId;
-    const [row] = await pool.execute("call add_comment_post(?, ?, ?)", [
-      postId,
-      userId,
-      content,
-    ]);
+    const commentId = await postService.addCommentPost(postId, userId, content);
+    const totalComments = await postService.updateIncrTotalComment(postId);
+
     _io.emit("notification-CommentPost", { postId, userId: req.userId });
-    res.status(200).json({ data: row[0] });
+    res.status(200).json({ commentId, totalComments, postId, content });
   } catch (error) {
     console.log(error);
     res.json(error);
@@ -146,11 +144,12 @@ const getListPostSearch = async (req, res) => {
 const deletePost = async (req, res) => {
   try {
     const { postId } = req.body;
-    const [row] = await pool.execute("call delete_post(?, ?)", [
-      postId,
-      req.userId,
-    ]);
-    res.json({ success: true, data: row[0] });
+    const userId = req.userId;
+
+    await postService.deleteComments(postId, userId);
+    const data = await postService.deletePost(postId, userId);
+    console.log(data);
+    res.json({ success: true, postId: data });
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false, message: "Internal server error" });
@@ -160,19 +159,8 @@ const deletePost = async (req, res) => {
 const getTotalComment = async (req, res) => {
   try {
     const { postId } = req.body;
-    const [row] = await pool.execute("call get_total_comments(?)", [postId]);
-    res.json({ success: true, data: row[0], postId });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ success: false, message: "Internal server error" });
-  }
-};
-
-const getTotalLikePost = async (req, res) => {
-  try {
-    const { postId } = req.body;
-    const [row] = await pool.execute("call get_total_like(?)", [postId]);
-    res.json({ success: true, data: row[0], postId });
+    const totalComments = await postService.getTotalComment(postId);
+    res.json({ totalComments, postId });
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false, message: "Internal server error" });
@@ -182,34 +170,20 @@ const getTotalLikePost = async (req, res) => {
 const getListLikePost = async (req, res) => {
   try {
     const { postId } = req.body;
-    const [row] = await pool.execute("call get_total_like(?)", [postId]);
-    res.json({ success: true, data: row[0], postId });
+    const listLike = await postService.getListLike(postId);
+    res.json({ listLike });
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
-const getUpdatePost = async (req, res) => {
-  try {
-    const { postId } = req.body;
-    const [row] = await pool.execute("call get_update_like(?)", [postId]);
-    res.json({ success: true, data: row[0], postId });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ success: false, message: "Internal server error" });
-  }
-};
-
-const getPostSocket = async (req, res) => {
+const getPost = async (req, res) => {
   try {
     const { postId } = req.body;
     const userId = req.userId;
-    const [row] = await pool.execute("call get_post_socket(?,?)", [
-      postId,
-      userId,
-    ]);
-    res.json({ success: true, data: row[0] });
+    const post = await postService.getPost(userId, postId);
+    res.json({ post });
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false, message: "Internal server error" });
@@ -220,12 +194,16 @@ const deleteComment = async (req, res) => {
   try {
     const { commentId, postId } = req.body;
     const userId = req.userId;
-    const [row] = await pool.execute("call delete_comment_post(?,?)", [
+    const { post_id, comment_id } = await postService.deleteComment(
       commentId,
       postId,
-    ]);
+      userId
+    );
+    await postService.updateDecrTotalComment(postId);
+
     _io.emit("notification-DeleteCommentPost", { postId, userId, commentId });
-    res.json({ success: true, data: row[0] });
+
+    res.json({ post_id, comment_id });
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false, message: "Internal server error" });
@@ -235,15 +213,12 @@ const deleteComment = async (req, res) => {
 const updateComment = async (req, res) => {
   try {
     const { commentId, content, postId } = req.body;
+    console.log(commentId, content, postId);
     const userId = req.userId;
-    await pool.execute("call update_comment(?,?,?)", [
-      userId,
-      commentId,
-      content,
-    ]);
+    await postService.updateComment(commentId, content, userId);
     _io.emit("notification-UpdateCommentPost", { postId });
-    s;
-    res.json({ success: true });
+
+    res.json({ commentId, content, postId });
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false, message: "Internal server error" });
@@ -259,9 +234,8 @@ module.exports = {
   getCommentPost,
   getListPostSearch,
   getTotalComment,
-  getTotalLikePost,
-  getUpdatePost,
-  getPostSocket,
+  getListLikePost,
+  getPost,
   updatePost,
   updateLikePost,
   updateComment,

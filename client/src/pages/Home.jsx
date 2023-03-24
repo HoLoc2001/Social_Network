@@ -9,7 +9,7 @@ import socketIOClient from "socket.io-client";
 import {
   deleteComment,
   getCommentPost,
-  getPostSocket,
+  getPost,
   getTotalComment,
   getTotalLikePost,
   getUpdatePost,
@@ -50,7 +50,7 @@ const Home = () => {
     socketRef.current?.on(
       "notification-DeleteCommentPost",
       async ({ postId, userId, commentId }) => {
-        if ("" + user.id !== userId) {
+        if ("" + user.user_id !== userId) {
           await dispatch(getTotalComment(postId));
           await dispatch(getCommentPost(postId));
         }
@@ -76,7 +76,7 @@ const Home = () => {
     socketRef.current?.on(
       "notification-UpdatePost",
       async ({ postId, userId }) => {
-        if ("" + user.id !== userId) {
+        if (user.user_id !== userId) {
           await dispatch(getUpdatePost(postId));
         }
       }
@@ -85,8 +85,8 @@ const Home = () => {
     socketRef.current?.on(
       "notification-addPost",
       async ({ postId, userId }) => {
-        if ("" + user.id !== userId) {
-          await dispatch(getPostSocket({ postId, userId }));
+        if ("" + user.user_id !== userId) {
+          await dispatch(getPost({ postId, userId }));
         }
       }
     );

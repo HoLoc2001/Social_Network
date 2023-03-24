@@ -17,7 +17,7 @@ axiosPrivate.interceptors.request.use(
     if (!!accessToken && accessToken !== "undefined") {
       const decodedToken = jwt_decode(accessToken);
       if (decodedToken.exp * 1000 < currentDate.getTime()) {
-        const res = await axiosPublic.post("refreshToken", {
+        const res = await axiosPublic.post("auth/refreshToken", {
           refreshToken: localStorage["RT"],
         });
         localStorage.setItem("AT", res.data.accessToken);

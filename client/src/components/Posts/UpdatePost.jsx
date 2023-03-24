@@ -35,17 +35,18 @@ const UpdatePost = ({ openUpdatePost, setOpenUpdatePost, updatePostForm }) => {
 
   const handleUpdatePost = async () => {
     try {
-      // const urlImages = [];
       const { payload } = await dispatch(addImgCloudinary(postForm));
       payload.urlImages.forEach((image) => {
         urlImages.push(image.path);
       });
-
+      urlImages = [...postForm.urlImages, ...urlImages];
+      var url = [...urlImages];
+      console.log(url === urlImages);
       await dispatch(
         updatePost({
           postId: postForm.postId,
           content: postForm.content,
-          urlImages,
+          urlImages: url,
         })
       );
       await handleCloseModal();
@@ -57,7 +58,7 @@ const UpdatePost = ({ openUpdatePost, setOpenUpdatePost, updatePostForm }) => {
   const handleFileUpload = async (e) => {
     try {
       let uploadData = new FormData();
-      urlImages = [...postForm.urlImages];
+      // urlImages = [...postForm.urlImages];
       if (e.target.files.length < 100) {
         for (let i = 0; i < e.target.files.length; i++) {
           uploadData.append("file", e.target.files[i], "file");

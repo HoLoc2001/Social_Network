@@ -32,12 +32,11 @@ const Comment = ({ post, avatar, userId }) => {
   const [openDeleteComment, setOpenDeleteComment] = useState(false);
   const [openUpdateComment, setOpenUpdateComment] = useState(false);
   const [commentId, setCommentId] = useState("");
-
   let atProfile = window.location.href.slice(-7) === "profile";
-  const postId = post?.id;
+  const postId = post?.post_id;
   const dispatch = useAppDispatch();
   const comments = post?.comments;
-  const totalComment = post?.totalComment;
+  const totalComment = post?.total_comment;
   useEffect(() => {
     async function load() {
       // await dispatch(getCommentPost(postId));
@@ -74,7 +73,7 @@ const Comment = ({ post, avatar, userId }) => {
 
   const handleDeleteCommentPost = async () => {
     await dispatch(deleteComment({ commentId, postId }));
-    await dispatch(getCommentPost(postId));
+    // await dispatch(getCommentPost(postId));
 
     setOpenDeleteComment(false);
   };
@@ -144,18 +143,22 @@ const Comment = ({ post, avatar, userId }) => {
               comments?.map((comment) => {
                 return (
                   <div
-                    key={comment.commentId}
+                    key={comment.comment_id}
                     style={{
                       display: "flex",
                       marginBottom: "10px",
                     }}
                   >
                     <Link
-                      to={userId === comment.id ? "/profile" : `/${comment.id}`}
+                      to={
+                        userId === comment.user_id
+                          ? "/profile"
+                          : `/${comment.user_id}`
+                      }
                       onClick={() => handleClickUser()}
                     >
                       <Avatar
-                        src={comment.avatar}
+                        src={comment?.avatar}
                         aria-label="recipe"
                         sx={{ width: "28px", height: "28px" }}
                       />
@@ -171,17 +174,24 @@ const Comment = ({ post, avatar, userId }) => {
                     >
                       <Link
                         to={
-                          userId === comment.id ? "/profile" : `/${comment.id}`
+                          userId === comment.user_id
+                            ? "/profile"
+                            : `/${comment.user_id}`
                         }
                         style={{ color: "black" }}
                         onClick={() => handleClickUser()}
                       >
                         <Typography variant="i">{comment.fullname}</Typography>
                       </Link>
-                      <Typography variant="body2">{comment.content}</Typography>
+                      <Typography variant="body2">
+                        {comment.comment_content}
+                      </Typography>
                     </div>
-                    {atProfile || comment.userId == userId ? (
-                      <div className="mui-dropdown mui-dropdown--bottom">
+                    {atProfile || comment.user_id == userId ? (
+                      <div
+                        className="mui-dropdown mui-dropdown--bottom"
+                        // style={{ zIndex: "1" }}
+                      >
                         <IconButton
                           aria-label="settings"
                           data-mui-toggle="dropdown"
@@ -192,13 +202,13 @@ const Comment = ({ post, avatar, userId }) => {
                           className="mui-dropdown__menu"
                           style={{ textAlign: "center" }}
                         >
-                          {comment.userId == userId ? (
+                          {comment.user_id === userId ? (
                             <li>
                               <Link
                                 onClick={() =>
                                   handleUpdateComment(
-                                    comment.commentId,
-                                    comment.content
+                                    comment.comment_id,
+                                    comment.comment_content
                                   )
                                 }
                               >
@@ -211,7 +221,7 @@ const Comment = ({ post, avatar, userId }) => {
                           <li>
                             <Link
                               onClick={() =>
-                                handleDeleteComment(comment.commentId)
+                                handleDeleteComment(comment.comment_id)
                               }
                             >
                               Xóa
