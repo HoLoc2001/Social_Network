@@ -22,6 +22,10 @@ const UpdatePost = ({ openUpdatePost, setOpenUpdatePost, updatePostForm }) => {
     images: new FormData(),
     urlImages: [],
   });
+  const [loadingUpdatePost, setLoadingUpdatePost] = useState({
+    content: "Sửa bài viết",
+    loading: false,
+  });
 
   useEffect(() => {
     setOpenUpdatePost(openUpdatePost);
@@ -35,11 +39,15 @@ const UpdatePost = ({ openUpdatePost, setOpenUpdatePost, updatePostForm }) => {
 
   const handleUpdatePost = async () => {
     try {
+      setLoadingUpdatePost({
+        content: "Đang sửa bài viết ...",
+        loading: true,
+      });
       const { payload } = await dispatch(addImgCloudinary(postForm));
       payload.urlImages.forEach((image) => {
         urlImages.push(image.path);
       });
-      urlImages = [...postForm.urlImages, ...urlImages];
+      urlImages = [...postForm.urlImages];
       var url = [...urlImages];
       console.log(url === urlImages);
       await dispatch(
@@ -50,6 +58,11 @@ const UpdatePost = ({ openUpdatePost, setOpenUpdatePost, updatePostForm }) => {
         })
       );
       await handleCloseModal();
+      window.location.reload(false);
+      setLoadingUpdatePost({
+        content: "Sửa bài viết",
+        loading: false,
+      });
     } catch (error) {
       console.log(error);
     }
@@ -188,8 +201,9 @@ const UpdatePost = ({ openUpdatePost, setOpenUpdatePost, updatePostForm }) => {
             onClick={handleUpdatePost}
             width="100%"
             sx={{ marginTop: "20px" }}
+            disabled={loadingUpdatePost.loading}
           >
-            Sửa bài viết
+            {loadingUpdatePost.content}
           </Button>
         </div>
       </Box>

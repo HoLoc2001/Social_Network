@@ -11,7 +11,6 @@ class Validation {
       firstName: Joi.string().required(),
       lastName: Joi.string().required(),
       gender: Joi.valid("M", "F").required(),
-      city: Joi.string(),
     });
 
     return signUpSchema.validate(data);

@@ -55,7 +55,6 @@ const SignIn = () => {
       return setErrMissInput(true);
     }
     await dispatch(signin(signinForm));
-    console.log(isSuccessAuth);
     if (!isSuccessAuth) {
       setErrSignIn(true);
     }

@@ -29,7 +29,6 @@ const SignUp = () => {
     lastName: "",
     password: "",
     gender: "M",
-    city: "Can tho",
     repeat_password: "",
     birthday: "",
   });
@@ -42,7 +41,6 @@ const SignUp = () => {
     lastName,
     birthday,
     gender,
-    city,
     password,
     repeat_password,
   } = signUpForm;

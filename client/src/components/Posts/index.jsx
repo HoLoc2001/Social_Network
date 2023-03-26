@@ -15,8 +15,9 @@ import {
   Modal,
   Button,
 } from "@mui/material";
+import AddIcon from "@mui/icons-material/Add";
+
 import CommentIcon from "@mui/icons-material/Comment";
-import FavoriteIcon from "@mui/icons-material/Favorite";
 import {
   getCommentPost,
   getPosts,
@@ -30,6 +31,7 @@ import InfiniteScroll from "../InfiniteScroll";
 import { Link } from "react-router-dom";
 import { getListLike } from "../../redux/userSlice";
 import LikePost from "./LikePost";
+import AddPost from "./AddPost";
 moment.locale("vi");
 
 const Posts = () => {
@@ -37,6 +39,8 @@ const Posts = () => {
   const posts = useAppSelector((state) => state.posts.posts);
   const user = useAppSelector((state) => state.user.user);
   const [page, setPage] = useState(posts.length);
+  const [openModal, setOpenModal] = useState(false);
+
   const [hasPost, setHasPost] = useState(() => {
     if (posts.length % 5 === 0 && posts.length !== 0) {
       return true;
@@ -58,6 +62,10 @@ const Posts = () => {
 
   const handleClickComment = async (postId) => {
     await dispatch(getCommentPost(postId));
+  };
+
+  const handleOpenModal = () => {
+    setOpenModal(true);
   };
 
   return (
@@ -164,6 +172,24 @@ const Posts = () => {
           </Card>
         ))}
       </InfiniteScroll>
+      <Button
+        variant="contained"
+        component="label"
+        sx={{
+          width: "70px",
+          height: "70px",
+          position: "fixed",
+          right: "20px",
+          bottom: "5px",
+          borderRadius: "50%",
+          zIndex: "3",
+        }}
+        onClick={handleOpenModal}
+      >
+        <AddIcon />
+      </Button>
+      <AddPost openAddPost={openModal} setOpenAddPost={setOpenModal} />
+
       {/* <Modal
         open={open}
         onClose={handleClose}

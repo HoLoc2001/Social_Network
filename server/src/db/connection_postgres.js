@@ -5,11 +5,13 @@ const { Pool } = require("pg");
 process.env.TZ = "Asia/Ho_Chi_Minh";
 
 const poolPg = new Pool({
-  host: process.env.DB_PG_HOST,
-  database: process.env.DB_PG_NAME,
-  port: process.env.DB_PG_PORT,
-  user: process.env.DB_PG_USERNAME,
-  password: process.env.DB_PG_PASSWORD,
+  connectionString: process.env.DB_PG_HOST_URL,
+  // host: process.env.DB_PG_HOST,
+  // database: process.env.DB_PG_NAME,
+  // port: process.env.DB_PG_PORT,
+  // user: process.env.DB_PG_USERNAME,
+  // password: process.env.DB_PG_PASSWORD,
+  // ssl: true,
   max: 20,
 });
 
@@ -25,7 +27,7 @@ class Database {
   connect() {
     poolPg.connect((err, client, release) => {
       if (err) {
-        console.log(err);
+        console.log(err.message);
       } else {
         console.log(`Connected to the database postgres`);
       }

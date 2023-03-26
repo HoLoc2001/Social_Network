@@ -19,7 +19,7 @@ const getUserPosts = async (userId, ownUserId, page) => {
 const getPosts = async (userId, page) => {
   try {
     const { rows } = await poolPg.query(
-      `SELECT DISTINCT posts.*, ARRAY_LENGTH("list_like",1) as total_like , CONCAT(users.first_name, ' ', users.last_name) AS fullname, users.avatar, ('${userId}' = ANY(list_like)) as isLike FROM (SELECT follower.user_id FROM follower WHERE follower.follower_id = $1) as followers ` +
+      `SELECT DISTINCT posts.*, CONCAT(users.first_name, ' ', users.last_name) AS fullname, users.avatar FROM (SELECT follower.user_id FROM follower WHERE follower.follower_id = $1) as followers ` +
         "INNER JOIN posts ON followers.user_id = posts.user_id or posts.user_id = $1 INNER JOIN users ON posts.user_id = users.user_id ORDER BY posts.created_at DESC LIMIT 5 OFFSET $2",
       [userId, page]
     );
@@ -48,12 +48,12 @@ const getPost = async (userId, postId) => {
   }
 };
 
-const getListLike = async (postId) => {
+const getListLike = async (listUser) => {
   try {
+    console.log(listUser);
     const { rows } = await poolPg.query(
-      "SELECT users.user_id, CONCAT(users.first_name, ' ', users.last_name) AS fullname, users.avatar FROM users " +
-        "INNER JOIN posts ON users.user_id = ANY(posts.list_like) WHERE posts.post_id = $1",
-      [postId]
+      "SELECT user_id, CONCAT(first_name, ' ', last_name) AS fullname, avatar FROM users WHERE user_id = ANY($1)",
+      [listUser]
     );
     return rows;
   } catch (error) {

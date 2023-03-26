@@ -293,7 +293,7 @@ export const postsSlice = createSlice({
           if (e.post_id === action.payload?.postId) {
             return (
               (e.total_like = action.payload?.totalLikes),
-              (e.islike = action.payload?.isLike)
+              (e.islike = action.payload?.islike)
             );
           }
         });

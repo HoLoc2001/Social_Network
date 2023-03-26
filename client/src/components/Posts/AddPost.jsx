@@ -21,6 +21,10 @@ const AddPost = ({ openAddPost, setOpenAddPost }) => {
     images: new FormData(),
     urlImages: [],
   });
+  const [loadingAddPost, setLoadingAddPost] = useState({
+    content: "Đăng bài",
+    loading: false,
+  });
 
   useEffect(() => {
     setOpenAddPost(openAddPost);
@@ -28,6 +32,10 @@ const AddPost = ({ openAddPost, setOpenAddPost }) => {
 
   const handleAddPost = async () => {
     try {
+      setLoadingAddPost({
+        content: "Đang đăng ...",
+        loading: true,
+      });
       const urlImages = [];
       const { payload } = await dispatch(addImgCloudinary(postForm));
       payload.urlImages.forEach((image) => {
@@ -36,6 +44,10 @@ const AddPost = ({ openAddPost, setOpenAddPost }) => {
 
       await dispatch(addPost({ content: postForm.content, urlImages }));
       await handleCloseModal();
+      setLoadingAddPost({
+        content: "Đăng bài",
+        loading: false,
+      });
     } catch (error) {
       console.log(error);
     }
@@ -176,8 +188,9 @@ const AddPost = ({ openAddPost, setOpenAddPost }) => {
             onClick={handleAddPost}
             width="100%"
             sx={{ marginTop: "20px" }}
+            disabled={loadingAddPost.loading}
           >
-            Đăng bài viết
+            {loadingAddPost.content}
           </Button>
         </div>
       </Box>

@@ -66,7 +66,7 @@ const Navbar = () => {
       return;
     }
 
-    await dispatch(checkPass(changePass.oldPass));
+    // await dispatch(checkPass(changePass.oldPass));
 
     if (!isPassValue && isPassValue !== null) {
       setContentError("Vui lòng nhập lại mật khẩu cũ");
@@ -74,8 +74,19 @@ const Navbar = () => {
       return;
     }
 
-    await dispatch(updatePass(changePass.newPass));
-    setContentError("Thay đổi mật khẩu thành công");
+    const {
+      payload: { success },
+    } = await dispatch(
+      updatePass({
+        newPassword: changePass.newPass,
+        password: changePass.oldPass,
+      })
+    );
+    if (success) {
+      setContentError("Thay đổi mật khẩu thành công");
+    } else {
+      setContentError("Thay đổi mật khẩu thất bại");
+    }
     setError(true);
     setOpenChangePass(false);
   };

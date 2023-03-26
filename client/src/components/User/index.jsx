@@ -16,9 +16,7 @@ import {
   Typography,
 } from "@mui/material";
 import MoreVertIcon from "@mui/icons-material/MoreVert";
-import AddAPhotoIcon from "@mui/icons-material/AddAPhoto";
 import CommentIcon from "@mui/icons-material/Comment";
-import FavoriteIcon from "@mui/icons-material/Favorite";
 import AddIcon from "@mui/icons-material/Add";
 import React from "react";
 import moment from "moment";

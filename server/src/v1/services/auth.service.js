@@ -41,12 +41,11 @@ const addUser = async (
   firstName,
   lastName,
   birthday,
-  city,
   gender
 ) => {
   const { rows } = await poolPg.query(
-    "INSERT INTO users (email, password, first_name, last_name, birthday, city, gender) VALUES ($1, $2, $3, $4, $5, $6, $7) RETURNING user_id;",
-    [email, password, firstName, lastName, birthday, city, gender]
+    "INSERT INTO users (email, password, first_name, last_name, birthday, gender) VALUES ($1, $2, $3, $4, $5, $6) RETURNING user_id;",
+    [email, password, firstName, lastName, birthday, gender]
   );
   return rows[0];
 };

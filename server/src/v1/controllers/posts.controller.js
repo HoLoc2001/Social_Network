@@ -1,11 +1,58 @@
 const pool = require("../../db/connectDB");
+const redis = require("../../db/connection_redis");
 const postService = require("../services/post.service");
 
 const getPosts = async (req, res) => {
   const { page } = req.body;
   const userId = req.userId;
   try {
-    const posts = await await postService.getPosts(userId, page);
+    const posts1 = await postService.getPosts(userId, page);
+    const posts = await Promise.all(
+      posts1.map(async (post) => {
+        let total_like;
+        let total_comment;
+        let islike;
+        await redis.scard(
+          `likePost:${JSON.stringify(post.post_id)}`,
+          (err, result) => {
+            if (err) {
+              console.error(err);
+            } else {
+              total_like = result;
+            }
+          }
+        );
+
+        await redis.get(
+          JSON.stringify(`comment:${post.post_id}`),
+          (err, result) => {
+            if (err) {
+              console.error(err);
+            } else {
+              total_comment = result;
+            }
+          }
+        );
+
+        await redis.sismember(
+          `likePost:${JSON.stringify(post.post_id)}`,
+          await JSON.stringify(userId),
+          (number, result) => {
+            if (result === 0) {
+              islike = false;
+            } else {
+              islike = true;
+            }
+          }
+        );
+        return {
+          ...post,
+          total_like,
+          total_comment,
+          islike,
+        };
+      })
+    );
     res.status(200).json({ posts });
   } catch (error) {
     res.json(error);
@@ -17,6 +64,7 @@ const addPost = async (req, res) => {
   const userId = req.userId;
   try {
     const post = await postService.addPost(userId, content, urlImages);
+    redis.set(JSON.stringify(`comment:${post.post_id}`), 0);
 
     _io.emit("notification-addPost", {
       postId: post.post_id,
@@ -82,18 +130,59 @@ const updateLikePost = async (req, res) => {
   try {
     const { postId } = req.body;
     const userId = req.userId;
-    const isLike = await postService.getUserIsLike(postId, userId);
     let totalLikes;
-    if (isLike.rowCount) {
-      totalLikes = await postService.updateDecrLikePost(postId, userId);
-    } else {
-      totalLikes = await postService.updateIncrLikePost(postId, userId);
-    }
+    let islike;
+
+    await redis.sadd(
+      `likePost:${JSON.stringify(postId)}`,
+      JSON.stringify(userId),
+      (err, res) => {
+        if (res === 0) {
+          redis.srem(
+            `likePost:${JSON.stringify(postId)}`,
+            JSON.stringify(userId)
+          );
+          islike = false;
+        } else {
+          islike = true;
+        }
+      }
+    );
+
+    await redis.scard(`likePost:${JSON.stringify(postId)}`, (err, result) => {
+      if (err) {
+        console.error(err);
+      } else {
+        totalLikes = result;
+      }
+    });
+
+    // await redis.smembers(`likePost:${JSON.stringify(postId)}`, (err, res) => {
+    //   console.log(222, res);
+    // });
+
+    // await redis.sismember(
+    //   `likePost:${JSON.stringify(post.post_id)}`,
+    //   JSON.stringify(userId),
+    //   (result) => {
+    //     if (result === 0) {
+    //       islike = false;
+    //     } else {
+    //       islike = true;
+    //     }
+    //   }
+    // );
+
+    // if (isLike.rowCount) {
+    //   totalLikes = await postService.updateDecrLikePost(postId, userId);
+    // } else {
+    //   totalLikes = await postService.updateIncrLikePost(postId, userId);
+    // }
 
     _io.emit("notification-LikePost", { postId });
     res.status(200).json({
-      totalLikes: totalLikes?.list_like?.length,
-      isLike: !isLike.rowCount,
+      totalLikes,
+      islike,
     });
   } catch (error) {
     res.json(error);
@@ -115,8 +204,37 @@ const addCommentPost = async (req, res) => {
   try {
     const { postId, content } = req.body;
     const userId = req.userId;
+    let totalComments = 0;
+    // const objComment = {
+    //   userId,
+    //   content,
+    // };
+
+    redis.incr(JSON.stringify(`comment:${postId}`), (err, number) => {
+      if (err) {
+        console.log(err);
+      } else {
+        totalComments = number;
+      }
+    });
+
+    // redis.rpush(
+    //   JSON.stringify(postId),
+    //   JSON.stringify(objComment),
+    //   (err, result) => {
+    //     console.log(result);
+    //   }
+    // );
+
+    // redis.lrange(JSON.stringify(postId), 5, 5, (err, result) => {
+    //   console.dir(result);
+    // });
+
+    // redis.hgetall(postId, (err, obj) => {
+    //   console.dir(obj);
+    // });
     const commentId = await postService.addCommentPost(postId, userId, content);
-    const totalComments = await postService.updateIncrTotalComment(postId);
+    // const totalComments = await postService.updateIncrTotalComment(postId);
 
     _io.emit("notification-CommentPost", { postId, userId: req.userId });
     res.status(200).json({ commentId, totalComments, postId, content });
@@ -148,7 +266,6 @@ const deletePost = async (req, res) => {
 
     await postService.deleteComments(postId, userId);
     const data = await postService.deletePost(postId, userId);
-    console.log(data);
     res.json({ success: true, postId: data });
   } catch (error) {
     console.log(error);
@@ -159,7 +276,16 @@ const deletePost = async (req, res) => {
 const getTotalComment = async (req, res) => {
   try {
     const { postId } = req.body;
-    const totalComments = await postService.getTotalComment(postId);
+    let totalComments = 0;
+    // const totalComments = await postService.getTotalComment(postId);
+    await redis.get(JSON.stringify(`comment:${postId}`), (err, result) => {
+      if (err) {
+        console.error(err);
+      } else {
+        totalComments = result;
+      }
+    });
+
     res.json({ totalComments, postId });
   } catch (error) {
     console.log(error);
@@ -170,8 +296,19 @@ const getTotalComment = async (req, res) => {
 const getListLikePost = async (req, res) => {
   try {
     const { postId } = req.body;
-    const listLike = await postService.getListLike(postId);
-    res.json({ listLike });
+    let listUser;
+    await redis.smembers(
+      `likePost:${JSON.stringify(postId)}`,
+      async (err, res) => {
+        listUser = res;
+      }
+    );
+    listUser = listUser.map((userId) => {
+      return JSON.parse(userId);
+    });
+
+    const listLike = await postService.getListLike(listUser);
+    res.json({ listLike: listLike });
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false, message: "Internal server error" });
@@ -199,7 +336,13 @@ const deleteComment = async (req, res) => {
       postId,
       userId
     );
-    await postService.updateDecrTotalComment(postId);
+    // await postService.updateDecrTotalComment(postId);
+    await redis.decr(JSON.stringify(`comment:${postId}`), (err, number) => {
+      if (err) {
+        console.log(err);
+      }
+      console.log(number);
+    });
 
     _io.emit("notification-DeleteCommentPost", { postId, userId, commentId });
 
@@ -213,7 +356,6 @@ const deleteComment = async (req, res) => {
 const updateComment = async (req, res) => {
   try {
     const { commentId, content, postId } = req.body;
-    console.log(commentId, content, postId);
     const userId = req.userId;
     await postService.updateComment(commentId, content, userId);
     _io.emit("notification-UpdateCommentPost", { postId });

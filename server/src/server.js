@@ -6,10 +6,7 @@ const { Server } = require("socket.io");
 const { createServer } = require("http");
 const createError = require("http-errors");
 const { connectSocket } = require("./v1/services/socket.service.js");
-const uploadCloud = require("./v1/routes/cloudinary_upload.route");
-const postRoute = require("./v1/routes/post.route");
-const authRoute = require("./v1/routes/auth.route");
-const userRoute = require("./v1/routes/user.route");
+const routesV1 = require("./v1/routes/index");
 require("./db/connection_postgres").instancePG;
 require("./db/connection_redis");
 require("./db/connectDB");
@@ -21,12 +18,8 @@ const socketIo = new Server(server, { cors: { origin: "*" } });
 
 global._io = socketIo;
 socketIo.on("connection", connectSocket);
-
 app.use(require("./v1/middleware/index"));
-app.use("/v1/api/uploads", uploadCloud);
-app.use("/v1/api/post", postRoute);
-app.use("/v1/api/auth", authRoute);
-app.use("/v1/api/user", userRoute);
+app.use("/api/v1", routesV1);
 
 app.use((req, res, next) => {
   next(createError.NotFound("This route does not exist"));

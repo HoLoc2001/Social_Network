@@ -60,7 +60,7 @@ export const checkEmail = createAsyncThunk("user/checkEmail", async (email) => {
 
 export const checkPass = createAsyncThunk("user/checkPass", async (pass) => {
   try {
-    const res = await axiosPrivate.post("checkPass", {
+    const res = await axiosPrivate.post("auth/checkPass", {
       pass,
     });
     return res.data;
@@ -69,16 +69,20 @@ export const checkPass = createAsyncThunk("user/checkPass", async (pass) => {
   }
 });
 
-export const updatePass = createAsyncThunk("user/updatePass", async (pass) => {
-  try {
-    const res = await axiosPrivate.post("updatePass", {
-      pass,
-    });
-    return res.data;
-  } catch (error) {
-    return error.response.data;
+export const updatePass = createAsyncThunk(
+  "user/updatePass",
+  async ({ newPassword, password }) => {
+    try {
+      const res = await axiosPrivate.put("auth/updatePass", {
+        newPassword,
+        password,
+      });
+      return res.data;
+    } catch (error) {
+      return error.response.data;
+    }
   }
-});
+);
 
 export const getInfo = createAsyncThunk("user/getInfo", async () => {
   try {
@@ -104,8 +108,10 @@ export const getOtherInfo = createAsyncThunk(
 
 export const updateInfoUser = createAsyncThunk(
   "user/updateInfoUser",
-  async (data) => {
+  async (data, { getState }) => {
     try {
+      const { user } = getState().user;
+
       const { avatar, firstName, lastName, birthday, gender } = data;
       const res = await axiosPrivate.patch("user/updateInfoUser", {
         avatar,
@@ -114,7 +120,7 @@ export const updateInfoUser = createAsyncThunk(
         birthday,
         gender,
       });
-      return res.data;
+      return { ...user, ...res.data.InfoUser };
     } catch (error) {
       console.log(error);
     }
@@ -126,7 +132,6 @@ export const getListFollower = createAsyncThunk(
   async () => {
     try {
       const res = await axiosPrivate.post("user/getListFollower");
-      console.log(res.data);
       return res.data;
     } catch (error) {
       console.log(error);
@@ -162,10 +167,7 @@ export const addFollower = createAsyncThunk(
   "user/addFollower",
   async (userId, { getState }) => {
     try {
-      const { listFollower } = getState().user;
       const res = await axiosPrivate.post("user/addFollower", { userId });
-      // console.log(res);
-      // const data = [...res?.data?.data];
       return {
         totalFollowers: res.data.totalFollowers,
         totalFollowings: res.data.totalFollowings,
@@ -181,10 +183,8 @@ export const removeFollower = createAsyncThunk(
   "user/removeFollower",
   async (userId, { getState }) => {
     try {
-      const { listFollower } = getState().user;
       const res = await axiosPrivate.post("user/removeFollower", { userId });
 
-      // const data = [...res?.data?.data];
       return {
         totalFollowers: res.data.totalFollowers,
         totalFollowings: res.data.totalFollowings,
@@ -274,7 +274,7 @@ export const userSlice = createSlice({
         state.token = action.payload;
       })
       .addCase(updateInfoUser.fulfilled, (state, action) => {
-        state.user = action.payload.InfoUser;
+        state.user = action.payload;
       })
       .addCase(getListFollower.fulfilled, (state, action) => {
         state.listFollower = action?.payload?.listFollower;

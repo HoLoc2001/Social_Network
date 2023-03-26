@@ -4,13 +4,13 @@ const getInfoUser = async (ownUserId, userId = null) => {
   try {
     if (userId) {
       const { rows } = await poolPg.query(
-        "SELECT user_id, avatar,first_name,last_name, CONCAT(first_name, ' ', last_name) AS fullname, birthday, gender, city, EXISTS (SELECT user_id FROM follower WHERE follower_id = $1 AND user_id = $2) as hasFollower FROM users WHERE user_id = $2",
+        "SELECT users.user_id, avatar,first_name,last_name, CONCAT(first_name, ' ', last_name) AS fullname, birthday, gender, EXISTS (SELECT follower.user_id FROM follower WHERE follower_id = $1 AND follower.user_id = $2) as hasFollower FROM users WHERE users.user_id = $2",
         [ownUserId, userId]
       );
       return rows[0];
     } else {
       const { rows } = await poolPg.query(
-        "SELECT user_id, avatar,first_name,last_name, CONCAT(first_name, ' ', last_name) AS fullname, birthday, gender, city FROM users WHERE user_id = $1",
+        "SELECT user_id, avatar,first_name,last_name, CONCAT(first_name, ' ', last_name) AS fullname, TO_CHAR(birthday::date, 'yyyy-MM-dd') as birthday, gender FROM users WHERE user_id = $1",
         [ownUserId]
       );
 
@@ -56,16 +56,16 @@ const getTotalFollowing = async (userId) => {
 
 const updateInfoUser = async (
   userId,
-  avatar = DEFAULT,
-  first_name = DEFAULT,
-  last_name = DEFAULT,
-  birthday = DEFAULT,
-  gender = DEFAULT
+  avatar = "DEFAULT",
+  first_name = "DEFAULT",
+  last_name = "DEFAULT",
+  birthday = "DEFAULT",
+  gender = "DEFAULT"
 ) => {
   try {
     const { rows } = await poolPg.query(
       "UPDATE users SET avatar = $1, first_name = $2, last_name = $3, birthday = $4, gender = $5" +
-        " WHERE user_id = $7 RETURNING avatar, first_name, last_name, birthday, gender",
+        " WHERE user_id = $6 RETURNING avatar, first_name, last_name, birthday, gender, CONCAT(first_name, ' ', last_name) AS fullname",
       [avatar, first_name, last_name, birthday, gender, userId]
     );
     return rows[0];

@@ -46,8 +46,7 @@ const refreshToken = async (req, res) => {
 
 const sighUp = async (req, res) => {
   try {
-    const { email, password, firstName, lastName, birthday, city, gender } =
-      req.body;
+    const { email, password, firstName, lastName, birthday, gender } = req.body;
 
     const { error } = validation.signUpValidate({
       email,
@@ -55,7 +54,6 @@ const sighUp = async (req, res) => {
       firstName,
       lastName,
       birthday,
-      city,
       gender,
     });
 
@@ -76,7 +74,6 @@ const sighUp = async (req, res) => {
       firstName,
       lastName,
       birthday,
-      city,
       gender
     );
 
