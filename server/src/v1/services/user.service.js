@@ -99,7 +99,6 @@ const getListFollowings = async (userId) => {
       "SELECT follower.follower_id, avatar, CONCAT(first_name, ' ', last_name) AS fullname FROM users INNER JOIN follower ON users.user_id = follower.follower_id WHERE follower.user_id = $1",
       [userId]
     );
-    console.log(rows);
     return rows;
   } catch (error) {
     return {
@@ -158,7 +157,6 @@ const addFollower = async (userId, ownUserId) => {
 
 const removeFollower = async (userId, ownUserId) => {
   try {
-    console.log(userId, ownUserId);
     const rows = await poolPg.query(
       "DELETE FROM follower WHERE user_id = $1 AND follower_id = $2",
       [userId, ownUserId]

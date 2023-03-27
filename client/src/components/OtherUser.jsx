@@ -41,6 +41,7 @@ const OtherUser = () => {
     (async () => {
       await dispatch(getOtherInfo(params.id));
       window.scrollTo(0, 0);
+      setPage(0);
     })();
   }, [params.id]);
 

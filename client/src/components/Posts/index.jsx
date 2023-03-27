@@ -165,7 +165,9 @@ const Posts = () => {
                   <CommentIcon sx={{ color: "gray" }} />
                 </IconButton>
 
-                <Typography variant="body2">{post.total_comment}</Typography>
+                <Typography variant="body2">
+                  {post.total_comment || 0}
+                </Typography>
               </div>
             </CardActions>
             <Comment post={post} avatar={user?.avatar} userId={user?.user_id} />

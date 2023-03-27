@@ -49,7 +49,6 @@ const UpdatePost = ({ openUpdatePost, setOpenUpdatePost, updatePostForm }) => {
       });
       urlImages = [...postForm.urlImages];
       var url = [...urlImages];
-      console.log(url === urlImages);
       await dispatch(
         updatePost({
           postId: postForm.postId,

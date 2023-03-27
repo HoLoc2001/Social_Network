@@ -36,7 +36,7 @@ const Comment = ({ post, avatar, userId }) => {
   const postId = post?.post_id;
   const dispatch = useAppDispatch();
   const comments = post?.comments;
-  const totalComment = post?.total_comment;
+  const totalComment = post.total_comment || 0;
   useEffect(() => {
     async function load() {
       // await dispatch(getCommentPost(postId));
@@ -129,15 +129,15 @@ const Comment = ({ post, avatar, userId }) => {
           </Box>
           <Box sx={{ maxHeight: "300px", overflowY: "scroll" }}>
             {!comments ? (
-              totalComment === 0 ? (
-                ""
-              ) : (
+              totalComment ? (
                 <p
                   style={{ cursor: "pointer" }}
                   onClick={() => handleSeeMore()}
                 >
                   Xem tất cả bình luận
                 </p>
+              ) : (
+                ""
               )
             ) : (
               comments?.map((comment) => {

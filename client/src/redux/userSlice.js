@@ -27,7 +27,7 @@ export const sendMailPass = createAsyncThunk(
   async (email) => {
     try {
       console.log(email);
-      const res = await axiosPublic.post("sendMailPass", { email });
+      const res = await axiosPublic.post("auth/sendMailPass", { email });
       return res.data;
     } catch (error) {
       console.log(error);
@@ -98,7 +98,6 @@ export const getOtherInfo = createAsyncThunk(
   async (userId) => {
     try {
       const res = await axiosPrivate.post("user/getOtherInfo", { userId });
-      console.log(res.data);
       return res.data;
     } catch (error) {
       console.log(error);

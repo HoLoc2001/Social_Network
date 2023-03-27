@@ -18,7 +18,6 @@ const getRefreshToken = async ({ refreshToken }) => {
 
 const updateRefreshToken = async (userId, refreshToken) => {
   try {
-    console.log(userId, refreshToken);
     await poolPg.query(
       "UPDATE refresh_tokens SET refresh_token = $1 WHERE user_id = $2;",
       [refreshToken, userId]
@@ -51,11 +50,11 @@ const addUser = async (
 };
 
 const getEmailUser = async (email) => {
-  const user = await poolPg.query(
+  const { rows } = await poolPg.query(
     "SELECT user_id FROM users WHERE email = $1;",
     [email]
   );
-  return user;
+  return rows[0];
 };
 
 const getPassword = async (userId) => {
@@ -68,7 +67,7 @@ const getPassword = async (userId) => {
 
 const updatePassword = async (userId, password) => {
   const { rows } = await poolPg.query(
-    "UPDATE users SET password = $1 WHERE user_id = $2;",
+    "UPDATE users SET password = $1 WHERE user_id = $2 RETURNING user_id",
     [password, userId]
   );
   return rows[0];

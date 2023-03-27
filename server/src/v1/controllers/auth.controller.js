@@ -198,6 +198,7 @@ const sendMailPass = async (req, res) => {
         accessToken: myAccessToken,
       },
     });
+
     const user = await authService.getEmailUser(email);
     let newPassword = Math.random().toString(36).slice(-8);
     const hashPassword = await argon2.hash(newPassword);

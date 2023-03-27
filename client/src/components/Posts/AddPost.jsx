@@ -77,6 +77,7 @@ const AddPost = ({ openAddPost, setOpenAddPost }) => {
 
   const handleCloseModal = () => {
     setOpenAddPost(false);
+    setPostForm({ content: "", images: new FormData(), urlImages: [] });
   };
 
   return (

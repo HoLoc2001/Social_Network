@@ -64,7 +64,6 @@ const updateInfo = async (req, res) => {
 const updateInfoUser = async (req, res) => {
   try {
     const { avatar, firstName, lastName, birthday, gender } = req.body;
-    console.log(1);
     const userId = req.userId;
     const InfoUser = await userServices.updateInfoUser(
       userId,

@@ -7,15 +7,6 @@ redis.ping().then((result) => {
   }
 });
 
-redis.set("like", "10");
-
-redis.incr("like", (err, number) => {
-  if (err) {
-    console.log(err);
-  }
-  console.log(number);
-});
-
 // redis.get("mykey", (err, result) => {
 //   if (err) {
 //     console.error(err);

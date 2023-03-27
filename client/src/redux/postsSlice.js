@@ -14,11 +14,19 @@ export const getPosts = createAsyncThunk(
 export const addPost = createAsyncThunk(
   "posts/addPost",
   async ({ content, urlImages }, { getState }) => {
-    const { myPosts } = getState().posts;
+    const { myPosts, posts } = getState().posts;
+    const { user } = getState().user;
     const res = await axiosPrivate.post(`post/addPost`, { content, urlImages });
-    const resData = [res.data.post, ...myPosts];
+    const myPost = {
+      ...res.data.post,
+      fullname: user.fullname,
+      avatar: user.avatar,
+    };
 
-    return resData;
+    const postsData = [myPost, ...posts];
+    const myPostsData = [res.data.post, ...myPosts];
+
+    return { myPostsData, postsData };
   }
 );
 
@@ -104,9 +112,11 @@ export const addCommentPost = createAsyncThunk(
 
 export const getListPostSearch = createAsyncThunk(
   "posts/getListPostSearch",
-  async (data) => {
+  async (textSearch) => {
     try {
-      const res = await axiosPrivate.post("getListPostSearch", { data });
+      const res = await axiosPrivate.post("post/getListPostSearch", {
+        textSearch,
+      });
       return res.data;
     } catch (error) {
       console.log(error);
@@ -241,7 +251,7 @@ export const getPost = createAsyncThunk(
     try {
       const { listFollower } = getState().user;
       const res = await axiosPrivate.post("post/getPost", { postId });
-      let hasFollow = listFollower.some((e) => e.user_id == userId);
+      let hasFollow = listFollower.some((e) => e.user_id === userId);
       return { post: res.data.post, hasFollow };
     } catch (error) {
       console.log(error);
@@ -279,8 +289,8 @@ export const postsSlice = createSlice({
         state.posts = action?.payload;
       })
       .addCase(addPost.fulfilled, (state, action) => {
-        console.log(action?.payload);
-        state.myPosts = action?.payload;
+        state.myPosts = action?.payload?.myPostsData;
+        state.posts = action?.payload?.postsData;
       })
       .addCase(getMyPosts.fulfilled, (state, action) => {
         state.myPosts = action?.payload;
@@ -301,7 +311,7 @@ export const postsSlice = createSlice({
           if (e.post_id === action.payload?.postId) {
             return (
               (e.total_like = action.payload?.totalLikes),
-              (e.islike = action.payload?.isLike)
+              (e.islike = action.payload?.islike)
             );
           }
         });
@@ -309,7 +319,7 @@ export const postsSlice = createSlice({
           if (e.post_id === action.payload?.postId) {
             return (
               (e.total_like = action.payload?.totalLikes),
-              (e.islike = action.payload?.isLike)
+              (e.islike = action.payload?.islike)
             );
           }
         });
@@ -317,7 +327,7 @@ export const postsSlice = createSlice({
           if (e.post_id === action.payload?.postId) {
             return (
               (e.total_like = action.payload?.totalLikes),
-              (e.islike = action.payload?.isLike)
+              (e.islike = action.payload?.islike)
             );
           }
         });

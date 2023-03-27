@@ -29,7 +29,7 @@ const getPosts = async (req, res) => {
             if (err) {
               console.error(err);
             } else {
-              total_comment = result;
+              total_comment = parseInt(result);
             }
           }
         );
@@ -103,7 +103,54 @@ const getMyPosts = async (req, res) => {
   try {
     const userId = req.userId;
     const { page } = req.body;
-    const posts = await postService.getUserPosts(userId, userId, page);
+    const posts1 = await postService.getUserPosts(userId, userId, page);
+    const posts = await Promise.all(
+      posts1.map(async (post) => {
+        let total_like;
+        let total_comment;
+        let islike;
+        await redis.scard(
+          `likePost:${JSON.stringify(post.post_id)}`,
+          (err, result) => {
+            if (err) {
+              console.error(err);
+            } else {
+              total_like = result;
+            }
+          }
+        );
+
+        await redis.get(
+          JSON.stringify(`comment:${post.post_id}`),
+          (err, result) => {
+            if (err) {
+              console.error(err);
+            } else {
+              total_comment = parseInt(result);
+            }
+          }
+        );
+
+        await redis.sismember(
+          `likePost:${JSON.stringify(post.post_id)}`,
+          await JSON.stringify(userId),
+          (number, result) => {
+            if (result === 0) {
+              islike = false;
+            } else {
+              islike = true;
+            }
+          }
+        );
+        return {
+          ...post,
+          total_like,
+          total_comment,
+          islike,
+        };
+      })
+    );
+
     res.status(200).json({ myPosts: posts });
   } catch (error) {
     console.log(error.message);
@@ -118,8 +165,53 @@ const getOtherPosts = async (req, res) => {
   try {
     const { page, userId } = req.body;
     const ownUserId = req.userId;
-    const posts = await postService.getUserPosts(userId, ownUserId, page);
+    const posts1 = await postService.getUserPosts(userId, ownUserId, page);
+    const posts = await Promise.all(
+      posts1.map(async (post) => {
+        let total_like;
+        let total_comment;
+        let islike;
+        await redis.scard(
+          `likePost:${JSON.stringify(post.post_id)}`,
+          (err, result) => {
+            if (err) {
+              console.error(err);
+            } else {
+              total_like = result;
+            }
+          }
+        );
 
+        await redis.get(
+          JSON.stringify(`comment:${post.post_id}`),
+          (err, result) => {
+            if (err) {
+              console.error(err);
+            } else {
+              total_comment = parseInt(result);
+            }
+          }
+        );
+
+        await redis.sismember(
+          `likePost:${JSON.stringify(post.post_id)}`,
+          await JSON.stringify(ownUserId),
+          (number, result) => {
+            if (result === 0) {
+              islike = false;
+            } else {
+              islike = true;
+            }
+          }
+        );
+        return {
+          ...post,
+          total_like,
+          total_comment,
+          islike,
+        };
+      })
+    );
     res.status(200).json({ otherPosts: posts });
   } catch (error) {
     res.json(error);
@@ -246,13 +338,13 @@ const addCommentPost = async (req, res) => {
 
 const getListPostSearch = async (req, res) => {
   try {
-    const { data } = req.body;
-    const [row] = await pool.execute("call get_search_post(?, ?)", [
-      data,
-      req.userId,
-    ]);
+    let { textSearch } = req.body;
+    console.log(textSearch);
+    textSearch = textSearch.trim().replaceAll(" ", "&");
 
-    res.json({ success: true, data: row[0] });
+    const posts = await postService.getSearchPost(textSearch);
+
+    res.json({ posts });
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false, message: "Internal server error" });
@@ -341,7 +433,6 @@ const deleteComment = async (req, res) => {
       if (err) {
         console.log(err);
       }
-      console.log(number);
     });
 
     _io.emit("notification-DeleteCommentPost", { postId, userId, commentId });
