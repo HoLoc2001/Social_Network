@@ -399,7 +399,7 @@ export const postsSlice = createSlice({
         });
       })
       .addCase(getListPostSearch.fulfilled, (state, action) => {
-        state.listPostSearch = action?.payload?.data;
+        state.listPostSearch = action?.payload?.posts;
       })
       .addCase(updatePost.fulfilled, (state, action) => {
         state.myPosts.forEach((e) => {

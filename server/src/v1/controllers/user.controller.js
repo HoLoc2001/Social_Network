@@ -155,10 +155,12 @@ const removeFollower = async (req, res) => {
 
 const getListUserSearch = async (req, res) => {
   try {
-    const { data } = req.body;
-    const [row] = await pool.execute("call get_search_name(?)", [data]);
+    let { textSearch } = req.body;
+    textSearch = textSearch.trim().replaceAll(/\s+/g, "&");
 
-    res.json({ success: true, data: row[0] });
+    const listUsers = await userServices.getListUserSearch(textSearch);
+
+    res.json({ success: true, listUsers });
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false, message: "Internal server error" });

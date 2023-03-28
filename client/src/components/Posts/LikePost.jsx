@@ -13,7 +13,7 @@ import { getListLike } from "../../redux/postsSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/store";
 import { Link } from "react-router-dom";
 
-const LikePost = ({ user_id, post_id, total_like, list_like, islike }) => {
+const LikePost = ({ user_id, post_id, total_like, islike }) => {
   const dispatch = useAppDispatch();
   const listLike = useAppSelector((state) => state.posts.listLike);
   const [open, setOpen] = useState(false);

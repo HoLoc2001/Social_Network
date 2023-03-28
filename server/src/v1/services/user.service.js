@@ -139,6 +139,21 @@ const getUserFollower = async (ownUserId, userId) => {
   }
 };
 
+const getListUserSearch = async (textSearch) => {
+  try {
+    const { rows } = await poolPg.query(
+      "SELECT user_id, avatar, CONCAT(first_name, ' ', last_name) as fullname FROM users WHERE users_tsv @@ to_tsquery(unaccent($1))",
+      [textSearch]
+    );
+    return rows;
+  } catch (error) {
+    return {
+      code: 500,
+      message: error.message,
+    };
+  }
+};
+
 const addFollower = async (userId, ownUserId) => {
   try {
     const { rows } = await poolPg.query(
@@ -176,6 +191,7 @@ module.exports = {
   getListFollowers,
   getListFollowings,
   getListNotFollowers,
+  getListUserSearch,
   getUserFollower,
   getTotalFollower,
   getTotalFollowing,

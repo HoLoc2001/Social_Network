@@ -6,29 +6,24 @@ import {
   CardActions,
   CardContent,
   CardHeader,
-  CardMedia,
   Divider,
   IconButton,
   InputBase,
-  Modal,
   Paper,
   Typography,
 } from "@mui/material";
-import FavoriteIcon from "@mui/icons-material/Favorite";
 import SearchIcon from "@mui/icons-material/Search";
 import CommentIcon from "@mui/icons-material/Comment";
 import React from "react";
 import { useState } from "react";
 import { Link } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../redux/store";
-import { getListLike, getListUserSearch } from "../redux/userSlice";
+import { getListUserSearch } from "../redux/userSlice";
 import moment from "moment";
 import Comment from "./Posts/Comment";
-import {
-  getCommentPost,
-  getListPostSearch,
-  updateLikePost,
-} from "../redux/postsSlice";
+import { getCommentPost, getListPostSearch } from "../redux/postsSlice";
+import GridImg from "./Posts/GridImg";
+import LikePost from "./Posts/LikePost";
 moment.locale("vi");
 
 const Filters = () => {
@@ -36,27 +31,15 @@ const Filters = () => {
   const MyUser = useAppSelector((state) => state.user.user);
   const listUser = useAppSelector((state) => state.user.listUserSearch);
   const listPost = useAppSelector((state) => state.posts.listPostSearch);
-  const listLike = useAppSelector((state) => state.user.listLike);
 
-  const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
 
   const handleChange = async (e) => {
     setSearch(e.target.value);
-    await dispatch(getListUserSearch(search));
-  };
-
-  const handleClose = () => setOpen(false);
-
-  const handleOpen = async (postId, totalLike) => {
-    if (totalLike) {
-      await dispatch(getListLike(postId));
-      setOpen(true);
+    if (e.target.value) {
+      await dispatch(getListUserSearch(e.target.value));
+      await dispatch(getListPostSearch(e.target.value));
     }
-  };
-
-  const handleClickFavorite = async (postId) => {
-    await dispatch(updateLikePost(postId));
   };
 
   const handleClickComment = async (postId) => {
@@ -81,7 +64,7 @@ const Filters = () => {
     <>
       <div
         style={{
-          margin: "40px 30% 0 30%",
+          margin: "5% 30% 0 30%",
           minHeight: "100%",
           position: "relative",
         }}
@@ -117,7 +100,10 @@ const Filters = () => {
           </Paper>
         </Box>
         <Box sx={{ position: "fixed", width: "650px" }}>
-          <ul className="mui-tabs__bar">
+          <ul
+            className="mui-tabs__bar"
+            style={{ position: "absolute", left: "-15%" }}
+          >
             <li className="mui--is-active">
               <p
                 data-mui-toggle="tab"
@@ -127,7 +113,7 @@ const Filters = () => {
                 Mọi người
               </p>
             </li>
-            <li>
+            <li style={{ display: "block" }}>
               <p
                 data-mui-toggle="tab"
                 data-mui-controls="pane-default-2"
@@ -139,10 +125,9 @@ const Filters = () => {
           </ul>
           <Box sx={{ width: "100%", height: "550px", overflowY: "scroll" }}>
             <div className="mui-tabs__pane mui--is-active" id="pane-default-1">
-              {}
               {listUser?.map((user) => (
                 <div
-                  key={user.id}
+                  key={user.user_id}
                   style={{
                     display: "flex",
                     paddingBottom: "10px",
@@ -150,7 +135,11 @@ const Filters = () => {
                   }}
                 >
                   <Link
-                    to={user.id === MyUser.id ? "/profile" : `/${user.id}`}
+                    to={
+                      user.user_id === MyUser.user_id
+                        ? "/profile"
+                        : `/${user.user_id}`
+                    }
                     style={{ textDecoration: "none" }}
                   >
                     <Button
@@ -174,7 +163,7 @@ const Filters = () => {
             <div className="mui-tabs__pane" id="pane-default-2">
               {listPost?.map((post) => (
                 <Card
-                  key={post.id}
+                  key={post.post_id}
                   sx={{
                     width: "100%",
                     marginBottom: "20px",
@@ -185,9 +174,9 @@ const Filters = () => {
                     avatar={
                       <Link
                         to={
-                          post.userId === MyUser.id
+                          post.user_id === MyUser.user_id
                             ? "/profile"
-                            : `/${post.userId}`
+                            : `/${post.user_id}`
                         }
                       >
                         <Avatar src={post.avatar} aria-label="recipe" />
@@ -196,35 +185,37 @@ const Filters = () => {
                     title={
                       <Link
                         to={
-                          post.userId === MyUser.id
+                          post.user_id === MyUser.user_id
                             ? "/profile"
-                            : `/${post.userId}`
+                            : `/${post.user_id}`
                         }
                         style={{ color: "black" }}
                       >
                         {post.fullname}
                       </Link>
                     }
-                    subheader={moment(post.createdAt).format("llll")}
+                    subheader={moment(post.created_at).format("llll")}
                   />
 
                   <Divider />
 
-                  {post.title ? (
+                  {post.post_content ? (
                     <CardContent>
-                      <Typography variant="body2">{post.title}</Typography>
+                      <Typography
+                        variant="body1"
+                        sx={{ whiteSpace: "pre-wrap" }}
+                      >
+                        {post.post_content}
+                      </Typography>
                     </CardContent>
                   ) : (
                     ""
                   )}
-                  {post.image ? (
-                    <CardMedia
-                      component="img"
-                      height="500px"
-                      sx={{
-                        background: `no-repeat center/cover url(${post.image})`,
-                      }}
-                    />
+                  {post.images ? (
+                    <GridImg
+                      count={post.images.length}
+                      images={post.images}
+                    ></GridImg>
                   ) : (
                     ""
                   )}
@@ -238,21 +229,12 @@ const Filters = () => {
                         width: "50%",
                       }}
                     >
-                      <IconButton onClick={() => handleClickFavorite(post.id)}>
-                        <FavoriteIcon
-                          sx={{
-                            color: post.isLike ? "red" : "gray",
-                            cursor: "pointer",
-                          }}
-                        />
-                      </IconButton>
-                      <Typography
-                        sx={{ cursor: "pointer" }}
-                        variant="body2"
-                        onClick={() => handleOpen(post.id, post.totalLike)}
-                      >
-                        {post.totalLike}
-                      </Typography>
+                      <LikePost
+                        user_id={MyUser.user_id}
+                        post_id={post.post_id}
+                        total_like={post?.total_like || 0}
+                        islike={post.islike}
+                      />
                     </div>
                     <div
                       style={{
@@ -262,19 +244,21 @@ const Filters = () => {
                         width: "50%",
                       }}
                     >
-                      <IconButton onClick={() => handleClickComment(post.id)}>
+                      <IconButton
+                        onClick={() => handleClickComment(post.post_id)}
+                      >
                         <CommentIcon sx={{ color: "gray" }} />
                       </IconButton>
 
                       <Typography variant="body2">
-                        {post.totalComment}
+                        {post.total_comment || 0}
                       </Typography>
                     </div>
                   </CardActions>
                   <Comment
                     post={post}
                     avatar={MyUser.avatar}
-                    userId={MyUser.id}
+                    userId={MyUser.user_id}
                   />
                 </Card>
               ))}
@@ -282,57 +266,6 @@ const Filters = () => {
           </Box>
         </Box>
       </div>
-      <Modal
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-      >
-        <Box
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: 400,
-            bgcolor: "white",
-            boxShadow: 24,
-            p: 4,
-            borderRadius: "5px",
-          }}
-        >
-          {listLike?.map((element) => (
-            <div
-              key={element.id}
-              style={{
-                display: "flex",
-                paddingBottom: "10px",
-                alignItems: "center",
-              }}
-            >
-              <Link
-                to={MyUser.id === element.id ? "/profile" : `/${element.id}`}
-                style={{ textDecoration: "none" }}
-              >
-                <Button
-                  size="small"
-                  style={{
-                    textTransform: "none",
-                    color: "black",
-                    width: "250px",
-                    ...{ justifyContent: "flex-start" },
-                  }}
-                >
-                  <Avatar src={element.avatar} alt="Avatar" />
-                  <span style={{ fontSize: "18px", paddingLeft: "10px" }}>
-                    {element.fullname}
-                  </span>
-                </Button>
-              </Link>
-            </div>
-          ))}
-        </Box>
-      </Modal>
     </>
   );
 };

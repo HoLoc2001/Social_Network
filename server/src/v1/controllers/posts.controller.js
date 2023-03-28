@@ -339,8 +339,7 @@ const addCommentPost = async (req, res) => {
 const getListPostSearch = async (req, res) => {
   try {
     let { textSearch } = req.body;
-    console.log(textSearch);
-    textSearch = textSearch.trim().replaceAll(" ", "&");
+    textSearch = textSearch.trim().replaceAll(/\s+/g, "&");
 
     const posts = await postService.getSearchPost(textSearch);
 

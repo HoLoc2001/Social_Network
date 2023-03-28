@@ -1,13 +1,15 @@
 import { Avatar, Box, Button } from "@mui/material";
 import HomeIcon from "@mui/icons-material/Home";
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useParams } from "react-router-dom";
 import { useAppDispatch, useAppSelector } from "../redux/store";
 
 const LeftBar = () => {
   const user = useAppSelector((state) => state.user.user);
 
   const [atHome, setAtHome] = useState(true);
+
+  let { id } = useParams();
 
   const handleClickUser = () => {
     setAtHome(false);
@@ -34,7 +36,7 @@ const LeftBar = () => {
                 paddingLeft: "10px",
                 paddingBottom: "10px",
                 textTransform: "none",
-                ...(atHome ? { borderLeft: "5px solid #20B2AA" } : {}),
+                ...(atHome && !id ? { borderLeft: "5px solid #20B2AA" } : {}),
               }}
             >
               <HomeIcon fontSize="large" />
@@ -53,7 +55,7 @@ const LeftBar = () => {
               onClick={handleClickUser}
               style={{
                 textTransform: "none",
-                ...(!atHome ? { borderLeft: "5px solid #20B2AA" } : {}),
+                ...(!atHome && !id ? { borderLeft: "5px solid #20B2AA" } : {}),
               }}
             >
               <Avatar src={user?.avatar} alt="Avatar"></Avatar>

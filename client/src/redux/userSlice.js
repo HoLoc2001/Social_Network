@@ -197,9 +197,11 @@ export const removeFollower = createAsyncThunk(
 
 export const getListUserSearch = createAsyncThunk(
   "user/getListUserSearch",
-  async (data) => {
+  async (textSearch) => {
     try {
-      const res = await axiosPrivate.post("user/getListUserSearch", { data });
+      const res = await axiosPrivate.post("user/getListUserSearch", {
+        textSearch,
+      });
       return res.data;
     } catch (error) {
       console.log(error);
@@ -297,7 +299,7 @@ export const userSlice = createSlice({
         state.otherUser.totalFollowers = action?.payload.totalFollowers;
       })
       .addCase(getListUserSearch.fulfilled, (state, action) => {
-        state.listUserSearch = action?.payload?.data;
+        state.listUserSearch = action?.payload?.listUsers;
       })
       .addCase(getListLike.fulfilled, (state, action) => {
         state.listLike = action?.payload?.data;

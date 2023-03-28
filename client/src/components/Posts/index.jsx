@@ -122,7 +122,9 @@ const Posts = () => {
 
             {post.post_content ? (
               <CardContent>
-                <Typography variant="body2">{post.post_content}</Typography>
+                <Typography variant="body1" sx={{ whiteSpace: "pre-wrap" }}>
+                  {post.post_content}
+                </Typography>
               </CardContent>
             ) : (
               ""
@@ -149,7 +151,6 @@ const Posts = () => {
                   user_id={user.user_id}
                   post_id={post.post_id}
                   total_like={post?.total_like || 0}
-                  list_like={post?.list_like}
                   islike={post.islike}
                 />
               </div>
