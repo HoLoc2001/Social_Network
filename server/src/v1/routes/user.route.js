@@ -20,8 +20,6 @@ router.post(
   userController.getListUserSearch
 );
 
-router.post("/getListLike", verifyToken, userController.getListLike);
-
 router.post("/getNotFollower", verifyToken, userController.getNotFollower);
 
 router.post("/addFollower", verifyToken, userController.addFollower);

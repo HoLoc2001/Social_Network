@@ -37,11 +37,27 @@ const getPosts = async (userId, page) => {
   }
 };
 
+const getSamplePosts = async (page) => {
+  try {
+    const { rows } = await poolPg.query(
+      `SELECT posts.*, CONCAT(users.first_name, ' ', users.last_name) AS fullname, users.avatar FROM  ` +
+        "posts INNER JOIN users ON posts.user_id = users.user_id ORDER BY RANDOM () LIMIT 5 OFFSET $1",
+      [page]
+    );
+    return rows;
+  } catch (error) {
+    return {
+      code: 500,
+      message: error.message,
+    };
+  }
+};
+
 const getPost = async (userId, postId) => {
   try {
     const { rows } = await poolPg.query(
-      `SELECT DISTINCT posts.*, CONCAT(users.first_name, ' ', users.last_name) AS fullname, users.avatar FROM  ` +
-        "posts INNER JOIN users ON posts.user_id = users.user_id WHERE posts.post_id = $1",
+      `SELECT posts.*, CONCAT(users.first_name, ' ', users.last_name) AS fullname, users.avatar FROM  ` +
+        "posts INNER JOIN users ON posts.user_id = users.user_id WHERE posts.post_id = $1 LIMIT 1",
       [postId]
     );
     return rows[0];
@@ -238,6 +254,7 @@ const deleteComments = async (postId, userId) => {
 
 module.exports = {
   getPosts,
+  getSamplePosts,
   getPost,
   getSearchPost,
   getUserPosts,

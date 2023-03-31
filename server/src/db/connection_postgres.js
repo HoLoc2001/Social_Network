@@ -35,11 +35,13 @@ class Database {
   }
 
   static getInstance() {
-    if (!Database.instance) {
-      Database.instance = new Database();
-    }
+    try {
+      if (!Database.instance) {
+        Database.instance = new Database();
+      }
 
-    return Database.instance;
+      return Database.instance;
+    } catch (error) {}
   }
 }
 

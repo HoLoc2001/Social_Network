@@ -9,7 +9,6 @@ const { connectSocket } = require("./v1/services/socket.service.js");
 const routesV1 = require("./v1/routes/index");
 require("./db/connection_postgres").instancePG;
 require("./db/connection_redis");
-require("./db/connectDB");
 
 const PORT = process.env.PORT;
 const app = express();

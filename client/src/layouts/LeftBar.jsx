@@ -21,14 +21,14 @@ const LeftBar = () => {
 
   return (
     <>
-      <Box position="fixed" width="15%" height="100%" sx={{ p: "20px" }}>
+      <Box position="fixed" width="20%" height="100%" sx={{ p: "20px" }}>
         <div
           style={{
             display: "block",
             alignItems: "center",
           }}
         >
-          <Link to={`/`} style={{ textDecoration: "none" }}>
+          <Link to={`/`} style={{ textDecoration: "none", display: "block" }}>
             <Button
               onClick={handleClickHome}
               style={{
@@ -44,13 +44,17 @@ const LeftBar = () => {
                 style={{
                   fontSize: "20px",
                   paddingLeft: "10px",
+                  margin: "auto",
                 }}
               >
                 Trang chủ
               </p>
             </Button>
           </Link>
-          <Link to={`/profile`} style={{ textDecoration: "none" }}>
+          <Link
+            to={`/profile`}
+            style={{ textDecoration: "none", display: "block" }}
+          >
             <Button
               onClick={handleClickUser}
               style={{

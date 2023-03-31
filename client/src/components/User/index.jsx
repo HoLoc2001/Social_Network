@@ -209,7 +209,7 @@ const User = () => {
   return (
     <div
       style={{
-        margin: "40px 0 0 30%",
+        margin: "2% 0 0 30%",
       }}
     >
       {/* {info user} */}

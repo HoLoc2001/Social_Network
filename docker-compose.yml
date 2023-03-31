@@ -1,5 +1,32 @@
-version: "3"
+version: "3.9"
 services:
-  api:
+  server:
+    build:
+      context: ./server
+      dockerfile: Dockerfile
+    image: social-network-server
+    container_name: social-network-node-server
+    command: node ./src/server.js
+    restart: unless-stopped
+    ports:
+      - "5001:5001"
+    networks:
+      - app-network
+
   client:
-  pg:
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    image: social-network-client
+    container_name: social-network-react-client
+    restart: always
+    depends_on:
+      - server
+    ports:
+      - "3000:80"
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge

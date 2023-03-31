@@ -39,7 +39,7 @@ const Navbar = () => {
 
   const handleSignOut = () => {
     localStorage.clear();
-    window.location.href = "/";
+    window.location.href = "/signin";
   };
 
   const onChangePass = (e) => {

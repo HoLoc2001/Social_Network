@@ -1,4 +1,3 @@
-const pool = require("../../db/connectDB");
 const redis = require("../../db/connection_redis");
 const postService = require("../services/post.service");
 
@@ -56,6 +55,17 @@ const getPosts = async (req, res) => {
     res.status(200).json({ posts });
   } catch (error) {
     res.json(error);
+  }
+};
+
+const getSamplePosts = async (req, res) => {
+  try {
+    const { page } = req.body;
+    const posts = await postService.getSamplePosts(page);
+    res.json({ posts });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
@@ -172,10 +182,11 @@ const getOtherPosts = async (req, res) => {
         let total_comment;
         let islike;
         await redis.scard(
-          `likePost:${JSON.stringify(post.post_id)}`,
+          `likePost:${await JSON.stringify(post.post_id)}`,
           (err, result) => {
             if (err) {
-              console.error(err);
+              total_like = 0;
+              // console.error(err);
             } else {
               total_like = result;
             }
@@ -271,7 +282,7 @@ const updateLikePost = async (req, res) => {
     //   totalLikes = await postService.updateIncrLikePost(postId, userId);
     // }
 
-    _io.emit("notification-LikePost", { postId });
+    _io.emit("notification-LikePost", { userId, postId });
     res.status(200).json({
       totalLikes,
       islike,
@@ -384,6 +395,25 @@ const getTotalComment = async (req, res) => {
   }
 };
 
+const getTotalLike = async (req, res) => {
+  try {
+    const { postId } = req.body;
+    let totalLikes = 0;
+    await redis.scard(`likePost:${JSON.stringify(postId)}`, (err, result) => {
+      if (err) {
+        console.error(err);
+      } else {
+        totalLikes = result;
+      }
+    });
+
+    res.json({ totalLikes, postId });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ success: false, message: "Internal server error" });
+  }
+};
+
 const getListLikePost = async (req, res) => {
   try {
     const { postId } = req.body;
@@ -459,6 +489,7 @@ const updateComment = async (req, res) => {
 
 module.exports = {
   addPost,
+  getSamplePosts,
   addCommentPost,
   getPosts,
   getMyPosts,
@@ -466,6 +497,7 @@ module.exports = {
   getCommentPost,
   getListPostSearch,
   getTotalComment,
+  getTotalLike,
   getListLikePost,
   getPost,
   updatePost,

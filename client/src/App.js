@@ -13,6 +13,7 @@ import EditProfile from "./components/User/EditProfile";
 import Search from "./components/Search";
 import Image from "./components/image";
 import ShowImg from "./components/ShowImg";
+import HomeNotSignIn from "./pages/HomeNotSignIn";
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
             <Route path="/:id" element={<OtherUser />} />
           </Route>
         </Route>
+        <Route path="/" element={<HomeNotSignIn />} />
         <Route path="/signin" element={<SignIn />} />
         <Route path="/signup" element={<SignUp />} />
         {/* <Route path="/socket" element={<Socket />} /> */}

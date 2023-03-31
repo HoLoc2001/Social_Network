@@ -15,21 +15,25 @@ import {
   getUpdatePost,
   updateUserSocket,
 } from "../redux/postsSlice";
+import HomeNotSignIn from "./HomeNotSignIn";
 
-const host = "http://localhost:5000"; // "http://localhost:5000";https://server-social-network-jvbg.onrender.com
+const host = process.env.REACT_APP_API_BASE_URL; // "http://localhost:5000";https://server-social-network-jvbg.onrender.com
 
 const Home = () => {
   const dispatch = useAppDispatch();
-
+  const user = useAppSelector((state) => state.user.user);
+  const isAuthenticated =
+    useAppSelector((state) => state.user.isAuthenticated) || localStorage["AT"];
   useEffect(() => {
     async function load() {
-      await dispatch(getInfo());
+      if (isAuthenticated) {
+        await dispatch(getInfo());
+      }
     }
     load();
   }, []);
 
   const socketRef = useRef();
-  const user = useAppSelector((state) => state.user.user);
 
   useEffect(() => {
     socketRef.current = socketIOClient.connect(host);
@@ -67,8 +71,8 @@ const Home = () => {
     socketRef.current?.on(
       "notification-LikePost",
       async ({ postId, userId }) => {
-        if ("" + user.id !== userId) {
-          // await dispatch(getTotalLikePost(postId));
+        if (!(user.user_id === userId)) {
+          await dispatch(getTotalLikePost(postId));
         }
       }
     );
@@ -85,7 +89,7 @@ const Home = () => {
     socketRef.current?.on(
       "notification-addPost",
       async ({ postId, userId }) => {
-        if ("" + user.user_id !== userId) {
+        if (user.user_id !== userId) {
           await dispatch(getPost({ postId, userId }));
         }
       }
@@ -96,7 +100,11 @@ const Home = () => {
     });
   }, []);
 
-  return (
+  return !isAuthenticated ? (
+    <div style={{ height: "100%", backgroundColor: "#F0F2F5" }}>
+      <HomeNotSignIn />
+    </div>
+  ) : (
     <>
       <div style={{ height: "100%", backgroundColor: "#F0F2F5" }}>
         <NavbarHome />

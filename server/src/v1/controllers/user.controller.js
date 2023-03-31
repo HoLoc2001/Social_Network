@@ -1,4 +1,3 @@
-const pool = require("../../db/connectDB");
 const userServices = require("../services/user.service");
 
 const getInfo = async (req, res) => {
@@ -39,22 +38,6 @@ const getOtherInfo = async (req, res) => {
       success: true,
       user: { ...user, totalFollowers, totalFollowings },
     });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ success: false, message: "Internal server error" });
-  }
-};
-
-const updateInfo = async (req, res) => {
-  try {
-    const [rows] = await pool.execute("call get_user(?)", [req.userId]);
-    const user = rows[0];
-    if (!user.length) {
-      return res
-        .status(400)
-        .json({ success: false, message: "User not found" });
-    }
-    res.json({ success: true, user });
   } catch (error) {
     console.log(error);
     res.status(500).json({ success: false, message: "Internal server error" });
@@ -167,18 +150,6 @@ const getListUserSearch = async (req, res) => {
   }
 };
 
-const getListLike = async (req, res) => {
-  try {
-    const { postId } = req.body;
-    const [row] = await pool.execute("call get_list_like(?)", [postId]);
-
-    res.json({ success: true, data: row[0] });
-  } catch (error) {
-    console.log(error);
-    res.status(500).json({ success: false, message: "Internal server error" });
-  }
-};
-
 const getListFollowing = async (req, res) => {
   try {
     const userId = req.body.user_id || req.userId;
@@ -196,12 +167,10 @@ module.exports = {
   getOtherInfo,
   getNotFollower,
   getListUserSearch,
-  getListLike,
   getListFollower,
   getListFollowing,
   addFollower,
   removeFollower,
   updateFollower,
   updateInfoUser,
-  updateInfo,
 };

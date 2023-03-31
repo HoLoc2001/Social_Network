@@ -19,9 +19,9 @@ import { signUpValidate } from "../utils/validation";
 import Alert from "../components/AlertErr";
 
 const SignUp = () => {
-  const token = useAppSelector((state) => state.user.token);
   const dispatch = useDispatch();
   const validateEmail = useAppSelector((state) => state.user.validateEmail);
+  const isSuccessAuth = useAppSelector((state) => state.user.isAuthenticated);
 
   const [signUpForm, setSignUpForm] = useState({
     email: "",
@@ -32,7 +32,6 @@ const SignUp = () => {
     repeat_password: "",
     birthday: "",
   });
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [errMissInput, setErrMissInput] = useState(false);
 
   const {
@@ -74,16 +73,13 @@ const SignUp = () => {
       setErrMissInput(true);
     } else {
       await dispatch(signUp(signUpForm));
-      setIsAuthenticated(true);
+      if (!isSuccessAuth) {
+        setErrMissInput(true);
+      }
     }
   };
 
-  if (token?.accessToken && token?.refreshToken) {
-    localStorage.setItem("AT", token.accessToken);
-    localStorage.setItem("RT", token.refreshToken);
-  }
-
-  return isAuthenticated ? (
+  return isSuccessAuth ? (
     <Navigate to="/" replace />
   ) : (
     <>
@@ -184,7 +180,7 @@ const SignUp = () => {
         err={errMissInput}
         setErr={setErrMissInput}
         severity="error"
-        content=""
+        content="Vul lòng nhập lại!!!"
       />
     </>
   );

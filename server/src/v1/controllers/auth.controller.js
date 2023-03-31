@@ -61,7 +61,7 @@ const sighUp = async (req, res) => {
 
     const user = await authService.getEmailUser(email);
 
-    if (user.rowCount)
+    if (user?.rowCount)
       return res
         .status(400)
         .json({ success: false, message: "email already taken" });
@@ -84,12 +84,13 @@ const sighUp = async (req, res) => {
     await authService.addRefreshToken(user_id, refreshToken);
 
     res.json({
+      success: true,
       message: "User create successfully",
       token: { accessToken, refreshToken },
     });
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 
@@ -127,7 +128,7 @@ const sighIn = async (req, res) => {
       token: { accessToken, refreshToken },
     });
   } catch (error) {
-    res.status(500).json({ message: "Internal server error" });
+    res.status(500).json({ success: false, message: "Internal server error" });
   }
 };
 

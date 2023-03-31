@@ -5,31 +5,22 @@ import {
   CardActions,
   Card,
   CardContent,
-  CardMedia,
   Typography,
   CardHeader,
   Avatar,
   IconButton,
   Divider,
-  Box,
-  Modal,
   Button,
 } from "@mui/material";
 import AddIcon from "@mui/icons-material/Add";
-
 import CommentIcon from "@mui/icons-material/Comment";
-import {
-  getCommentPost,
-  getPosts,
-  updateLikePost,
-} from "../../redux/postsSlice";
+import { getCommentPost, getPosts } from "../../redux/postsSlice";
 import { useAppDispatch, useAppSelector } from "../../redux/store";
 import GridImg from "./GridImg";
 import Comment from "./Comment";
 import { useState } from "react";
 import InfiniteScroll from "../InfiniteScroll";
 import { Link } from "react-router-dom";
-import { getListLike } from "../../redux/userSlice";
 import LikePost from "./LikePost";
 import AddPost from "./AddPost";
 moment.locale("vi");
@@ -71,7 +62,7 @@ const Posts = () => {
   return (
     <div
       style={{
-        margin: "40px 0 0 30%",
+        margin: "2% 0 0 30%",
       }}
     >
       <InfiniteScroll
@@ -192,58 +183,6 @@ const Posts = () => {
         <AddIcon />
       </Button>
       <AddPost openAddPost={openModal} setOpenAddPost={setOpenModal} />
-
-      {/* <Modal
-        open={open}
-        onClose={handleClose}
-        aria-labelledby="modal-modal-title"
-        aria-describedby="modal-modal-description"
-      >
-        <Box
-          sx={{
-            position: "absolute",
-            top: "50%",
-            left: "50%",
-            transform: "translate(-50%, -50%)",
-            width: 400,
-            bgcolor: "white",
-            boxShadow: 24,
-            p: 4,
-            borderRadius: "5px",
-          }}
-        >
-          {listLike?.map((element) => (
-            <div
-              key={element.id}
-              style={{
-                display: "flex",
-                paddingBottom: "10px",
-                alignItems: "center",
-              }}
-            >
-              <Link
-                to={user.id === element.id ? "/profile" : `/${element.id}`}
-                style={{ textDecoration: "none" }}
-              >
-                <Button
-                  size="small"
-                  style={{
-                    textTransform: "none",
-                    color: "black",
-                    width: "250px",
-                    ...{ justifyContent: "flex-start" },
-                  }}
-                >
-                  <Avatar src={element.avatar} alt="Avatar" />
-                  <span style={{ fontSize: "18px", paddingLeft: "10px" }}>
-                    {element.fullname}
-                  </span>
-                </Button>
-              </Link>
-            </div>
-          ))}
-        </Box>
-      </Modal> */}
     </div>
   );
 };

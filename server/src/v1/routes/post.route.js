@@ -6,6 +6,8 @@ const router = express.Router();
 
 router.post("/getPosts", verifyToken, postController.getPosts);
 
+router.post("/getSamplePosts", postController.getSamplePosts);
+
 router.post("/getMyPosts", verifyToken, postController.getMyPosts);
 
 router.post("/getOtherPosts", verifyToken, postController.getOtherPosts);
@@ -13,6 +15,8 @@ router.post("/getOtherPosts", verifyToken, postController.getOtherPosts);
 router.post("/getCommentPost", verifyToken, postController.getCommentPost);
 
 router.post("/getTotalComment", verifyToken, postController.getTotalComment);
+
+router.post("/getTotalLike", verifyToken, postController.getTotalLike);
 
 router.post(
   "/getListPostSearch",

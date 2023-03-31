@@ -5,9 +5,9 @@ import { useAppSelector } from "../redux/store";
 const ProtectedRoute = () => {
   const isAuthenticated = useAppSelector((state) => state.user.isAuthenticated);
 
-  if (!localStorage["AT"] || !localStorage["RT"] || isAuthenticated === false) {
-    return <Navigate to="/signin" />;
-  }
+  // if (!localStorage["AT"] || !localStorage["RT"] || isAuthenticated === false) {
+  //   return <Navigate to="/signin" />;
+  // }
 
   return <Outlet />;
 };

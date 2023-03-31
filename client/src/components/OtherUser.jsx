@@ -90,7 +90,7 @@ const OtherUser = () => {
   ) : (
     <div
       style={{
-        margin: "40px 0 0 30%",
+        margin: "2% 0 0 30%",
         minHeight: "100vh",
       }}
     >
@@ -177,7 +177,9 @@ const OtherUser = () => {
 
             {post.post_content ? (
               <CardContent>
-                <Typography variant="body2">{post.post_content}</Typography>
+                <Typography variant="body2" sx={{ whiteSpace: "pre-wrap" }}>
+                  {post.post_content}
+                </Typography>
               </CardContent>
             ) : (
               ""
@@ -220,7 +222,9 @@ const OtherUser = () => {
                 <IconButton onClick={() => handleClickComment(post.post_id)}>
                   <CommentIcon sx={{ color: "gray" }} />
                 </IconButton>
-                <Typography variant="body2">{post.total_comment}</Typography>
+                <Typography variant="body2">
+                  {post.total_comment || 0}
+                </Typography>
               </div>
             </CardActions>
             <Comment post={post} avatar={user.avatar} userId={user?.user_id} />

@@ -11,6 +11,16 @@ export const getPosts = createAsyncThunk(
   }
 );
 
+export const getSamplePosts = createAsyncThunk(
+  "posts/getSamplePosts",
+  async (page, { getState }) => {
+    const { samplePosts } = getState().posts;
+    const res = await axiosPrivate.post(`post/getSamplePosts`, { page });
+    const data = [...samplePosts, ...res.data.posts];
+    return data;
+  }
+);
+
 export const addPost = createAsyncThunk(
   "posts/addPost",
   async ({ content, urlImages }, { getState }) => {
@@ -170,7 +180,7 @@ export const getTotalLikePost = createAsyncThunk(
   "posts/getTotalLikePost",
   async (postId) => {
     try {
-      const res = await axiosPrivate.post("getTotalLikePost", {
+      const res = await axiosPrivate.post("post/getTotalLike", {
         postId,
       });
       return res.data;
@@ -252,6 +262,7 @@ export const getPost = createAsyncThunk(
       const { listFollower } = getState().user;
       const res = await axiosPrivate.post("post/getPost", { postId });
       let hasFollow = listFollower.some((e) => e.user_id === userId);
+      console.log(hasFollow);
       return { post: res.data.post, hasFollow };
     } catch (error) {
       console.log(error);
@@ -279,6 +290,7 @@ export const postsSlice = createSlice({
     posts: [],
     otherPosts: [],
     myPosts: [],
+    samplePosts: [],
     listPostSearch: [],
     urlImages: [],
     listLike: [],
@@ -287,6 +299,9 @@ export const postsSlice = createSlice({
     builder
       .addCase(getPosts.fulfilled, (state, action) => {
         state.posts = action?.payload;
+      })
+      .addCase(getSamplePosts.fulfilled, (state, action) => {
+        state.samplePosts = action?.payload;
       })
       .addCase(addPost.fulfilled, (state, action) => {
         state.myPosts = action?.payload?.myPostsData;
@@ -439,28 +454,28 @@ export const postsSlice = createSlice({
       })
       .addCase(getTotalLikePost.fulfilled, (state, action) => {
         state.myPosts.forEach((e) => {
-          if (e.id === action.payload?.postId) {
-            return (e.totalLike = action.payload?.data[0].totalLike);
+          if (e.post_id === action.payload?.postId) {
+            return (e.total_like = action.payload?.totalLikes);
           }
         });
         state.posts.forEach((e) => {
-          if (e.id === action.payload?.postId) {
-            return (e.totalLike = action.payload?.data[0].totalLike);
+          if (e.post_id === action.payload?.postId) {
+            return (e.total_like = action.payload?.totalLikes);
           }
         });
         state.otherPosts.forEach((e) => {
-          if (e.id === action.payload?.postId) {
-            return (e.totalLike = action.payload?.data[0].totalLike);
+          if (e.post_id === action.payload?.postId) {
+            return (e.total_like = action.payload?.totalLikes);
           }
         });
         state.listPostSearch.forEach((e) => {
-          if (e.id === action.payload?.postId) {
-            return (e.totalLike = action.payload?.data[0].totalLike);
+          if (e.post_id === action.payload?.postId) {
+            return (e.total_like = action.payload?.totalLikes);
           }
         });
       })
       .addCase(getUpdatePost.fulfilled, (state, action) => {
-        state.myPosts.forEach((e) => {
+        state?.myPosts.forEach((e) => {
           if (e.post_id === action.payload?.post_id) {
             return (
               (e.post_content = action.payload?.post_content),
@@ -468,7 +483,7 @@ export const postsSlice = createSlice({
             );
           }
         });
-        state.posts.forEach((e) => {
+        state?.posts.forEach((e) => {
           if (e.post_id === action.payload?.post_id) {
             return (
               (e.post_content = action.payload?.post_content),
@@ -476,7 +491,7 @@ export const postsSlice = createSlice({
             );
           }
         });
-        state.otherPosts.forEach((e) => {
+        state?.otherPosts.forEach((e) => {
           if (e.post_id === action.payload?.post_id) {
             return (
               (e.post_content = action.payload?.post_content),
@@ -484,7 +499,7 @@ export const postsSlice = createSlice({
             );
           }
         });
-        state.listPostSearch.forEach((e) => {
+        state?.listPostSearch.forEach((e) => {
           if (e.post_id === action.payload?.post_id) {
             return (
               (e.post_content = action.payload?.post_content),
@@ -495,7 +510,7 @@ export const postsSlice = createSlice({
       })
       .addCase(getPost.fulfilled, (state, action) => {
         if (action.payload.hasFollow) {
-          state.posts.push(action.payload.post);
+          state.posts.unshift(action.payload.post);
         }
       })
       .addCase(updateUserSocket.fulfilled, (state, action) => {

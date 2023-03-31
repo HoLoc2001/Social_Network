@@ -253,10 +253,13 @@ export const userSlice = createSlice({
         state.isForgetPass = action.payload.success;
       })
       .addCase(signUp.fulfilled, (state, action) => {
-        state.token = action.payload?.token;
-        if (state.token.accessToken) {
-          state.isAuthenticated = true;
-        }
+        // state.token = action.payload?.token;
+        localStorage.setItem("AT", action.payload?.token?.accessToken || "");
+        localStorage.setItem("RT", action.payload?.token?.refreshToken || "");
+        state.isAuthenticated = action.payload?.success;
+      })
+      .addCase(signUp.rejected, (state, action) => {
+        state.isAuthenticated = action.payload.data.success;
       })
       .addCase(checkEmail.fulfilled, (state, action) => {
         state.validateEmail = action.payload?.success;
