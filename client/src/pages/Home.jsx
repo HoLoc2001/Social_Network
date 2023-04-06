@@ -17,11 +17,9 @@ import {
 } from "../redux/postsSlice";
 import HomeNotSignIn from "./HomeNotSignIn";
 
-const host = process.env.REACT_APP_API_BASE_URL; // "http://localhost:5000";https://server-social-network-jvbg.onrender.com
+const host = process.env.REACT_APP_API_BASE_URL;
 
 const Home = () => {
-  const dispatch = useAppDispatch();
-  const user = useAppSelector((state) => state.user.user);
   const isAuthenticated =
     useAppSelector((state) => state.user.isAuthenticated) || localStorage["AT"];
   useEffect(() => {
@@ -32,6 +30,8 @@ const Home = () => {
     }
     load();
   }, []);
+  const dispatch = useAppDispatch();
+  const user = useAppSelector((state) => state.user.user);
 
   const socketRef = useRef();
 

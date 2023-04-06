@@ -63,7 +63,33 @@ CREATE TABLE refresh_tokens(
 
 CREATE UNIQUE INDEX idx_email ON users (email);
 CREATE UNIQUE INDEX idx_post ON posts (post_id);
+CREATE INDEX idx_post_tsv ON posts USING GIN(posts_tsv);
+CREATE INDEX idx_user_tsv ON users USING GIN(users_tsv);
+
 CREATE INDEX idx_post_comment ON post_comments (post_id);
 CREATE INDEX idx_follower ON follower (user_id, follower_id);
 CREATE INDEX idx_post_like ON post_like (post_id);
 CREATE INDEX idx_refresh_token ON refresh_tokens (refresh_token, user_id);
+
+CREATE OR REPLACE FUNCTION users_tsv_trigger_func()
+RETURNS TRIGGER LANGUAGE plpgsql AS $$
+BEGIN 
+NEW.users_tsv =	setweight(to_tsvector(coalesce(unaccent(NEW.last_name))), 'A') ||
+setweight(to_tsvector(coalesce(unaccent(NEW.first_name))), 'B');
+RETURN NEW;
+END $$;
+
+CREATE OR REPLACE FUNCTION posts_tsv_trigger_func()
+RETURNS TRIGGER LANGUAGE plpgsql AS $$
+BEGIN NEW.posts_tsv =
+	setweight(to_tsvector(coalesce(unaccent(NEW.post_content))), 'A');
+RETURN NEW;
+END $$;
+
+CREATE TRIGGER users_tsv_trigger BEFORE INSERT OR UPDATE
+OF first_name ON users FOR EACH ROW
+EXECUTE PROCEDURE users_tsv_trigger_func();
+
+CREATE TRIGGER posts_tsv_trigger BEFORE INSERT OR UPDATE
+OF post_content ON posts FOR EACH ROW
+EXECUTE PROCEDURE posts_tsv_trigger_func();
